@@ -1,0 +1,3 @@
+[submodule "external/ORCID-Source"]
+	path = external/ORCID-Source
+	url = https://github.com/ORCID/ORCID-Source
