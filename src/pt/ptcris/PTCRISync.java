@@ -7,7 +7,7 @@ import java.util.Set;
 import org.orcid.jaxb.model.record_rc2.ExternalID;
 import org.orcid.jaxb.model.record_rc2.Work;
 
-public PTCRISync {
+public class PTCRISync {
 	
 	/**
 	 * Export a list of works to an ORCID profile, trying to update
