@@ -35,7 +35,7 @@ public class PTCRISync {
 	}
 
 	/**
-	 * Discover updates to existing works.
+	 * Discover updates to existing works in an ORCID profile.
 	 * 
 	 * @param clientId The ORCID id of the profile to be serched.
 	 * @param clientSecret The security token that grants update access to the profile.
