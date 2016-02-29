@@ -13,6 +13,6 @@ public interface PTCRISync {
 
 	public List<Work> importWorks(String clientID, String clientSecret, Set<ExternalID> uids);
 
-	public List<ExternalID>importUIDs(String clientID, String clientSecret, Map<Object,List<ExternalID>> productions);
+	public void importUIDs(String clientID, String clientSecret, Map<Object,List<ExternalID>> productions);
     
 }
