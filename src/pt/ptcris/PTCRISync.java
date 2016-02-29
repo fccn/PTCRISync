@@ -10,12 +10,11 @@ import org.orcid.jaxb.model.record_rc2.Work;
 public class PTCRISync {
 	
 	/**
-	 * Export a list of works to an ORCID profile, trying to update
-	 * existing works of the same source when possible.
+	 * Export a list of works to an ORCID profile.
 	 * 
 	 * @param clientId The ORCID id of the profile to be updated.
 	 * @param clientSecret The security token that grants update access to the profile.
-	 * @param works The list of works to be updated.
+	 * @param works The list of works to be exported (those marked as synced).
 	 */
 	public static void export(String clientID, String clientSecret, List<Work> works) {
 		throw new UnsupportedOperationException("Yet!");
@@ -26,22 +25,30 @@ public class PTCRISync {
 	 * 
 	 * @param clientId The ORCID id of the profile to be searched.
 	 * @param clientSecret The security token that grants update access to the profile.
-	 * @param uids The set of external identifiers currently known in the local profile.
+	 * @param works The full list of works in the local profile. In fact, for each work 
+	 *              only the external identifiers are needed, so the remaining attributes may
+	 *              be left null.
 	 * @return The list of new works found in the ORCID profile.
 	 */
-	public static List<Work> importWorks(String clientID, String clientSecret, Set<ExternalID> uids) {
+	public static List<Work> importWorks(String clientID, String clientSecret, List<Work> works) {
 		throw new UnsupportedOperationException("Yet!");
 	}
 
 	/**
-	 * Discover new external identifiers for existing works.
+	 * Discover updates to existing works in an ORCID profile.
 	 * 
 	 * @param clientId The ORCID id of the profile to be searched.
 	 * @param clientSecret The security token that grants update access to the profile.
-	 * @param uids A map with the external identifiers known in the local profile, grouped by work key.
-	 *             It will be updated to contain only the new uids for each key.
+	 * @param works The list of works for which we wish to discover updates (those marked as synced).
+	 *              For the moment, only new external identifiers will be found, so, for each work 
+	 *              only the external identifiers are needed, so the remaining attributes may
+	 *              be left null. Also the putcode attribute should be used to store the local key of
+	 *              each work.
+	 * @return The list of updated works. Only the works that have changes are returned. Also, for each
+	 *         of them, only the attributes that changed are set. For the moment, only new external
+	 *         identifiers will be returned.
 	 */
-	public static void importUIDs(String clientID, String clientSecret, Map<Object,Set<ExternalID>> uids) {
+	public static List<Work> importUpdates(String clientID, String clientSecret, List<Work> works) {
 		throw new UnsupportedOperationException("Yet!");
 	}
 
