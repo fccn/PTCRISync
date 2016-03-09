@@ -96,6 +96,9 @@ public class PTCRISync {
 
 			List<Work> matchingWorks = getWorksWithSharedUIDs(orcidWorks.get(counter), works);
 			if (matchingWorks.isEmpty()) {
+				// Aqui é melhor ir ao ORCID sacar o registo completo do work
+				// Temos que adicionar um métod para isso
+				// Se deixarmos assim só vai adicionar informação básica sobre o work
 				worksToImport.add(orcidWorks.get(counter));
 			}
 		}
@@ -177,6 +180,7 @@ public class PTCRISync {
 	 */
 	private static List<Work> getWorksWithSharedUIDs(Work work, List<Work> works) {
 		// TODO Iterate through works and compare UIDs. If any UIDs match, return it
+		// If the work has no UIDs it should return an empry list
 		return new LinkedList<Work>();
 	}
 
