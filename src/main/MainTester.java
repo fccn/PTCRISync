@@ -9,6 +9,7 @@ import java.util.logging.SimpleFormatter;
 
 import org.orcid.jaxb.model.record_rc2.Work;
 
+import pt.ptcris.ORCIDException;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.handlers.ProgressHandler;
 
@@ -19,7 +20,7 @@ public class MainTester implements ProgressHandler {
 	private static final String accessToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 	private static final String serviceSourceName = "Local CRIS";
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ORCIDException {
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setFormatter(new SimpleFormatter());
 		handler.setLevel(Level.ALL);
