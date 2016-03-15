@@ -31,13 +31,13 @@ public class PTCRISync {
 	 *            The implementation of the ProgressHandler interface responsible for receiving progress updates.
 	 * @throws ORCIDException 
 	 */
-	public static void export(String orcidID, String tokenRead, String tokenUpdate, List<Work> localWorks, String clientSourceName, ProgressHandler progressHandler) throws ORCIDException {
+	public static void export(String orcidID, String accessToken, List<Work> localWorks, String clientSourceName, ProgressHandler progressHandler) throws ORCIDException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_STARTED");
 
 		try {
-			helper = new ORCIDHelper(ORCID_URI,orcidID,tokenRead,tokenUpdate);
+			helper = new ORCIDHelper(ORCID_URI,orcidID,accessToken);
 	
 			List<WorkSummary> orcidWorks = helper.getSourcedWorkSummaries(clientSourceName);
 	
@@ -90,7 +90,7 @@ public class PTCRISync {
 	 * 
 	 * @param orcidID
 	 *            The ORCID id of the profile to be searched.
-	 * @param tokenRead
+	 * @param accessToken
 	 *            The security token that grants update access to the profile.
 	 * @param localWorks
 	 *            The full list of works in the local profile. In fact, for each work only the external identifiers are needed, so the remaining
@@ -100,7 +100,7 @@ public class PTCRISync {
 	 * @return The list of new works found in the ORCID profile.
 	 * @throws ORCIDException 
 	 */
-	public static List<Work> importWorks(String orcidID, String tokenRead, List<Work> localWorks, ProgressHandler progressHandler) throws ORCIDException {
+	public static List<Work> importWorks(String orcidID, String accessToken, List<Work> localWorks, ProgressHandler progressHandler) throws ORCIDException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
@@ -108,7 +108,7 @@ public class PTCRISync {
 		List<Work> worksToImport = new LinkedList<Work>();
 
 		try {
-			helper = new ORCIDHelper(ORCID_URI,orcidID,tokenRead,null);
+			helper = new ORCIDHelper(ORCID_URI,orcidID,accessToken);
 
 			List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
 
@@ -138,7 +138,7 @@ public class PTCRISync {
 	 * 
 	 * @param orcidID
 	 *            The ORCID id of the profile to be searched.
-	 * @param tokenRead
+	 * @param accessToken
 	 *            The security token that grants update access to the profile.
 	 * @param localWorks
 	 *            The list of works for which we wish to discover updates (those marked as synced). For the moment, only new external identifiers will
@@ -150,7 +150,7 @@ public class PTCRISync {
 	 *         set. For the moment, only new external identifiers will be returned.
 	 * @throws ORCIDException 
 	 */
-	public static List<Work> importUpdates(String orcidID, String tokenRead, List<Work> localWorks, ProgressHandler progressHandler) throws ORCIDException {
+	public static List<Work> importUpdates(String orcidID, String accessToken, List<Work> localWorks, ProgressHandler progressHandler) throws ORCIDException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");

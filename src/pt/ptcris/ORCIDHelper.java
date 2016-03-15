@@ -33,14 +33,12 @@ public class ORCIDHelper {
 
 	private final OrcidClientHelper rest;
 	private final String profile;
-	private final String tokenRead;
-	private final String tokenUpdate;
+	private final String accessToken;
 
 
-	public ORCIDHelper(String baseUri, String profile, String tokenRead, String tokenUpdate) throws URISyntaxException {
+	public ORCIDHelper(String baseUri, String profile, String accessToken) throws URISyntaxException {
 		this.profile = profile;
-		this.tokenUpdate = tokenUpdate;
-		this.tokenRead = tokenRead;
+		this.accessToken = accessToken;
 		//        rest = new RESTHelper(baseUri);
 		rest = new OrcidClientHelper(new URI(baseUri),Client.create());
 	}
@@ -55,7 +53,7 @@ public class ORCIDHelper {
 	public Work getFullWork(Long putCode) throws ORCIDException {
 		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
 	
-		ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, tokenRead);
+		ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, accessToken);
 	
 		if (r.getStatus() != Response.Status.OK.getStatusCode()) {
 			OrcidError err = r.getEntity(OrcidError.class);
@@ -76,7 +74,7 @@ public class ORCIDHelper {
 	 */
 	public Long addWork(Work work) throws ORCIDException {
 		URI uri = UriBuilder.fromPath(WORK).build(profile);
-		ClientResponse r = rest.postClientResponseWithToken(uri, VND_ORCID_XML, work, tokenUpdate);
+		ClientResponse r = rest.postClientResponseWithToken(uri, VND_ORCID_XML, work, accessToken);
 	
 		if (r.getStatus() != Response.Status.CREATED.getStatusCode()) {
 			OrcidError err = r.getEntity(OrcidError.class);
@@ -97,7 +95,7 @@ public class ORCIDHelper {
 	 */
 	public void deleteWork(Long putCode) throws ORCIDException {
 		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
-		ClientResponse r = rest.deleteClientResponseWithToken(uri, VND_ORCID_XML, tokenUpdate);
+		ClientResponse r = rest.deleteClientResponseWithToken(uri, VND_ORCID_XML, accessToken);
 	
 		if (r.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 			OrcidError err = r.getEntity(OrcidError.class);
@@ -120,7 +118,7 @@ public class ORCIDHelper {
 	public Work updateWork(Long putCode, Work work) throws ORCIDException {
 		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
 		work.setPutCode(putCode);
-		ClientResponse r = rest.putClientResponseWithToken(uri, VND_ORCID_XML, work, tokenUpdate);
+		ClientResponse r = rest.putClientResponseWithToken(uri, VND_ORCID_XML, work, accessToken);
 	
 		if (r.getStatus() != Response.Status.OK.getStatusCode()) {
 			OrcidError err = r.getEntity(OrcidError.class);
@@ -174,7 +172,7 @@ public class ORCIDHelper {
 	 */
 	private ActivitiesSummary getActivitiesSummary() throws ORCIDException {
 		URI uri = UriBuilder.fromPath(ACTIVITIES).build(profile);
-		ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, tokenRead);
+		ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, accessToken);
 
 		if (r.getStatus() != Response.Status.OK.getStatusCode()) {
 			OrcidError err = r.getEntity(OrcidError.class);

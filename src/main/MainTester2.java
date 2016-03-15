@@ -26,8 +26,7 @@ public class MainTester2 implements ProgressHandler {
 	// An account that has provided read-limited and activities-update access to this source.
 	// Full access to an account is granted through read-limited, activities-update and bio-update.
 	private static final String orcidID = "0000-0002-5507-2082";
-    private static final String tokenReadLimited = "f93c2bb5-04b1-4b5f-b597-ca411d3b6561";
-    private static final String tokenActivitiesUpdate = "93de27e3-3e63-401e-856d-dc5461fbe2ad";
+    private static final String accessToken = "3d38cae4-0c2a-4ef8-8d55-7b6a9863dbbf";
 
 	public static void main(String[] args) throws ORCIDException {
 		ConsoleHandler handler = new ConsoleHandler();
@@ -42,8 +41,8 @@ public class MainTester2 implements ProgressHandler {
 		works.add(work2());
 		MainTester2 progressHandler = new MainTester2();
 
-		List<Work> worksToImport = PTCRISync.importWorks(orcidID, tokenReadLimited, works, progressHandler);
-		PTCRISync.export(orcidID, tokenReadLimited, tokenActivitiesUpdate, works, serviceSourceName, progressHandler);
+		List<Work> worksToImport = PTCRISync.importWorks(orcidID, accessToken, works, progressHandler);
+		PTCRISync.export(orcidID, accessToken, works, serviceSourceName, progressHandler);
 		
 		progressHandler.setCurrentStatus(worksToImport.toString());
 		progressHandler.done();
