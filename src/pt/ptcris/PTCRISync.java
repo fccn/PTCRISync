@@ -39,7 +39,7 @@ public class PTCRISync {
 		try {
 			helper = new OrcidHelper(ORCID_URI,orcidID,accessTokenRead,accessTokenUpdate);
 	
-			List<WorkSummary> orcidWorks = helper.getLocalCRISSourcedORCIDWorks(clientSourceName);
+			List<WorkSummary> orcidWorks = helper.getCRISSourcedWorkSummaries(clientSourceName);
 	
 			List<UpdateRecord> recordsToUpdate = new LinkedList<UpdateRecord>();
 	
@@ -48,7 +48,7 @@ public class PTCRISync {
 				progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 				progressHandler.setProgress(progress);
 	
-				List<Work> matchingWorks = helper.getWorksWithSharedUIDs(orcidWorks.get(counter), works);
+				List<Work> matchingWorks = OrcidHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), works);
 				if (matchingWorks.isEmpty()) {
 					helper.deleteWork(orcidWorks.get(counter).getPutCode());
 				} else {
@@ -110,14 +110,14 @@ public class PTCRISync {
 		try {
 			helper = new OrcidHelper(ORCID_URI,orcidID,accessToken,null);
 
-			List<WorkSummary> orcidGroups = helper.getAllORCIDWorkGroups();
+			List<WorkSummary> orcidGroups = helper.getAllWorkSummaries();
 
 			progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
 			for (int counter = 0; counter != orcidGroups.size(); counter++) {
 				progress = (int) ((double) ((double) counter / orcidGroups.size()) * 100);
 				progressHandler.setProgress(progress);
 
-				List<Work> matchingWorks = helper.getWorksWithSharedUIDs(orcidGroups.get(counter), works);
+				List<Work> matchingWorks = OrcidHelper.getWorksWithSharedUIDs(orcidGroups.get(counter), works);
 				if (matchingWorks.isEmpty()) {
 					Work work = helper.getFullWork(orcidGroups.get(counter).getPutCode());
 					worksToImport.add(work);
@@ -157,18 +157,18 @@ public class PTCRISync {
 
 		List<Work> worksToUpdate = new LinkedList<Work>();
 
-		List<WorkSummary> orcidWorks = helper.getAllORCIDWorkGroups();
+		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
 		for (int counter = 0; counter != orcidWorks.size(); counter++) {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			List<Work> matchingWorks = helper.getWorksWithSharedUIDs(orcidWorks.get(counter), works);
+			List<Work> matchingWorks = OrcidHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), works);
 			if (!matchingWorks.isEmpty()) {
 				for (Work work : matchingWorks) {
 					Work work2 = helper.getFullWork(orcidWorks.get(counter).getPutCode());
-					if (!helper.isAlreadyUpToDate(work, work2)) {
+					if (!OrcidHelper.isAlreadyUpToDate(work, work2)) {
 						worksToUpdate.add(work2);
 					}
 				}

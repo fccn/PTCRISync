@@ -36,6 +36,7 @@ public class MainTester2 implements ProgressHandler {
 		logger.addHandler(handler);
 
 		List<Work> works = new LinkedList<Work>();
+		works.add(work0());
 		works.add(work1());
 		works.add(work2());
 		MainTester2 progressHandler = new MainTester2();
@@ -68,6 +69,30 @@ public class MainTester2 implements ProgressHandler {
 		logger.fine("Done.");
 	}
 	
+	private static Work work0() {
+		Work work = new Work();
+		WorkTitle title = new WorkTitle();
+		Title title2 = new Title();
+		title2.setContent("Yet Another Work Updated Once"); 
+		title.setTitle(title2);
+		work.setWorkTitle(title);
+
+		ExternalID e = new ExternalID();
+		e.setRelationship(Relationship.SELF);
+		e.setValue("3000");
+		e.setType("doi");
+
+		ExternalIDs uids = new ExternalIDs();
+		
+		uids.getExternalIdentifier().add(e);
+		
+		work.setWorkExternalIdentifiers(uids);
+		
+		work.setWorkType(WorkType.CONFERENCE_PAPER);
+
+		return work;
+	}
+	
 	private static Work work1() {
 		Work work = new Work();
 		WorkTitle title = new WorkTitle();
@@ -78,7 +103,7 @@ public class MainTester2 implements ProgressHandler {
 
 		ExternalID e = new ExternalID();
 		e.setRelationship(Relationship.SELF);
-		e.setValue("N222");
+		e.setValue("3000");
 		e.setType("doi");
 
 		ExternalIDs uids = new ExternalIDs();
@@ -102,7 +127,7 @@ public class MainTester2 implements ProgressHandler {
 
 		ExternalID e = new ExternalID();
 		e.setRelationship(Relationship.SELF);
-		e.setValue("N22");
+		e.setValue(String.valueOf(System.currentTimeMillis())); // will always create
 		e.setType("doi");
 
 		ExternalIDs uids = new ExternalIDs();

@@ -36,80 +36,61 @@ public class OrcidHelper {
 	private final String profile;
 	private final String tokenRead;
 	private final String tokenUpdate;
-	
 
-    public OrcidHelper(String baseUri, String profile, String tokenRead, String tokenUpdate) throws URISyntaxException {
-        this.profile = profile;
-        this.tokenUpdate = tokenUpdate;
-        this.tokenRead = tokenRead;
-//        rest = new RESTHelper(baseUri);
-        rest = new OrcidClientHelper(new URI(baseUri),Client.create());
-    }
-    
-    /**
-     * Retrieves every activity summary of the ORCID profile.
-     * 
-     * @return The activities summary of the ORCID profile.
-     * @throws ORCIDException 
-     */
-    private ActivitiesSummary getActivitiesSummary() throws ORCIDException {
-    	URI uri = UriBuilder.fromPath(ACTIVITIES).build(profile);
-        ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, tokenRead);
-        
-        if (r.getStatus() != Response.Status.OK.getStatusCode()) {
-        	OrcidError err = r.getEntity(OrcidError.class);
-        	throw new ORCIDException(err);
-        }
 
-        ActivitiesSummary acts = r.getEntity(ActivitiesSummary.class);
-    	return acts;
-    }
+	public OrcidHelper(String baseUri, String profile, String tokenRead, String tokenUpdate) throws URISyntaxException {
+		this.profile = profile;
+		this.tokenUpdate = tokenUpdate;
+		this.tokenRead = tokenRead;
+		//        rest = new RESTHelper(baseUri);
+		rest = new OrcidClientHelper(new URI(baseUri),Client.create());
+	}
 
-    /**
-     * Retrieves a full work from the ORCID profile.
-     * 
-     * @param putCode The put-code of the work.
-     * @return The full work.
-     * @throws ORCIDException 
-     */
-    public Work getFullWork(Long putCode) throws ORCIDException {
-        URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
-
-        ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, tokenRead);
-
-        if (r.getStatus() != Response.Status.OK.getStatusCode()) {
-        	OrcidError err = r.getEntity(OrcidError.class);
-        	throw new ORCIDException(err);
-        }
-
-        Work work = r.getEntity(Work.class);
-    	return work;
-    }
-	
 	/**
-	 * Add a work to the ORCID profile
+	 * Retrieves a full work from the ORCID {@link #profile}.
 	 * 
-	 * @param work
-	 *            The work to be added to the ORCID profile
-	 * @return the newly created work as represented in ORCID.            
+	 * @param putCode The put-code of the work.
+	 * @return The full work.
 	 * @throws ORCIDException 
 	 */
-    public Work addWork(Work work) throws ORCIDException {
-    	URI uri = UriBuilder.fromPath(WORK).build(profile);
-        ClientResponse r = rest.postClientResponseWithToken(uri, VND_ORCID_XML, work, tokenUpdate);
-
-        if (r.getStatus() != Response.Status.CREATED.getStatusCode()) {
-        	OrcidError err = r.getEntity(OrcidError.class);
-        	throw new ORCIDException(err);
-        }
-
-        Work w = r.getEntity(Work.class);
-        return w;
-    }
-
+	public Work getFullWork(Long putCode) throws ORCIDException {
+		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
+	
+		ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, tokenRead);
+	
+		if (r.getStatus() != Response.Status.OK.getStatusCode()) {
+			OrcidError err = r.getEntity(OrcidError.class);
+			throw new ORCIDException(err);
+		}
+	
+		Work work = r.getEntity(Work.class);
+		return work;
+	}
 
 	/**
-	 * Delete a work from the ORCID profile
+	 * Add a work to the ORCID {@link #profile}.
+	 * 
+	 * @param work
+	 *            The work to be added to the ORCID {@link #profile}
+	 * @return the put-code in the ORCID {@link #profile} of the newly created work.            
+	 * @throws ORCIDException 
+	 */
+	public Long addWork(Work work) throws ORCIDException {
+		URI uri = UriBuilder.fromPath(WORK).build(profile);
+		ClientResponse r = rest.postClientResponseWithToken(uri, VND_ORCID_XML, work, tokenUpdate);
+	
+		if (r.getStatus() != Response.Status.CREATED.getStatusCode()) {
+			OrcidError err = r.getEntity(OrcidError.class);
+			throw new ORCIDException(err);
+		}
+	
+		String r_uri = r.getLocation().getPath();
+		String r_putcode = r_uri.substring(r_uri.lastIndexOf("/")+1);
+		return Long.valueOf(r_putcode);
+	}
+
+	/**
+	 * Delete a work from the ORCID {@link #profile}.
 	 * 
 	 * @param putCode
 	 *            The put-code of the work to be deleted.
@@ -118,71 +99,93 @@ public class OrcidHelper {
 	public void deleteWork(Long putCode) throws ORCIDException {
 		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
 		ClientResponse r = rest.deleteClientResponseWithToken(uri, VND_ORCID_XML, tokenUpdate);
-		
-        if (r.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
-        	OrcidError err = r.getEntity(OrcidError.class);
-        	throw new ORCIDException(err);
-        }
-
-        // NOTE: according to the ORCID API, to delete a work, one must provide the entire list of works in the ORCID profile minus the work(s) that
+	
+		if (r.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
+			OrcidError err = r.getEntity(OrcidError.class);
+			throw new ORCIDException(err);
+		}
+	
+		// NOTE: according to the ORCID API, to delete a work, one must provide the entire list of works in the ORCID profile minus the work(s) that
 		// should be deleted. This means that this operation must be done in three steps: first, retrieve the entire set of works; second, remove the
 		// work to be deleted from the list of works; and three, send the updated list to the ORCID API.
 	}
 
-	
 	/**
-	 * Update a work in the ORCID profile
+	 * Update a work in the ORCID {@link #profile}.
 	 * 
 	 * @param updateRecord
 	 *            The updateRecord that contains both the local and remote Works (the remote work is updated based on the data in the local work)
+	 * @return the updated work as represented in the ORCID {@link #profile}..            
 	 * @throws ORCIDException 
 	 */
 	public Work updateWork(Long putCode, Work work) throws ORCIDException {
 		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
 		work.setPutCode(putCode);
 		ClientResponse r = rest.putClientResponseWithToken(uri, VND_ORCID_XML, work, tokenUpdate);
-
-        if (r.getStatus() != Response.Status.OK.getStatusCode()) {
-        	OrcidError err = r.getEntity(OrcidError.class);
-        	throw new ORCIDException(err);
-        }
-        
-        Work w = r.getEntity(Work.class);
-        return w;
-        
+	
+		if (r.getStatus() != Response.Status.OK.getStatusCode()) {
+			OrcidError err = r.getEntity(OrcidError.class);
+			throw new ORCIDException(err);
+		}
+	
+		Work w = r.getEntity(Work.class);
+		return w;
+	
 		// NOTE: according to the ORCID API, to update a work, one must provide the entire list of works in the ORCID profile including the work(s)
 		// that should be updated. This means that this operation must be done in three steps: first, retrieve the entire set of works; second,
 		// replace the work to be updated with the new record in the list of works; and three, send the updated list to the ORCID API.
 	}
 
 	/**
-	 * Retrieves the entire set of works in the ORCID profile whose source is the local CRIS service
+	 * Retrieves the entire set of work summaries in the ORCID profile.
+	 * Merges each ORCID group into a single summary, following {@link #groupToWork}.
 	 * 
-	 * @param serviceSourceName
-	 *            The source name of the local CRIS service
-	 * @return The set of work summaries in the ORCID profile whose source is the local CRIS service
+	 * @return The set of work summaries in the ORCID profile
 	 * @throws ORCIDException 
 	 */
-	public List<WorkSummary> getLocalCRISSourcedORCIDWorks(String serviceSourceName) throws ORCIDException {
-		ActivitiesSummary summs = getActivitiesSummary();
-		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream();
-		Stream<WorkSummary> work_summs = groups.map(WorkGroup::getWorkSummary).flatMap(List::stream).filter(s -> s.getSource().getSourceName().getContent().equals(SOURCE));
-		return work_summs.collect(Collectors.toList());
-	}
-
-	/**
-	 * Retrieves the entire set of works in the ORCID profile
-	 * 
-	 * @return The set of works in the ORCID profile
-	 * @throws ORCIDException 
-	 */
-	public List<WorkSummary> getAllORCIDWorkGroups() throws ORCIDException {
+	public List<WorkSummary> getAllWorkSummaries() throws ORCIDException {
 		ActivitiesSummary summs = getActivitiesSummary();
 		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream();
 		Stream<WorkSummary> works = groups.map(w -> groupToWork(w));
 		return works.collect(Collectors.toList());
 	}
-	
+
+	/**
+	 * Retrieves the entire set of works in the ORCID profile whose source is the local CRIS service.
+	 * 
+	 * @param sourceName
+	 *            The source name of the local CRIS service.
+	 * @return The set of work summaries in the ORCID profile whose source is useDefault.
+	 * @throws ORCIDException 
+	 */
+	public List<WorkSummary> getCRISSourcedWorkSummaries(String sourceName) throws ORCIDException {
+		ActivitiesSummary summs = getActivitiesSummary();
+		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream();
+		Stream<WorkSummary> work_summs = groups.map(WorkGroup::getWorkSummary)
+											   .flatMap(List::stream)
+											   .filter(s -> s.getSource().getSourceName().getContent().equals(SOURCE));
+		return work_summs.collect(Collectors.toList());
+	}
+
+	/**
+	 * Retrieves every activity summary of the ORCID profile.
+	 * 
+	 * @return The activities summary of the ORCID profile.
+	 * @throws ORCIDException 
+	 */
+	private ActivitiesSummary getActivitiesSummary() throws ORCIDException {
+		URI uri = UriBuilder.fromPath(ACTIVITIES).build(profile);
+		ClientResponse r = rest.getClientResponseWithToken(uri, VND_ORCID_XML, tokenRead);
+
+		if (r.getStatus() != Response.Status.OK.getStatusCode()) {
+			OrcidError err = r.getEntity(OrcidError.class);
+			throw new ORCIDException(err);
+		}
+
+		ActivitiesSummary acts = r.getEntity(ActivitiesSummary.class);
+		return acts;
+	}
+
 	/**
 	 * Retrieves the set of productions (from works) that share some UIDs with a work summary.
 	 * 
@@ -192,7 +195,7 @@ public class OrcidHelper {
 	 *            The set of works to search for productions with shared UIDs.
 	 * @return The set of works with matching UIDs.
 	 */
-	public List<Work> getWorksWithSharedUIDs(WorkSummary summary, List<Work> works) {
+	public static List<Work> getWorksWithSharedUIDs(WorkSummary summary, List<Work> works) {
 		List<Work> matches = new LinkedList<Work>();
 		for (Work match : works) {
 			if (checkDuplicateUIDs(match.getExternalIdentifiers(), summary.getExternalIdentifiers()))
@@ -209,7 +212,7 @@ public class OrcidHelper {
 	 * @param uids2
 	 * @return
 	 */
-	private boolean checkDuplicateUIDs(ExternalIDs uids1, ExternalIDs uids2) {
+	private static boolean checkDuplicateUIDs(ExternalIDs uids1, ExternalIDs uids2) {
 		if (uids2 != null && uids1 != null) {
 			for (ExternalID uid2 : uids2.getExternalIdentifier()) {
 				for (ExternalID uid1 : uids1.getExternalIdentifier()) {
@@ -229,14 +232,14 @@ public class OrcidHelper {
 	 * @param r2
 	 * @return
 	 */
-	private boolean sameButNotBothPartOf(Relationship r1, Relationship r2){
+	private static boolean sameButNotBothPartOf(Relationship r1, Relationship r2){
 		if (r1 == null && r2 == null)
 			return true;
 		if (r1 != null && r1.equals(r2) && !r1.equals(Relationship.PART_OF))
 			return true;
 		return false;
 	}
-	
+
 
 	/**
 	 * Merges a group into a work.
@@ -244,7 +247,7 @@ public class OrcidHelper {
 	 * @param group The group to be merged.
 	 * @return The resulting work summary.
 	 */
-	public WorkSummary groupToWork(WorkGroup group) {
+	public static WorkSummary groupToWork(WorkGroup group) {
 		WorkSummary aux = group.getWorkSummary().get(0);
 		WorkSummary dummy = new WorkSummary();
 		dummy.setCreatedDate(aux.getCreatedDate());
@@ -261,7 +264,7 @@ public class OrcidHelper {
 		// TODO: add the other UIDs of the group
 		return dummy;
 	}
-	
+
 
 	/**
 	 * Checks if localWork is already up to date on the information from remoteWork, i.e., localWork already has the same UIDs as remoteWork
@@ -272,10 +275,10 @@ public class OrcidHelper {
 	 *            The remote work to use when checking if the local work is up to date
 	 * @return true if all the UIDs between the two works are the same, false otherwise
 	 */
-	public boolean isAlreadyUpToDate(Work localWork, Work remoteWork) {
+	public static boolean isAlreadyUpToDate(Work localWork, Work remoteWork) {
 		// TODO Compare the two records to check if they are equal (when it comes to matching UIDs)
 		return false;
 	}
-	
+
 
 }

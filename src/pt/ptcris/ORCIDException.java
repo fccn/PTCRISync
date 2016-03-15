@@ -9,6 +9,7 @@ public class ORCIDException extends Exception {
 	public final OrcidError e;
 	
 	public ORCIDException(OrcidError e) {
+		super(e.getDeveloperMessage());
 		this.e = e;
 	}
 
