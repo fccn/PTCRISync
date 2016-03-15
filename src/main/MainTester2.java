@@ -22,11 +22,12 @@ import pt.ptcris.handlers.ProgressHandler;
 public class MainTester2 implements ProgressHandler {
 	private static Logger logger = Logger.getLogger(MainTester2.class.getName());
 
-    private static final String orcidID = "0000-0002-5507-2082";
-    private static final String accessTokenRead = "f93c2bb5-04b1-4b5f-b597-ca411d3b6561";
-    private static final String accessTokenUpdate = "93de27e3-3e63-401e-856d-dc5461fbe2ad";
-
-	private static final String serviceSourceName = "Local CRIS";
+	private static final String serviceSourceName = "HASLab, INESC TEC & University of Minho";
+	// An account that has provided read-limited and activities-update access to this source.
+	// Full access to an account is granted through read-limited, activities-update and bio-update.
+	private static final String orcidID = "0000-0002-5507-2082";
+    private static final String tokenReadLimited = "f93c2bb5-04b1-4b5f-b597-ca411d3b6561";
+    private static final String tokenActivitiesUpdate = "93de27e3-3e63-401e-856d-dc5461fbe2ad";
 
 	public static void main(String[] args) throws ORCIDException {
 		ConsoleHandler handler = new ConsoleHandler();
@@ -41,12 +42,11 @@ public class MainTester2 implements ProgressHandler {
 		works.add(work2());
 		MainTester2 progressHandler = new MainTester2();
 
-		List<Work> worksToImport = PTCRISync.importWorks(orcidID, accessTokenRead, works, progressHandler);
-		PTCRISync.export(orcidID, accessTokenRead, accessTokenUpdate, works, serviceSourceName, progressHandler);
+		List<Work> worksToImport = PTCRISync.importWorks(orcidID, tokenReadLimited, works, progressHandler);
+		PTCRISync.export(orcidID, tokenReadLimited, tokenActivitiesUpdate, works, serviceSourceName, progressHandler);
 		
 		progressHandler.setCurrentStatus(worksToImport.toString());
 		progressHandler.done();
-
 	}
 
 	@Override
@@ -103,12 +103,18 @@ public class MainTester2 implements ProgressHandler {
 
 		ExternalID e = new ExternalID();
 		e.setRelationship(Relationship.SELF);
-		e.setValue("3000");
-		e.setType("doi");
+		e.setValue("4000");
+		e.setType("eid");
 
+		ExternalID e1 = new ExternalID();
+		e1.setRelationship(Relationship.SELF);
+		e1.setValue("00001");
+		e1.setType("doi");
+		
 		ExternalIDs uids = new ExternalIDs();
 		
 		uids.getExternalIdentifier().add(e);
+		uids.getExternalIdentifier().add(e1);
 		
 		work.setWorkExternalIdentifiers(uids);
 		
@@ -136,7 +142,7 @@ public class MainTester2 implements ProgressHandler {
 		
 		work.setWorkExternalIdentifiers(uids);
 		
-		work.setWorkType(WorkType.CONFERENCE_PAPER);
+		work.setWorkType(WorkType.JOURNAL_ARTICLE);
 		
 		return work;
 	}

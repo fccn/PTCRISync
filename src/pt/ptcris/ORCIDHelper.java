@@ -28,9 +28,8 @@ import org.orcid.jaxb.model.record_rc2.Work;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
-public class OrcidHelper {
+public class ORCIDHelper {
 
-	private static final String SOURCE = "HASLab, INESC TEC & University of Minho";
 
 	private final OrcidClientHelper rest;
 	private final String profile;
@@ -38,7 +37,7 @@ public class OrcidHelper {
 	private final String tokenUpdate;
 
 
-	public OrcidHelper(String baseUri, String profile, String tokenRead, String tokenUpdate) throws URISyntaxException {
+	public ORCIDHelper(String baseUri, String profile, String tokenRead, String tokenUpdate) throws URISyntaxException {
 		this.profile = profile;
 		this.tokenUpdate = tokenUpdate;
 		this.tokenRead = tokenRead;
@@ -158,12 +157,12 @@ public class OrcidHelper {
 	 * @return The set of work summaries in the ORCID profile whose source is useDefault.
 	 * @throws ORCIDException 
 	 */
-	public List<WorkSummary> getCRISSourcedWorkSummaries(String sourceName) throws ORCIDException {
+	public List<WorkSummary> getSourcedWorkSummaries(String sourceName) throws ORCIDException {
 		ActivitiesSummary summs = getActivitiesSummary();
 		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream();
 		Stream<WorkSummary> work_summs = groups.map(WorkGroup::getWorkSummary)
 											   .flatMap(List::stream)
-											   .filter(s -> s.getSource().getSourceName().getContent().equals(SOURCE));
+											   .filter(s -> s.getSource().getSourceName().getContent().equals(sourceName));
 		return work_summs.collect(Collectors.toList());
 	}
 
