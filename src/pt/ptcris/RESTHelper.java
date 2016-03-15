@@ -30,6 +30,14 @@ public class RESTHelper {
 		return setupRequestCommonParams(restPath, accept, oauthToken).post(ClientResponse.class, jaxbRootElement);
 	}
 
+    public ClientResponse putClientResponseWithToken(URI restPath, String accept, Object jaxbRootElement, String oauthToken) {
+        return setupRequestCommonParams(restPath, accept, oauthToken).put(ClientResponse.class, jaxbRootElement);
+    }
+    
+    public ClientResponse deleteClientResponseWithToken(URI restPath, String accept, String oauthToken) {
+        return setupRequestCommonParams(restPath, accept, oauthToken).delete(ClientResponse.class);
+    }
+    
 	private WebResource.Builder setupRequestCommonParams(URI restpath, String accept, String oauthToken) {
 		WebResource rootResource = createRootResource(restpath);
 		WebResource.Builder built = addOauthHeader(rootResource, oauthToken).accept(accept).type(accept);

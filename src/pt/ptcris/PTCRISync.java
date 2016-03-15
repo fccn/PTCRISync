@@ -50,7 +50,7 @@ public class PTCRISync {
 	
 				List<Work> matchingWorks = helper.getWorksWithSharedUIDs(orcidWorks.get(counter), works);
 				if (matchingWorks.isEmpty()) {
-					helper.deleteWork(orcidWorks.get(counter));
+					helper.deleteWork(orcidWorks.get(counter).getPutCode());
 				} else {
 					for (Work work : matchingWorks) {
 						Work work2 = helper.getFullWork(orcidWorks.get(counter).getPutCode());
@@ -65,7 +65,7 @@ public class PTCRISync {
 				progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
 				progressHandler.setProgress(progress);
 	
-				helper.updateWork(recordsToUpdate.get(counter));
+				helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(),recordsToUpdate.get(counter).getLocalWork());
 			}
 	
 			progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING_WORKS");

@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import org.orcid.api.common.OrcidClientHelper;
 import org.orcid.jaxb.model.error_rc2.OrcidError;
 import org.orcid.jaxb.model.record.summary_rc2.ActivitiesSummary;
 import org.orcid.jaxb.model.record.summary_rc2.WorkGroup;
@@ -24,15 +25,14 @@ import org.orcid.jaxb.model.record_rc2.ExternalIDs;
 import org.orcid.jaxb.model.record_rc2.Relationship;
 import org.orcid.jaxb.model.record_rc2.Work;
 
-import pt.ptcris.utils.UpdateRecord;
-
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
 public class OrcidHelper {
 
 	private static final String SOURCE = "HASLab, INESC TEC & University of Minho";
 
-	private final RESTHelper rest;
+	private final OrcidClientHelper rest;
 	private final String profile;
 	private final String tokenRead;
 	private final String tokenUpdate;
@@ -42,7 +42,8 @@ public class OrcidHelper {
         this.profile = profile;
         this.tokenUpdate = tokenUpdate;
         this.tokenRead = tokenRead;
-        rest = new RESTHelper(baseUri);
+//        rest = new RESTHelper(baseUri);
+        rest = new OrcidClientHelper(new URI(baseUri),Client.create());
     }
     
     /**
@@ -94,7 +95,8 @@ public class OrcidHelper {
 	 * @throws ORCIDException 
 	 */
     public Work addWork(Work work) throws ORCIDException {
-        ClientResponse r = rest.postClientResponseWithToken(UriBuilder.fromPath(WORK).build(profile), VND_ORCID_XML, work, tokenUpdate);
+    	URI uri = UriBuilder.fromPath(WORK).build(profile);
+        ClientResponse r = rest.postClientResponseWithToken(uri, VND_ORCID_XML, work, tokenUpdate);
 
         if (r.getStatus() != Response.Status.CREATED.getStatusCode()) {
         	OrcidError err = r.getEntity(OrcidError.class);
@@ -109,24 +111,45 @@ public class OrcidHelper {
 	/**
 	 * Delete a work from the ORCID profile
 	 * 
-	 * @param work
-	 *            The work to be deleted
+	 * @param putCode
+	 *            The put-code of the work to be deleted.
+	 * @throws ORCIDException 
 	 */
-	public void deleteWork(WorkSummary work) {
-		// TODO Contact the ORCID API and delete the work from the ORCID profile
-		// NOTE: according to the ORCID API, to delete a work, one must provide the entire list of works in the ORCID profile minus the work(s) that
+	public void deleteWork(Long putCode) throws ORCIDException {
+		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
+		ClientResponse r = rest.deleteClientResponseWithToken(uri, VND_ORCID_XML, tokenUpdate);
+		
+        if (r.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
+        	OrcidError err = r.getEntity(OrcidError.class);
+        	throw new ORCIDException(err);
+        }
+
+        // NOTE: according to the ORCID API, to delete a work, one must provide the entire list of works in the ORCID profile minus the work(s) that
 		// should be deleted. This means that this operation must be done in three steps: first, retrieve the entire set of works; second, remove the
 		// work to be deleted from the list of works; and three, send the updated list to the ORCID API.
 	}
 
+	
 	/**
 	 * Update a work in the ORCID profile
 	 * 
 	 * @param updateRecord
 	 *            The updateRecord that contains both the local and remote Works (the remote work is updated based on the data in the local work)
+	 * @throws ORCIDException 
 	 */
-	public void updateWork(UpdateRecord updateRecord) {
-		// TODO Contact the ORCID API and update the work on the ORCID profile
+	public Work updateWork(Long putCode, Work work) throws ORCIDException {
+		URI uri = UriBuilder.fromPath(WORK + PUTCODE).build(profile, putCode);
+		work.setPutCode(putCode);
+		ClientResponse r = rest.putClientResponseWithToken(uri, VND_ORCID_XML, work, tokenUpdate);
+
+        if (r.getStatus() != Response.Status.OK.getStatusCode()) {
+        	OrcidError err = r.getEntity(OrcidError.class);
+        	throw new ORCIDException(err);
+        }
+        
+        Work w = r.getEntity(Work.class);
+        return w;
+        
 		// NOTE: according to the ORCID API, to update a work, one must provide the entire list of works in the ORCID profile including the work(s)
 		// that should be updated. This means that this operation must be done in three steps: first, retrieve the entire set of works; second,
 		// replace the work to be updated with the new record in the list of works; and three, send the updated list to the ORCID API.
