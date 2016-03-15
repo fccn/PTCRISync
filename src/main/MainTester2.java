@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import org.orcid.jaxb.model.common_rc2.Title;
-import org.orcid.jaxb.model.record.summary_rc2.WorkSummary;
 import org.orcid.jaxb.model.record_rc2.ExternalID;
 import org.orcid.jaxb.model.record_rc2.ExternalIDs;
 import org.orcid.jaxb.model.record_rc2.Relationship;
@@ -73,7 +72,7 @@ public class MainTester2 implements ProgressHandler {
 		Work work = new Work();
 		WorkTitle title = new WorkTitle();
 		Title title2 = new Title();
-		title2.setContent("A Work"); 
+		title2.setContent("A Work Updated Once"); 
 		title.setTitle(title2);
 		work.setWorkTitle(title);
 
@@ -97,7 +96,7 @@ public class MainTester2 implements ProgressHandler {
 		Work work = new Work();
 		WorkTitle title = new WorkTitle();
 		Title title2 = new Title();
-		title2.setContent("Another Work"); 
+		title2.setContent("Another Work Updated Twice"); 
 		title.setTitle(title2);
 		work.setWorkTitle(title);
 

@@ -6,6 +6,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="lib/ORCID-Source/orcid-integration-test/src/test/java"/>
 	<classpathentry kind="src" path="lib/ORCID-Source/orcid-core/src/main/java"/>
 	<classpathentry kind="src" path="lib/ORCID-Source/orcid-utils/src/main/java"/>
 	<classpathentry kind="src" path="lib/ORCID-Source/orcid-model/src/main/java"/>
