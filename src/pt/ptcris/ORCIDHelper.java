@@ -23,11 +23,11 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Retrieves the entire set of work summaries in the ORCID profile.
-	 * Merges each ORCID group into a single summary, following {@link #groupToWork}.
+	 * Retrieves the entire set of work summaries in the ORCID profile. Merges
+	 * each ORCID group into a single summary, following {@link #groupToWork}.
 	 * 
 	 * @return The set of work summaries in the ORCID profile
-	 * @throws ORCIDException 
+	 * @throws ORCIDException
 	 */
 	public List<WorkSummary> getAllWorkSummaries() throws ORCIDException {
 		ActivitiesSummary summs = client.getActivitiesSummary();
@@ -37,12 +37,14 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Retrieves the entire set of works in the ORCID profile whose source is the local CRIS service.
+	 * Retrieves the entire set of works in the ORCID profile whose source is
+	 * the local CRIS service.
 	 * 
 	 * @param sourceName
 	 *            The source name of the local CRIS service.
-	 * @return The set of work summaries in the ORCID profile whose source is useDefault.
-	 * @throws ORCIDException 
+	 * @return The set of work summaries in the ORCID profile whose source is
+	 *         useDefault.
+	 * @throws ORCIDException
 	 */
 	public List<WorkSummary> getSourcedWorkSummaries(String sourceName) throws ORCIDException {
 		ActivitiesSummary summs = client.getActivitiesSummary();
@@ -54,7 +56,8 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Retrieves the set of productions (from works) that share some UIDs with a work summary.
+	 * Retrieves the set of productions (from works) that share some UIDs with a
+	 * work summary.
 	 * 
 	 * @param summary
 	 *            The work summary to compare with the list of works.
@@ -72,9 +75,10 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Tests whether two sets of external IDs have duplicates.
-	 * The algorithm is the same as the one implemented by ORCID.
-	 * Only considered duplicate if UIDs have the same relationship and are not "part of".
+	 * Tests whether two sets of external IDs have duplicates. The algorithm is
+	 * the same as the one implemented by ORCID. Only considered duplicate if
+	 * UIDs have the same relationship and are not "part of".
+	 * 
 	 * @param uids1
 	 * @param uids2
 	 * @return
@@ -83,8 +87,7 @@ public class ORCIDHelper {
 		if (uids2 != null && uids1 != null) {
 			for (ExternalID uid2 : uids2.getExternalIdentifier()) {
 				for (ExternalID uid1 : uids1.getExternalIdentifier()) {
-					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship())
-							&& uid1.equals(uid2)) {
+					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship()) && uid1.equals(uid2)) {
 						return true;
 					}
 				}
@@ -95,11 +98,12 @@ public class ORCIDHelper {
 
 	/**
 	 * Tests whether two UIDs relationships are the same but not part of.
+	 * 
 	 * @param r1
 	 * @param r2
 	 * @return
 	 */
-	private static boolean sameButNotBothPartOf(Relationship r1, Relationship r2){
+	private static boolean sameButNotBothPartOf(Relationship r1, Relationship r2) {
 		if (r1 == null && r2 == null)
 			return true;
 		if (r1 != null && r1.equals(r2) && !r1.equals(Relationship.PART_OF))
@@ -107,11 +111,12 @@ public class ORCIDHelper {
 		return false;
 	}
 
-
 	/**
-	 * Merges a group into a work.
-	 * Simply selects the first of the group and assigns it any extra UIDs.
-	 * @param group The group to be merged.
+	 * Merges a group into a work. Simply selects the first of the group and
+	 * assigns it any extra UIDs.
+	 * 
+	 * @param group
+	 *            The group to be merged.
 	 * @return The resulting work summary.
 	 */
 	public static WorkSummary groupToWork(WorkGroup group) {
@@ -132,18 +137,21 @@ public class ORCIDHelper {
 		return dummy;
 	}
 
-
 	/**
-	 * Checks if localWork is already up to date on the information from remoteWork, i.e., localWork already has the same UIDs as remoteWork
+	 * Checks if localWork is already up to date on the information from
+	 * remoteWork, i.e., localWork already has the same UIDs as remoteWork
 	 * 
 	 * @param localWork
 	 *            The local work to check if it is up to date
 	 * @param remoteWork
-	 *            The remote work to use when checking if the local work is up to date
-	 * @return true if all the UIDs between the two works are the same, false otherwise
+	 *            The remote work to use when checking if the local work is up
+	 *            to date
+	 * @return true if all the UIDs between the two works are the same, false
+	 *         otherwise
 	 */
 	public static boolean isAlreadyUpToDate(Work localWork, Work remoteWork) {
-		// TODO Compare the two records to check if they are equal (when it comes to matching UIDs)
+		// TODO Compare the two records to check if they are equal (when it
+		// comes to matching UIDs)
 		return false;
 	}
 
@@ -162,6 +170,5 @@ public class ORCIDHelper {
 	public void addWork(Work work) throws ORCIDException {
 		client.addWork(work);
 	}
-
 
 }
