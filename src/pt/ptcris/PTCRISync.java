@@ -120,6 +120,7 @@ public class PTCRISync {
 				List<Work> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), localWorks);
 				if (matchingWorks.isEmpty()) {
 					Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
+					orcidWork.setWorkExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
 					worksToImport.add(orcidWork);
 				}
 			}
@@ -157,25 +158,33 @@ public class PTCRISync {
 
 		List<Work> worksToUpdate = new LinkedList<Work>();
 
-		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
+		try {
+			helper = new ORCIDHelper(ORCID_URI,orcidID,accessToken);
 
-		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
-		for (int counter = 0; counter != orcidWorks.size(); counter++) {
-			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
-			progressHandler.setProgress(progress);
-
-			List<Work> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), localWorks);
-			if (!matchingWorks.isEmpty()) {
-				for (Work localWork : matchingWorks) {
-					Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
-					if (!ORCIDHelper.isAlreadyUpToDate(localWork, orcidWork)) {
-						worksToUpdate.add(orcidWork);
+			List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
+	
+			progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
+			for (int counter = 0; counter != orcidWorks.size(); counter++) {
+				progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
+				progressHandler.setProgress(progress);
+	
+				List<Work> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), localWorks);
+				if (!matchingWorks.isEmpty()) {
+					for (Work localWork : matchingWorks) {
+						Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
+						orcidWork.setWorkExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
+						if (!ORCIDHelper.isAlreadyUpToDate(localWork, orcidWork)) {
+							worksToUpdate.add(orcidWork);
+						}
 					}
 				}
 			}
-		}
 
-		progressHandler.done();
+			progressHandler.done();
+
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 
 		return worksToUpdate;
 	}
