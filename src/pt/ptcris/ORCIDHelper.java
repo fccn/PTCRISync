@@ -31,7 +31,7 @@ public class ORCIDHelper {
 	 */
 	public List<WorkSummary> getAllWorkSummaries() throws ORCIDException {
 		ActivitiesSummary summs = client.getActivitiesSummary();
-		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream();
+		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream(); // 3 ids
 		Stream<WorkSummary> works = groups.map(w -> groupToWork(w));
 		return works.collect(Collectors.toList());
 	}
@@ -124,7 +124,7 @@ public class ORCIDHelper {
 		WorkSummary dummy = new WorkSummary();
 		dummy.setCreatedDate(aux.getCreatedDate());
 		dummy.setDisplayIndex(aux.getDisplayIndex());
-		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
+		dummy.setExternalIdentifiers(group.getIdentifiers());
 		dummy.setLastModifiedDate(aux.getLastModifiedDate());
 		dummy.setPath(aux.getPath());
 		dummy.setPublicationDate(aux.getPublicationDate());
