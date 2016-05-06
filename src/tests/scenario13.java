@@ -2,6 +2,7 @@ package tests;
 
 import static org.junit.Assert.*;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.orcid.jaxb.model.common_rc2.Source;
 import org.orcid.jaxb.model.common_rc2.Title;
+import org.orcid.jaxb.model.record.summary_rc2.WorkSummary;
 import org.orcid.jaxb.model.record_rc2.ExternalID;
 import org.orcid.jaxb.model.record_rc2.ExternalIDs;
 import org.orcid.jaxb.model.record_rc2.Relationship;
@@ -23,6 +25,7 @@ import org.orcid.jaxb.model.record_rc2.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.ORCIDException;
+import pt.ptcris.ORCIDHelper;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.handlers.ProgressHandler;
 
@@ -31,21 +34,28 @@ import java.util.logging.Logger;
 public class scenario13{
 	private Profile orcid;
 	private List<Work> localWorks;
+	private static ORCIDHelper orcidHelper;
+	private static final String ORCID_URI = "https://api.sandbox.orcid.org/v2.0_rc2/";
 	
 	@Before
 	public void setUpClass() throws Exception {
-    	orcid = new Profile("0000-0002-4622-8073", "4a5a72ad-9215-4f5d-b698-06380da2f1d6", "PTCRIS");
-    	orcid.progressHandler = orcid.handler();
-    	
-    	localWorks = new LinkedList<Work>();
+		orcid = new Profile("0000-0002-1062-9967", "8e144767-d061-463a-b48d-4a47ec38219b", "PTCRIS");
+    	try {
+    		orcidHelper = new ORCIDHelper(ORCID_URI, orcid.orcidID, orcid.accessToken);
+    		orcidHelper.addWork(prod0());
+    		orcidHelper.addWork(prod1());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		localWorks = new LinkedList<Work>();
     	localWorks.add(prod0());
     	localWorks.add(prod1());
-    	
-    	PTCRISync.export(orcid.orcidID, orcid.accessToken, localWorks, orcid.serviceSourceName, orcid.progressHandler);
     }
 
 	@Test
 	public void test() throws ORCIDException {
+    	orcid.progressHandler = orcid.handler();
+    	
 		Work aux = prod0();
 		
 		ExternalID e2 = new ExternalID();
@@ -62,13 +72,24 @@ public class scenario13{
 		
 		PTCRISync.export(orcid.orcidID, orcid.accessToken, exportWorks, orcid.serviceSourceName, orcid.progressHandler);
 	    
+		try {
+			orcidHelper = new ORCIDHelper(ORCID_URI, orcid.orcidID, orcid.accessToken);
+			List<WorkSummary> wks = orcidHelper.getSourcedWorkSummaries(orcid.serviceSourceName);
+			assertEquals(wks.get(0).getExternalIdentifiers(), aux.getExternalIdentifiers());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}		
+		
 		orcid.progressHandler.setCurrentStatus(exportWorks.toString());
 		orcid.progressHandler.done();
 	}
 	
 	@After
 	public void tearDownClass() throws Exception {
-	    // Limpar o perfil;
+		// Limpar o que foi inserido no perfil antes de executar o teste
+		List<WorkSummary> wks = orcidHelper.getSourcedWorkSummaries("PTCRIS");
+		for(WorkSummary aux : wks)
+			orcidHelper.deleteWork(aux.getPutCode());
 	}
 
 	
