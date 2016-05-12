@@ -2,6 +2,7 @@ package tests;
 
 import static org.junit.Assert.*;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.orcid.jaxb.model.common_rc2.Title;
+import org.orcid.jaxb.model.record.summary_rc2.WorkSummary;
 import org.orcid.jaxb.model.record_rc2.ExternalID;
 import org.orcid.jaxb.model.record_rc2.ExternalIDs;
 import org.orcid.jaxb.model.record_rc2.Relationship;
@@ -22,41 +24,55 @@ import org.orcid.jaxb.model.record_rc2.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.ORCIDException;
+import pt.ptcris.ORCIDHelper;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.handlers.ProgressHandler;
 
 import java.util.logging.Logger;
 
 public class scenario3{
-	private Profile orcid;
+	private Profile haslab;
 	private List<Work> localWorks;
+	private static ORCIDHelper helper;
+	private static final String ORCID_URI = "https://api.sandbox.orcid.org/v2.0_rc2/";
 	
 	@Before
 	public void setUpClass() throws Exception {
-    	orcid = new Profile("0000-0003-3351-0229", "e49393b9-9494-4085-bf71-3c6bb03f3873", "PTCRIS");
-    	orcid.progressHandler = orcid.handler();
+		haslab = new Profile("0000-0003-3351-0229", "7b8b8632-62b8-4015-a34a-c03a297a2ddf", "HASLab, INESC TEC & University of Minho");
+    	try {
+			helper = new ORCIDHelper(ORCID_URI, haslab.orcidID, haslab.accessToken);
+			helper.addWork(work0());
+			helper.addWork(work2());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
     	
     	localWorks = new LinkedList<Work>();
     	localWorks.add(prod0());
-    	
-    	List<Work> orcidWorks = new LinkedList<Work>();
-    	orcidWorks.add(work0());
-    	orcidWorks.add(work2());
-    	
-    	PTCRISync.export(orcid.orcidID, orcid.accessToken, orcidWorks, orcid.serviceSourceName, orcid.progressHandler);
     }
 
 	@Test
 	public void test() throws ORCIDException {
+		Profile orcid = new Profile("0000-0003-3351-0229", "e49393b9-9494-4085-bf71-3c6bb03f3873", "PTCRIS");
+    	orcid.progressHandler = orcid.handler();
+		
 		List<Work> worksToImport = PTCRISync.importWorks(orcid.orcidID, orcid.accessToken, localWorks, orcid.progressHandler);
 		
 		orcid.progressHandler.setCurrentStatus(worksToImport.toString());
 		orcid.progressHandler.done();
+		
+		List<Work> expected = new LinkedList<Work>();
+		
+		//Neste caso nenhum work foi importado
+		assertEquals(expected.size(), worksToImport.size(), 0);
 	}
 	
 	@After
 	public void tearDownClass() throws Exception {
-	    // Limpar o perfil;
+		// Limpar o que foi inserido no perfil antes de executar o teste
+		List<WorkSummary> wks = helper.getSourcedWorkSummaries(haslab.serviceSourceName);
+		for(WorkSummary aux : wks)
+			helper.deleteWork(aux.getPutCode());
 	}
 
 	
