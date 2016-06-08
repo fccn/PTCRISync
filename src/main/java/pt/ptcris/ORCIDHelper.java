@@ -36,9 +36,12 @@ public class ORCIDHelper {
 	 */
 	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException, NullPointerException {
 		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
-		Stream<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup().stream();
-		Stream<WorkSummary> workSummaryList = workGroupList.map(w -> groupToWork(w));
-		return workSummaryList.collect(Collectors.toList());
+		List<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup();
+		List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
+		for (WorkGroup group:workGroupList) {
+			workSummaryList.add(groupToWork(group));
+		}		
+		return workSummaryList;
 	}
 
 	/**
@@ -54,16 +57,22 @@ public class ORCIDHelper {
 		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		String sourceClientID = client.getClientId();	
 		Works works = activitiesSummary.getWorks();
+		List<WorkSummary> returnedWorkSummary = new LinkedList<WorkSummary>();
+		
 		if (works == null) {
-			return new LinkedList<WorkSummary>();
+			return returnedWorkSummary;
 		} 
-		Stream<WorkGroup> workGroupList = works.getGroup().stream();
+		List<WorkGroup> workGroupList = works.getGroup();
+		
+		for (WorkGroup workGroup:workGroupList) {
+			for (WorkSummary workSummary:workGroup.getWorkSummary()) {
+				if (workSummary.getSource().getSourceOrcid().getUriPath().equals(sourceClientID)) {
+					returnedWorkSummary.add(workSummary);
+				}
+			}
+		}
 
-		Stream<WorkSummary> workSummaryList = workGroupList.map(WorkGroup::getWorkSummary)
-				.flatMap(List::stream)
-				.filter(s -> s.getSource().getSourceOrcid().getUriPath().equals(sourceClientID));
-
-		return workSummaryList.collect(Collectors.toList());
+		return returnedWorkSummary;
 	}
 		
 	
