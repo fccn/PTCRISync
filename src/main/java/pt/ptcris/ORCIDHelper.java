@@ -1,25 +1,30 @@
 package pt.ptcris;
 
-import java.net.URISyntaxException;
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.orcid.jaxb.model.record.summary_rc2.ActivitiesSummary;
-import org.orcid.jaxb.model.record.summary_rc2.WorkGroup;
-import org.orcid.jaxb.model.record.summary_rc2.WorkSummary;
-import org.orcid.jaxb.model.record_rc2.ExternalID;
-import org.orcid.jaxb.model.record_rc2.ExternalIDs;
-import org.orcid.jaxb.model.record_rc2.Relationship;
-import org.orcid.jaxb.model.record_rc2.Work;
+import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
+import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary.Works;
+import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
+import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
+import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
 public class ORCIDHelper {
 
 	public final ORCIDClient client;
+	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
-	public ORCIDHelper(String baseUri, String profile, String accessToken) throws URISyntaxException {
-		client = new ORCIDClientImpl(baseUri, profile, accessToken);
+	public ORCIDHelper(ORCIDClient orcidClient) throws OrcidClientException {
+		this.client = orcidClient;
 	}
 
 	/**
@@ -27,33 +32,99 @@ public class ORCIDHelper {
 	 * each ORCID group into a single summary, following {@link #groupToWork}.
 	 * 
 	 * @return The set of work summaries in the ORCID profile
-	 * @throws ORCIDException
+	 * @throws OrcidClientException
 	 */
-	public List<WorkSummary> getAllWorkSummaries() throws ORCIDException {
-		ActivitiesSummary summs = client.getActivitiesSummary();
-		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream(); // 3 ids
-		Stream<WorkSummary> works = groups.map(w -> groupToWork(w));
-		return works.collect(Collectors.toList());
+	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException, NullPointerException {
+		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
+		Stream<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup().stream();
+		Stream<WorkSummary> workSummaryList = workGroupList.map(w -> groupToWork(w));
+		return workSummaryList.collect(Collectors.toList());
 	}
 
 	/**
 	 * Retrieves the entire set of works in the ORCID profile whose source is
 	 * the local CRIS service.
 	 * 
-	 * @param sourceName
-	 *            The source name of the local CRIS service.
 	 * @return The set of work summaries in the ORCID profile whose source is
 	 *         useDefault.
-	 * @throws ORCIDException
+	 * @throws OrcidClientException
 	 */
-	public List<WorkSummary> getSourcedWorkSummaries(String sourceName) throws ORCIDException {
-		ActivitiesSummary summs = client.getActivitiesSummary();
-		Stream<WorkGroup> groups = summs.getWorks().getWorkGroup().stream();
-		Stream<WorkSummary> work_summs = groups.map(WorkGroup::getWorkSummary)
-											   .flatMap(List::stream)
-											   .filter(s -> s.getSource().getSourceName().getContent().equals(sourceName));
-		return work_summs.collect(Collectors.toList());
+	public List<WorkSummary> getSourcedWorkSummaries() throws OrcidClientException, NullPointerException {
+
+		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
+		String sourceClientID = client.getClientId();	
+		Works works = activitiesSummary.getWorks();
+		if (works == null) {
+			return new LinkedList<WorkSummary>();
+		} 
+		Stream<WorkGroup> workGroupList = works.getGroup().stream();
+
+		Stream<WorkSummary> workSummaryList = workGroupList.map(WorkGroup::getWorkSummary)
+				.flatMap(List::stream)
+				.filter(s -> s.getSource().getSourceOrcid().getUriPath().equals(sourceClientID));
+
+		return workSummaryList.collect(Collectors.toList());
 	}
+		
+	
+	/**
+	 * Delete all works from a specific Source
+	 * @throws OrcidClientException
+	 */
+	public void deleteAllSourcedWorks () throws OrcidClientException {
+		List<WorkSummary> workSummaryList = this.getSourcedWorkSummaries();
+		
+		for (WorkSummary workSummary : workSummaryList) {			
+			client.deleteWork(workSummary.getPutCode());
+		}
+
+	}
+
+
+	/**
+	 * Retrieves the entire set of putCodes from an Activities Summary it's source independent
+	 * 
+	 * @return a list of putCodes
+	 */
+	public static List<BigInteger> getWorkSummaryPutCodes (ActivitiesSummary activitiesSummary) throws NullPointerException {		
+		List<BigInteger> pubCodesList = new LinkedList<BigInteger>();		
+		List<WorkSummary> workSummaryList;
+		BigInteger putCode;
+
+		for (WorkGroup workGroup : activitiesSummary.getWorks().getGroup()) {
+			workSummaryList = workGroup.getWorkSummary();
+			for (WorkSummary workSummary : workSummaryList) {			 
+				putCode = workSummary.getPutCode();
+				pubCodesList.add(putCode);			 
+			}
+			//putCode =  workGroup.getWorkSummary().get(0).getPutCode();
+			//pubCodesList.add(putCode);
+
+		}		
+
+		return pubCodesList;
+	}		
+	
+
+	/**
+	 * @param work
+	 * @return String with title
+	 * @throws NullPointerException
+	 */
+	public static String getWorkTitle(Work work) throws NullPointerException {
+		return work.getTitle().getTitle();
+	}
+	
+
+	/**
+	 * @param work
+	 * @return BigInteger with putcode
+	 * @throws NullPointerException
+	 */
+	public static BigInteger getWorkPutCode(Work work) throws NullPointerException {
+		return work.getPutCode();
+	}
+	
 
 	/**
 	 * Retrieves the set of productions (from works) that share some UIDs with a
@@ -83,11 +154,15 @@ public class ORCIDHelper {
 	 * @param uids2
 	 * @return
 	 */
-	private static boolean checkDuplicateUIDs(ExternalIDs uids1, ExternalIDs uids2) {
+	private static boolean checkDuplicateUIDs(WorkExternalIdentifiers uids1, WorkExternalIdentifiers uids2) {
 		if (uids2 != null && uids1 != null) {
-			for (ExternalID uid2 : uids2.getExternalIdentifier()) {
-				for (ExternalID uid1 : uids1.getExternalIdentifier()) {
-					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship()) && uid1.equals(uid2)) {
+			
+			for (ExternalIdentifier uid2 : uids2.getWorkExternalIdentifier()) {
+				for (ExternalIdentifier uid1 : uids1.getWorkExternalIdentifier()) {
+					
+					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship()) && 
+							uid1.getExternalIdentifierId().equals(uid2.getExternalIdentifierId()) &&
+							uid1.getExternalIdentifierType().equals(uid2.getExternalIdentifierType())) {
 						return true;
 					}
 				}
@@ -103,10 +178,10 @@ public class ORCIDHelper {
 	 * @param r2
 	 * @return
 	 */
-	private static boolean sameButNotBothPartOf(Relationship r1, Relationship r2) {
+	private static boolean sameButNotBothPartOf(RelationshipType r1, RelationshipType r2) {
 		if (r1 == null && r2 == null)
 			return true;
-		if (r1 != null && r1.equals(r2) && !r1.equals(Relationship.PART_OF))
+		if (r1 != null && r1.equals(r2) && !r1.equals(RelationshipType.PART_OF))
 			return true;
 		return false;
 	}
@@ -124,7 +199,7 @@ public class ORCIDHelper {
 		WorkSummary dummy = new WorkSummary();
 		dummy.setCreatedDate(aux.getCreatedDate());
 		dummy.setDisplayIndex(aux.getDisplayIndex());
-		dummy.setExternalIdentifiers(group.getIdentifiers());
+		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
 		dummy.setLastModifiedDate(aux.getLastModifiedDate());
 		dummy.setPath(aux.getPath());
 		dummy.setPublicationDate(aux.getPublicationDate());
@@ -155,20 +230,39 @@ public class ORCIDHelper {
 		return false;
 	}
 
-	public void deleteWork(Long putCode) throws ORCIDException {
+	public void deleteWork(BigInteger putCode) throws OrcidClientException {
+		_log.debug("[deleteWork] " + putCode);
 		client.deleteWork(putCode);
 	}
 
-	public Work getFullWork(Long putCode) throws ORCIDException {
+	public Work getFullWork(BigInteger putCode) throws OrcidClientException {
+		_log.debug("[getFullWork] " + putCode);
 		return client.getWork(putCode);
 	}
 
-	public void updateWork(Long putCode, Work work) throws ORCIDException {
+	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
+		_log.debug("[updateWork] " + putCode);
 		client.updateWork(putCode, work);
 	}
 
-	public void addWork(Work work) throws ORCIDException {
-		client.addWork(work);
+	public Work addWork(Work work) throws OrcidClientException {
+		_log.debug("[addWork]" + getWorkTitle(work));
+		
+		//Remove any putCode if exists
+		work.setPutCode(null);		
+		BigInteger putCode = new BigInteger(client.addWork(work));  
+		work.setPutCode(putCode);
+		_log.debug("[addWork] " + putCode);		
+		return work;
 	}
 
+	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
+		_log.debug("[getActivitiesSummary]");
+		return client.getActivitiesSummary();
+	}
+
+	public ORCIDClient getClient () {
+		return this.client;
+	}
+	
 }

@@ -1,6 +1,6 @@
 package pt.ptcris.utils;
 
-import org.orcid.jaxb.model.record_rc2.Work;
+import org.um.dsi.gavea.orcid.model.work.Work;
 
 public class UpdateRecord {
 
