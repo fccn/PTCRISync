@@ -72,10 +72,10 @@
 
 	<!-- Environment Settings -->
 	<repositories>
-		<repository>
-			<id>dev-ptcris.repo</id>
-			<url>https://gitlab.fccn.pt/dev-ptcris/mvn-repo/raw/master</url>
-		</repository>
+		<!--repository>
+			<id>internal.staging.repo</id>
+			<url>file:///tmp/mvn-repo</url>
+		</repository-->
 	</repositories>
 
 	<!-- More Project Information -->
