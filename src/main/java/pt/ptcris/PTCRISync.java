@@ -113,7 +113,7 @@ public class PTCRISync {
 			List<Work> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), localWorks);
 			if (matchingWorks.isEmpty()) {
 				Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
-				orcidWork.setWorkExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
+				orcidWork.setExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
 				worksToImport.add(orcidWork);
 			}
 		}
@@ -163,7 +163,7 @@ public class PTCRISync {
 			if (!matchingWorks.isEmpty()) {
 				for (Work localWork : matchingWorks) {
 					Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
-					orcidWork.setWorkExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
+					orcidWork.setExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
 					if (!ORCIDHelper.isAlreadyUpToDate(localWork, orcidWork)) {
 						worksToUpdate.add(orcidWork);
 					}

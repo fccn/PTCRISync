@@ -1,14 +1,14 @@
 package pt.ptcris;
 
-import org.orcid.jaxb.model.error_rc2.OrcidError;
+import org.um.dsi.gavea.orcid.model.error.Error;
 
 public class ORCIDException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public final OrcidError e;
+	public final Error e;
 	
-	public ORCIDException(OrcidError e) {
+	public ORCIDException(Error e) {
 		super(e.getDeveloperMessage());
 		this.e = e;
 	}

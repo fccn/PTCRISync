@@ -16,54 +16,71 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
+/**
+ * An helper to simplify the use of the low-level ORCID
+ * {@link pt.ptcris.ORCIDClient client}.
+ *
+ */
 public class ORCIDHelper {
 
+	/** The client used to communicate with ORCID. */
 	public final ORCIDClient client;
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
+	/**
+	 * Initializes the helper with a given ORCID client.
+	 * 
+	 * @param orcidClient
+	 *            The ORCID client.
+	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
+	 */
 	public ORCIDHelper(ORCIDClient orcidClient) throws OrcidClientException {
 		this.client = orcidClient;
 	}
 
 	/**
-	 * Retrieves the entire set of work summaries in the ORCID profile. Merges
+	 * Retrieves the entire set of work summaries from the ORCID profile. Merges
 	 * each ORCID group into a single summary, following {@link #groupToWork}.
 	 * 
 	 * @return The set of work summaries in the ORCID profile
 	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
+	 * @throws NullPointerException
 	 */
-	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException, NullPointerException {
+	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException {
 		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		List<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup();
 		List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		for (WorkGroup group:workGroupList) {
+		for (WorkGroup group : workGroupList) {
 			workSummaryList.add(groupToWork(group));
-		}		
+		}
 		return workSummaryList;
 	}
 
 	/**
-	 * Retrieves the entire set of works in the ORCID profile whose source is
-	 * the local CRIS service.
+	 * Retrieves the entire set of work summaries in the ORCID profile whose
+	 * source is the Member API id defined in the ORCID client.
 	 * 
-	 * @return The set of work summaries in the ORCID profile whose source is
-	 *         useDefault.
+	 * @return The set of work summaries in the ORCID profile for the set
+	 *         source.
 	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
 	 */
 	public List<WorkSummary> getSourcedWorkSummaries() throws OrcidClientException, NullPointerException {
 
 		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
-		String sourceClientID = client.getClientId();	
+		String sourceClientID = client.getClientId();
 		Works works = activitiesSummary.getWorks();
 		List<WorkSummary> returnedWorkSummary = new LinkedList<WorkSummary>();
-		
+
 		if (works == null) {
 			return returnedWorkSummary;
-		} 
+		}
 		List<WorkGroup> workGroupList = works.getGroup();
-		
-		for (WorkGroup workGroup:workGroupList) {
-			for (WorkSummary workSummary:workGroup.getWorkSummary()) {
+
+		for (WorkGroup workGroup : workGroupList) {
+			for (WorkSummary workSummary : workGroup.getWorkSummary()) {
 				if (workSummary.getSource().getSourceOrcid().getUriPath().equals(sourceClientID)) {
 					returnedWorkSummary.add(workSummary);
 				}
@@ -72,104 +89,111 @@ public class ORCIDHelper {
 
 		return returnedWorkSummary;
 	}
-		
-	
+
 	/**
-	 * Delete all works from a specific Source
+	 * Delete all works from a specific source, i.e., from the Member API id
+	 * defined in the ORCID client.
+	 * 
 	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
 	 */
-	public void deleteAllSourcedWorks () throws OrcidClientException {
+	public void deleteAllSourcedWorks() throws OrcidClientException {
 		List<WorkSummary> workSummaryList = this.getSourcedWorkSummaries();
-		
-		for (WorkSummary workSummary : workSummaryList) {			
+
+		for (WorkSummary workSummary : workSummaryList) {
 			client.deleteWork(workSummary.getPutCode());
 		}
-
 	}
 
-
 	/**
-	 * Retrieves the entire set of putCodes from an Activities Summary it's source independent
+	 * Retrieves the entire set of putCodes from an Activities Summary,
+	 * independently of the source.
 	 * 
-	 * @return a list of putCodes
+	 * @param activitiesSummary
+	 *            the summaries from which to collect the put-codes.
+	 * @return a list of put-codes in the summaries.
 	 */
-	public static List<BigInteger> getWorkSummaryPutCodes (ActivitiesSummary activitiesSummary) throws NullPointerException {		
-		List<BigInteger> pubCodesList = new LinkedList<BigInteger>();		
+	public static List<BigInteger> getWorkSummaryPutCodes(ActivitiesSummary activitiesSummary)
+			throws NullPointerException {
+		List<BigInteger> pubCodesList = new LinkedList<BigInteger>();
 		List<WorkSummary> workSummaryList;
 		BigInteger putCode;
 
 		for (WorkGroup workGroup : activitiesSummary.getWorks().getGroup()) {
 			workSummaryList = workGroup.getWorkSummary();
-			for (WorkSummary workSummary : workSummaryList) {			 
+			for (WorkSummary workSummary : workSummaryList) {
 				putCode = workSummary.getPutCode();
-				pubCodesList.add(putCode);			 
+				pubCodesList.add(putCode);
 			}
-			//putCode =  workGroup.getWorkSummary().get(0).getPutCode();
-			//pubCodesList.add(putCode);
-
-		}		
+			// putCode = workGroup.getWorkSummary().get(0).getPutCode();
+			// pubCodesList.add(putCode);
+		}
 
 		return pubCodesList;
-	}		
-	
+	}
 
 	/**
+	 * Retrieves the title from a work.
+	 * 
 	 * @param work
-	 * @return String with title
+	 *            the work.
+	 * @return the work's title.
 	 * @throws NullPointerException
 	 */
 	public static String getWorkTitle(Work work) throws NullPointerException {
 		return work.getTitle().getTitle();
 	}
-	
 
 	/**
+	 * Retrieves the put-code from a work.
+	 * 
 	 * @param work
-	 * @return BigInteger with putcode
+	 *            the work.
+	 * @return the work's put-code.
 	 * @throws NullPointerException
 	 */
 	public static BigInteger getWorkPutCode(Work work) throws NullPointerException {
 		return work.getPutCode();
 	}
-	
 
 	/**
-	 * Retrieves the set of productions (from works) that share some UIDs with a
-	 * work summary.
+	 * Selects from a set of works those that share some UIDs (external
+	 * identifiers) with a given work summary.
 	 * 
-	 * @param summary
-	 *            The work summary to compare with the list of works.
+	 * @param work
+	 *            The work summary to compare with the set of works.
 	 * @param works
 	 *            The set of works to search for productions with shared UIDs.
 	 * @return The set of works with matching UIDs.
 	 */
-	public static List<Work> getWorksWithSharedUIDs(WorkSummary summary, List<Work> works) {
+	public static List<Work> getWorksWithSharedUIDs(WorkSummary work, List<Work> works) {
 		List<Work> matches = new LinkedList<Work>();
 		for (Work match : works) {
-			if (checkDuplicateUIDs(match.getExternalIdentifiers(), summary.getExternalIdentifiers()))
+			if (checkDuplicateUIDs(match.getExternalIdentifiers(), work.getExternalIdentifiers()))
 				matches.add(match);
 		}
 		return matches;
 	}
 
 	/**
-	 * Tests whether two sets of external IDs have duplicates. The algorithm is
-	 * the same as the one implemented by ORCID. Only considered duplicate if
-	 * UIDs have the same relationship and are not "part of".
+	 * Tests whether two sets of UIDs (external identifiers) have duplicates.
+	 * The algorithm is the same as the one implemented by the ORCID service.
+	 * Only considered duplicate if UIDs have the same relationship and are not
+	 * "part of".
 	 * 
 	 * @param uids1
+	 *            a set of UIDs.
 	 * @param uids2
-	 * @return
+	 *            another set of UIDs.
+	 * @return whether there are duplicate UIDs.
 	 */
 	private static boolean checkDuplicateUIDs(WorkExternalIdentifiers uids1, WorkExternalIdentifiers uids2) {
 		if (uids2 != null && uids1 != null) {
-			
 			for (ExternalIdentifier uid2 : uids2.getWorkExternalIdentifier()) {
 				for (ExternalIdentifier uid1 : uids1.getWorkExternalIdentifier()) {
-					
-					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship()) && 
-							uid1.getExternalIdentifierId().equals(uid2.getExternalIdentifierId()) &&
-							uid1.getExternalIdentifierType().equals(uid2.getExternalIdentifierType())) {
+					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship())
+							&& uid1.getExternalIdentifierId().equals(uid2.getExternalIdentifierId())
+							&& uid1.getExternalIdentifierType().equals(uid2.getExternalIdentifierType())) {
 						return true;
 					}
 				}
@@ -179,11 +203,13 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Tests whether two UIDs relationships are the same but not part of.
+	 * Tests whether two UID relationship types are the same but not part of.
 	 * 
 	 * @param r1
+	 *            a UID relationship type.
 	 * @param r2
-	 * @return
+	 *            another UID relationship type.
+	 * @return whether UIDs are the same but not part of.
 	 */
 	private static boolean sameButNotBothPartOf(RelationshipType r1, RelationshipType r2) {
 		if (r1 == null && r2 == null)
@@ -194,11 +220,11 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Merges a group into a work. Simply selects the first of the group and
-	 * assigns it any extra UIDs.
+	 * Merges a work group into a single work. Simply selects the first of the
+	 * group and assigns it any extra UIDs from the remainder works.
 	 * 
 	 * @param group
-	 *            The group to be merged.
+	 *            The work group to be merged.
 	 * @return The resulting work summary.
 	 */
 	public static WorkSummary groupToWork(WorkGroup group) {
@@ -220,56 +246,75 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Checks if localWork is already up to date on the information from
-	 * remoteWork, i.e., localWork already has the same UIDs as remoteWork
+	 * Checks whether a work is already up to date regarding another one, i.e.,
+	 * whether a work has the same UIDs as another one.
 	 * 
-	 * @param localWork
-	 *            The local work to check if it is up to date
-	 * @param remoteWork
-	 *            The remote work to use when checking if the local work is up
-	 *            to date
+	 * @param existingWork
+	 *            The potentially out of date work.
+	 * @param updatedWork
+	 *            The up to date work.
 	 * @return true if all the UIDs between the two works are the same, false
-	 *         otherwise
+	 *         otherwise.
 	 */
-	public static boolean isAlreadyUpToDate(Work localWork, Work remoteWork) {
+	public static boolean isAlreadyUpToDate(Work existingWork, Work updatedWork) {
 		// TODO Compare the two records to check if they are equal (when it
 		// comes to matching UIDs)
 		return false;
 	}
 
+	/**
+	 * @see {@link ORCIDClient#deleteWork(BigInteger)}
+	 */
 	public void deleteWork(BigInteger putCode) throws OrcidClientException {
 		_log.debug("[deleteWork] " + putCode);
 		client.deleteWork(putCode);
 	}
 
+	/**
+	 * @see {@link ORCIDClient#getWork(BigInteger)}
+	 */
 	public Work getFullWork(BigInteger putCode) throws OrcidClientException {
 		_log.debug("[getFullWork] " + putCode);
 		return client.getWork(putCode);
 	}
 
+	/**
+	 * @see {@link ORCIDClient#updateWork(BigInteger, Work)}
+	 */
 	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
 		_log.debug("[updateWork] " + putCode);
 		client.updateWork(putCode, work);
 	}
 
+	/**
+	 * @see {@link ORCIDClient#addWork(Work)}
+	 */
 	public Work addWork(Work work) throws OrcidClientException {
 		_log.debug("[addWork]" + getWorkTitle(work));
-		
-		//Remove any putCode if exists
-		work.setPutCode(null);		
-		BigInteger putCode = new BigInteger(client.addWork(work));  
+
+		// Remove any putCode if exists
+		work.setPutCode(null);
+		BigInteger putCode = client.addWork(work);
 		work.setPutCode(putCode);
-		_log.debug("[addWork] " + putCode);		
+		_log.debug("[addWork] " + putCode);
 		return work;
 	}
 
+	/**
+	 * @see {@link ORCIDClient#getActivitiesSummary()}
+	 */
 	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
 		_log.debug("[getActivitiesSummary]");
 		return client.getActivitiesSummary();
 	}
 
-	public ORCIDClient getClient () {
+	/**
+	 * The low level client being user to communicate with the ORCID API.
+	 * 
+	 * @return the ORCID client.
+	 */
+	public ORCIDClient getClient() {
 		return this.client;
 	}
-	
+
 }

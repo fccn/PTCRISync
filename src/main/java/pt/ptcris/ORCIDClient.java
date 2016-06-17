@@ -6,46 +6,66 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 
+/**
+ * Interface that encapsulates the communication with the ORCID client for a
+ * specified user profile.
+ * 
+ * Currently focuses on managing {@link org.um.dsi.gavea.orcid.model.work.Work
+ * works}.
+ *
+ */
 public interface ORCIDClient {
-	
 
 	/**
-	 * Retrieves a full work from the ORCID profile.
+	 * Returns the Member API client id that will commit the changes (i.e., the
+	 * works' source).
 	 * 
-	 * @param putCode The put-code of the work.
-	 * @return The full work.
-	 * @throws ORCIDException 
+	 * @return The client id.
+	 */
+	public String getClientId();
+
+	/**
+	 * Retrieves a complete work from the ORCID profile (as opposed to only its
+	 * summary).
+	 * 
+	 * @param putCode
+	 *            The put-code of the work.
+	 * @return The complete work.
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails.
 	 */
 	public Work getWork(BigInteger putCode) throws OrcidClientException;
 
 	/**
-	 * Add a work to the ORCID profile.
+	 * Adds a new work to the ORCID profile.
 	 * 
 	 * @param work
 	 *            The work to be added to the ORCID profile
-	 * @return the put-code in the ORCID profile of the newly created work.            
-	 * @throws ORCIDException 
+	 * @return the put-code in the ORCID profile of the newly created work.
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails.
 	 */
-	public String addWork(Work work) throws OrcidClientException;
+	public BigInteger addWork(Work work) throws OrcidClientException;
 
 	/**
-	 * Delete a work from the ORCID profile.
+	 * Deletes a work from the ORCID profile.
 	 * 
 	 * @param putCode
 	 *            The put-code of the work to be deleted.
-	 * @throws ORCIDException 
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails.
 	 */
 	public void deleteWork(BigInteger putCode) throws OrcidClientException;
 
 	/**
-	 * Update a work in the ORCID profile.
+	 * Updates a work in the ORCID profile.
 	 * 
 	 * @param putCode
-	 *           The put-code of the work to be updated.
+	 *            The put-code of the work to be updated.
 	 * @param work
-	 * 			 the new state of the work.
-	 * @return the updated work as represented in the ORCID profile.       
-	 * @throws ORCIDException 
+	 *            the new state of the work.
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails.
 	 */
 	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException;
 
@@ -53,15 +73,9 @@ public interface ORCIDClient {
 	 * Retrieves every activity summary of the ORCID profile.
 	 * 
 	 * @return The activities summary of the ORCID profile.
-	 * @throws ORCIDException 
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails.
 	 */
 	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException;
-	
-	/**
-	 * Returns the ORCID's client id
-	 * 
-	 * @return String with cliend id.
-	 */
-	public String getClientId();	
 
 }
