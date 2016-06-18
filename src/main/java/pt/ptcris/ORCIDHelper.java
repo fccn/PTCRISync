@@ -1,20 +1,25 @@
 package pt.ptcris;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkSummary;
-import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
-import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary.Works;
-import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
-import org.um.dsi.gavea.orcid.model.common.RelationshipType;
-import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
+import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary.Works;
+import org.um.dsi.gavea.orcid.model.activities.Identifier;
+import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
+import org.um.dsi.gavea.orcid.model.common.ClientId;
+import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
+import org.um.dsi.gavea.orcid.model.work.ExternalIdentifierType;
+import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -81,7 +86,9 @@ public class ORCIDHelper {
 
 		for (WorkGroup workGroup : workGroupList) {
 			for (WorkSummary workSummary : workGroup.getWorkSummary()) {
-				if (workSummary.getSource().getSourceOrcid().getUriPath().equals(sourceClientID)) {
+				ClientId workClient = workSummary.getSource().getSourceClientId();
+				// may be null is entry added by the user
+				if (workClient != null && workClient.getUriPath().equals(sourceClientID)) {
 					returnedWorkSummary.add(workSummary);
 				}
 			}
@@ -166,7 +173,7 @@ public class ORCIDHelper {
 	 *            The set of works to search for productions with shared UIDs.
 	 * @return The set of works with matching UIDs.
 	 */
-	public static List<Work> getWorksWithSharedUIDs(WorkSummary work, List<Work> works) {
+	public static List<Work> getWorksWithSharedUIDs(WorkSummary work, Collection<Work> works) {
 		List<Work> matches = new LinkedList<Work>();
 		for (Work match : works) {
 			if (checkDuplicateUIDs(match.getExternalIdentifiers(), work.getExternalIdentifiers()))
@@ -174,6 +181,7 @@ public class ORCIDHelper {
 		}
 		return matches;
 	}
+	
 
 	/**
 	 * Tests whether two sets of UIDs (external identifiers) have duplicates.
@@ -232,7 +240,6 @@ public class ORCIDHelper {
 		WorkSummary dummy = new WorkSummary();
 		dummy.setCreatedDate(aux.getCreatedDate());
 		dummy.setDisplayIndex(aux.getDisplayIndex());
-		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
 		dummy.setLastModifiedDate(aux.getLastModifiedDate());
 		dummy.setPath(aux.getPath());
 		dummy.setPublicationDate(aux.getPublicationDate());
@@ -241,7 +248,17 @@ public class ORCIDHelper {
 		dummy.setTitle(aux.getTitle());
 		dummy.setType(aux.getType());
 		dummy.setVisibility(aux.getVisibility());
-		// TODO: add the other UIDs of the group
+		
+		List<ExternalIdentifier> eids = new ArrayList<ExternalIdentifier>();
+		for (Identifier id : group.getIdentifiers().getIdentifier()) {
+			ExternalIdentifier eid = new ExternalIdentifier();
+			eid.setRelationship(RelationshipType.SELF);
+			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id.getExternalIdentifierType()));
+			eid.setExternalIdentifierId(id.getExternalIdentifierId());
+			eids.add(eid);
+		}
+		dummy.setExternalIdentifiers(new WorkExternalIdentifiers(eids));
+		
 		return dummy;
 	}
 
