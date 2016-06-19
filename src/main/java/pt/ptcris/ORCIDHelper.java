@@ -3,8 +3,11 @@ package pt.ptcris;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -181,7 +184,6 @@ public class ORCIDHelper {
 		}
 		return matches;
 	}
-	
 
 	/**
 	 * Tests whether two sets of UIDs (external identifiers) have duplicates.
@@ -248,7 +250,7 @@ public class ORCIDHelper {
 		dummy.setTitle(aux.getTitle());
 		dummy.setType(aux.getType());
 		dummy.setVisibility(aux.getVisibility());
-		
+
 		List<ExternalIdentifier> eids = new ArrayList<ExternalIdentifier>();
 		for (Identifier id : group.getIdentifiers().getIdentifier()) {
 			ExternalIdentifier eid = new ExternalIdentifier();
@@ -258,7 +260,7 @@ public class ORCIDHelper {
 			eids.add(eid);
 		}
 		dummy.setExternalIdentifiers(new WorkExternalIdentifiers(eids));
-		
+
 		return dummy;
 	}
 
@@ -274,9 +276,44 @@ public class ORCIDHelper {
 	 *         otherwise.
 	 */
 	public static boolean isAlreadyUpToDate(Work existingWork, Work updatedWork) {
-		// TODO Compare the two records to check if they are equal (when it
-		// comes to matching UIDs)
-		return false;
+		Set<ExternalIdentifier> uids1 = new HashSet<ExternalIdentifier>(existingWork.getExternalIdentifiers()
+				.getWorkExternalIdentifier());
+		Set<ExternalIdentifier> uids2 = new HashSet<ExternalIdentifier>(updatedWork.getExternalIdentifiers()
+				.getWorkExternalIdentifier());
+		for (ExternalIdentifier x : uids2) {
+			boolean found = false;
+			Iterator<ExternalIdentifier> it = uids1.iterator();
+			while (it.hasNext() && !found) {
+				ExternalIdentifier y = it.next();
+				if (x.getExternalIdentifierId().equals(y.getExternalIdentifierId())
+						&& x.getExternalIdentifierType().equals(y.getExternalIdentifierType())
+						&& x.getRelationship().equals(y.getRelationship()))
+					found = true;
+			}
+			if (!found) return false;
+		}
+
+		return true;
+	}
+
+	// TODO: needed because JAXB does not define equals
+	public static boolean equalsUIDs(Set<ExternalIdentifier> uids1, Set<ExternalIdentifier> uids2) {
+		if (uids1.size() != uids2.size())
+			return false;
+		for (ExternalIdentifier x : uids1) {
+			boolean found = false;
+			Iterator<ExternalIdentifier> it = uids2.iterator();
+			while (it.hasNext() && !found) {
+				ExternalIdentifier y = it.next();
+				if (x.getExternalIdentifierId().equals(y.getExternalIdentifierId())
+						&& x.getExternalIdentifierType().equals(y.getExternalIdentifierType())
+						&& x.getRelationship().equals(y.getRelationship()))
+					found = true;
+			}
+			if (!found)
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -300,6 +337,7 @@ public class ORCIDHelper {
 	 */
 	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
 		_log.debug("[updateWork] " + putCode);
+		work.setPutCode(putCode);
 		client.updateWork(putCode, work);
 	}
 

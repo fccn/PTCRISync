@@ -1,15 +1,17 @@
 package pt.ptcris;
 
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
+import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
+import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.UpdateRecord;
-
 import pt.ptcris.ORCIDHelper;
 
 public class PTCRISync {
@@ -62,8 +64,8 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			helper.updateWork(ORCIDHelper.getWorkPutCode(recordsToUpdate.get(counter).getRemoteWork()),
-					recordsToUpdate.get(counter).getLocalWork());
+			helper.updateWork(ORCIDHelper.getWorkPutCode(recordsToUpdate.get(counter).getRemoteWork()), recordsToUpdate
+					.get(counter).getLocalWork());
 		}
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING_WORKS");
@@ -93,8 +95,8 @@ public class PTCRISync {
 	 * @return The list of new works found in the ORCID profile.
 	 * @throws ORCIDClientException
 	 */
-	public static List<Work> importWorks(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler) throws OrcidClientException {
+	public static List<Work> importWorks(ORCIDClient orcidClient, List<Work> localWorks, ProgressHandler progressHandler)
+			throws OrcidClientException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
@@ -114,6 +116,7 @@ public class PTCRISync {
 			if (matchingWorks.isEmpty()) {
 				Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
 				orcidWork.setExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
+				orcidWork.setPutCode(null);
 				worksToImport.add(orcidWork);
 			}
 		}
@@ -124,25 +127,41 @@ public class PTCRISync {
 	}
 
 	/**
-	 * Discover updates to existing works in an ORCID profile.
+	 * Discover updates to existing works in an ORCID profile. For each work
+	 * group at ORCID (merged into as a single work by the {@link ORCIDHelper
+	 * helper}), finds matching local works (i.e., those with shared
+	 * {@link ExternalIdentifier external identifiers}) and creates update
+	 * notifications if not already up to date.
+	 * 
+	 * Currently, these update notifications simply take the shape of ORCID
+	 * works themselves (representing a matching group). The group merging
+	 * selects the meta-data of the preferred work and the external identifiers
+	 * of the whole group (see {@link ORCIDHelper#groupToWork(WorkGroup)}). The
+	 * selection of the meta-data from a group could be changed without
+	 * affecting the correction of the procedure.
+	 * 
+	 * TODO: Only the changed data should be returned. Concretely, only the new
+	 * external identifiers should be contained in the updated works.
+	 * 
+	 * The put-code attribute should be used as a local key of each work. This
+	 * means that the returned works representing the updates should have the
+	 * put-code of the local work that is to be updated.
+	 *
+	 * The local works are tested to be up-to-date by simply checking whether
+	 * they contain every external identifiers in the ORCID group (see
+	 * {@link ORCIDHelper#updateWork(BigInteger, Work)}).
 	 * 
 	 * @param orcidClient
 	 *            The ORCID client to access to the profile.
 	 * @param localWorks
-	 *            The list of works for which we wish to discover updates (those
-	 *            marked as synced). For the moment, only new external
-	 *            identifiers will be found, so, for each work only the external
-	 *            identifiers are needed, so the remaining attributes may be
-	 *            left null. Also the putcode attribute should be used to store
-	 *            the local key of each work.
+	 *            The list of works for which we wish to discover updates (local
+	 *            works marked as synced).
 	 * @param progressHandler
 	 *            The implementation of the ProgressHandler interface
 	 *            responsible for receiving progress updates
-	 * @return The list of updated works. Only the works that have changes are
-	 *         returned. Also, for each of them, only the attributes that
-	 *         changed are set. For the moment, only new external identifiers
-	 *         will be returned.
-	 * @throws ORCIDClientException
+	 * @return The list of updated works.
+	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
 	 */
 	public static List<Work> importUpdates(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler) throws OrcidClientException {
@@ -164,6 +183,7 @@ public class PTCRISync {
 				for (Work localWork : matchingWorks) {
 					Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
 					orcidWork.setExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
+					orcidWork.setPutCode(localWork.getPutCode());
 					if (!ORCIDHelper.isAlreadyUpToDate(localWork, orcidWork)) {
 						worksToUpdate.add(orcidWork);
 					}

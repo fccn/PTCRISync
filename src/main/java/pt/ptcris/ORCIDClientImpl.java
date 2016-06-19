@@ -3,11 +3,14 @@ package pt.ptcris;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
 import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.common.ScopePathType;
 
 /**
  * An implementation of the ORCID client interface built over the
@@ -43,6 +46,14 @@ public class ORCIDClientImpl implements ORCIDClient {
 
 		// Instantiate the ORCID Client
 		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId, clientSecret, redirectUri);
+		
+		List<ScopePathType> scopes = new ArrayList<ScopePathType>();
+		scopes.add(ScopePathType.AUTHENTICATE);
+		scopes.add(ScopePathType.ORCID_PROFILE_READ_LIMITED);
+		scopes.add(ScopePathType.ACTIVITIES_UPDATE);
+		scopes.add(ScopePathType.ORCID_BIO_UPDATE);
+
+
 	}
 
 	/**
