@@ -290,7 +290,8 @@ public class ORCIDHelper {
 						&& x.getRelationship().equals(y.getRelationship()))
 					found = true;
 			}
-			if (!found) return false;
+			if (!found)
+				return false;
 		}
 
 		return true;
@@ -372,4 +373,20 @@ public class ORCIDHelper {
 		return this.client;
 	}
 
+	public static WorkExternalIdentifiers difference(WorkExternalIdentifiers base,
+			WorkExternalIdentifiers filter) {
+		List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(
+				base.getWorkExternalIdentifier());
+		for (ExternalIdentifier eid : base.getWorkExternalIdentifier()) {
+			for (ExternalIdentifier eid2 : filter.getWorkExternalIdentifier()) {
+				if (eid.getExternalIdentifierId().equals(eid2.getExternalIdentifierId())
+						&& eid.getExternalIdentifierType().equals(eid2.getExternalIdentifierType()) &&
+						eid.getRelationship().equals(eid2.getRelationship())) {
+					ids.remove(eid);
+				}
+			}
+		}
+
+		return new WorkExternalIdentifiers(ids);
+	}
 }

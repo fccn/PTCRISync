@@ -81,19 +81,33 @@ public class PTCRISync {
 	}
 
 	/**
-	 * Discover new works in an ORCID profile.
+	 * Discover new works in an ORCID profile. Creates creation notifications
+	 * for each work group at ORCID (merged into as a single work by the
+	 * {@link ORCIDHelper helper}) without matching local works (i.e., those
+	 * without shared {@link ExternalIdentifier external identifiers}).
+	 * 
+	 * Currently, these creation notifications simply take the shape of ORCID
+	 * works themselves (representing a matching group). The group merging
+	 * selects the meta-data of the preferred work and the external identifiers
+	 * of the whole group (see {@link ORCIDHelper#groupToWork(WorkGroup)}). The
+	 * selection of the meta-data from a group could be changed without
+	 * affecting the correction of the procedure.
+	 * 
+	 * Since the put-code attribute is used as a local key of each work, is
+	 * should be null for these creation notifications.Since only the put-codes
+	 * are being updated, the remainder meta-data of the local works can be
+	 * currently left null.
 	 * 
 	 * @param orcidClient
 	 *            The ORCID client to access to the profile.
 	 * @param localWorks
-	 *            The full list of works in the local profile. In fact, for each
-	 *            work only the external identifiers are needed, so the
-	 *            remaining attributes may be left null.
+	 *            The full list of works in the local profile.
 	 * @param progressHandler
 	 *            The implementation of the ProgressHandler interface
 	 *            responsible for receiving progress updates
-	 * @return The list of new works found in the ORCID profile.
-	 * @throws ORCIDClientException
+	 * @return The list of new works found in the profile.
+	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
 	 */
 	public static List<Work> importWorks(ORCIDClient orcidClient, List<Work> localWorks, ProgressHandler progressHandler)
 			throws OrcidClientException {
@@ -140,12 +154,14 @@ public class PTCRISync {
 	 * selection of the meta-data from a group could be changed without
 	 * affecting the correction of the procedure.
 	 * 
-	 * TODO: Only the changed data should be returned. Concretely, only the new
-	 * external identifiers should be contained in the updated works.
+	 * Only the changed data is returned. Concretely, only the new
+	 * external identifiers are contained in the updated works.
 	 * 
 	 * The put-code attribute should be used as a local key of each work. This
 	 * means that the returned works representing the updates should have the
-	 * put-code of the local work that is to be updated.
+	 * put-code of the local work that is to be updated. Since only the
+	 * put-codes are being updated, the remainder meta-data of the local works
+	 * can be currently left null.
 	 *
 	 * The local works are tested to be up-to-date by simply checking whether
 	 * they contain every external identifiers in the ORCID group (see
@@ -159,7 +175,7 @@ public class PTCRISync {
 	 * @param progressHandler
 	 *            The implementation of the ProgressHandler interface
 	 *            responsible for receiving progress updates
-	 * @return The list of updated works.
+	 * @return The list of updated works found in the profile.
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 */
@@ -182,7 +198,7 @@ public class PTCRISync {
 			if (!matchingWorks.isEmpty()) {
 				for (Work localWork : matchingWorks) {
 					Work orcidWork = helper.getFullWork(orcidWorks.get(counter).getPutCode());
-					orcidWork.setExternalIdentifiers(orcidWorks.get(counter).getExternalIdentifiers());
+					orcidWork.setExternalIdentifiers(ORCIDHelper.difference(orcidWorks.get(counter).getExternalIdentifiers(),localWork.getExternalIdentifiers()));
 					orcidWork.setPutCode(localWork.getPutCode());
 					if (!ORCIDHelper.isAlreadyUpToDate(localWork, orcidWork)) {
 						worksToUpdate.add(orcidWork);
