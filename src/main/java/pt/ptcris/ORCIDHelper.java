@@ -31,9 +31,13 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
  */
 public class ORCIDHelper {
 
-	/** The client used to communicate with ORCID. */
-	public final ORCIDClient client;
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
+
+	/**
+	 * The client used to communicate with ORCID. Defines the ORCID user profile
+	 * being managed and the Member API id being user to source works.
+	 */
+	public final ORCIDClient client;
 
 	/**
 	 * Initializes the helper with a given ORCID client.
@@ -51,7 +55,7 @@ public class ORCIDHelper {
 	 * Retrieves the entire set of work summaries from the ORCID profile. Merges
 	 * each ORCID group into a single summary, following {@link #groupToWork}.
 	 * 
-	 * @return The set of work summaries in the ORCID profile
+	 * @return The set of work summaries in the ORCID profile.
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 * @throws NullPointerException
@@ -70,10 +74,11 @@ public class ORCIDHelper {
 	 * Retrieves the entire set of work summaries in the ORCID profile whose
 	 * source is the Member API id defined in the ORCID client.
 	 * 
-	 * @return The set of work summaries in the ORCID profile for the set
+	 * @return The set of work summaries in the ORCID profile for the defined
 	 *         source.
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
+	 * @throws NullPointerException
 	 */
 	public List<WorkSummary> getSourcedWorkSummaries() throws OrcidClientException, NullPointerException {
 
@@ -101,8 +106,8 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Delete all works from a specific source, i.e., from the Member API id
-	 * defined in the ORCID client.
+	 * Deletes the entire set of work summaries in the ORCID profile whose
+	 * source is the Member API id defined in the ORCID client.
 	 * 
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
@@ -230,41 +235,6 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Merges a work group into a single work. Simply selects the first of the
-	 * group and assigns it any extra UIDs from the remainder works.
-	 * 
-	 * @param group
-	 *            The work group to be merged.
-	 * @return The resulting work summary.
-	 */
-	public static WorkSummary groupToWork(WorkGroup group) {
-		WorkSummary aux = group.getWorkSummary().get(0);
-		WorkSummary dummy = new WorkSummary();
-		dummy.setCreatedDate(aux.getCreatedDate());
-		dummy.setDisplayIndex(aux.getDisplayIndex());
-		dummy.setLastModifiedDate(aux.getLastModifiedDate());
-		dummy.setPath(aux.getPath());
-		dummy.setPublicationDate(aux.getPublicationDate());
-		dummy.setPutCode(aux.getPutCode());
-		dummy.setSource(aux.getSource());
-		dummy.setTitle(aux.getTitle());
-		dummy.setType(aux.getType());
-		dummy.setVisibility(aux.getVisibility());
-
-		List<ExternalIdentifier> eids = new ArrayList<ExternalIdentifier>();
-		for (Identifier id : group.getIdentifiers().getIdentifier()) {
-			ExternalIdentifier eid = new ExternalIdentifier();
-			eid.setRelationship(RelationshipType.SELF);
-			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id.getExternalIdentifierType()));
-			eid.setExternalIdentifierId(id.getExternalIdentifierId());
-			eids.add(eid);
-		}
-		dummy.setExternalIdentifiers(new WorkExternalIdentifiers(eids));
-
-		return dummy;
-	}
-
-	/**
 	 * Checks whether a work is already up to date regarding another one, i.e.,
 	 * whether a work has the same UIDs as another one.
 	 * 
@@ -373,15 +343,49 @@ public class ORCIDHelper {
 		return this.client;
 	}
 
-	public static WorkExternalIdentifiers difference(WorkExternalIdentifiers base,
-			WorkExternalIdentifiers filter) {
-		List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(
-				base.getWorkExternalIdentifier());
+	/**
+	 * Merges a work group into a single work summary. Simply selects the
+	 * meta-data from the first work of the group (i.e., the preferred one) and
+	 * assigns it any extra external identifiers from the remainder works.
+	 * 
+	 * @param group
+	 *            The work group to be merged.
+	 * @return The resulting work summary.
+	 */
+	private static WorkSummary groupToWork(WorkGroup group) {
+		WorkSummary aux = group.getWorkSummary().get(0);
+		WorkSummary dummy = new WorkSummary();
+		dummy.setCreatedDate(aux.getCreatedDate());
+		dummy.setDisplayIndex(aux.getDisplayIndex());
+		dummy.setLastModifiedDate(aux.getLastModifiedDate());
+		dummy.setPath(aux.getPath());
+		dummy.setPublicationDate(aux.getPublicationDate());
+		dummy.setPutCode(aux.getPutCode());
+		dummy.setSource(aux.getSource());
+		dummy.setTitle(aux.getTitle());
+		dummy.setType(aux.getType());
+		dummy.setVisibility(aux.getVisibility());
+
+		List<ExternalIdentifier> eids = new ArrayList<ExternalIdentifier>();
+		for (Identifier id : group.getIdentifiers().getIdentifier()) {
+			ExternalIdentifier eid = new ExternalIdentifier();
+			eid.setRelationship(RelationshipType.SELF);
+			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id.getExternalIdentifierType()));
+			eid.setExternalIdentifierId(id.getExternalIdentifierId());
+			eids.add(eid);
+		}
+		dummy.setExternalIdentifiers(new WorkExternalIdentifiers(eids));
+
+		return dummy;
+	}
+
+	public static WorkExternalIdentifiers difference(WorkExternalIdentifiers base, WorkExternalIdentifiers filter) {
+		List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(base.getWorkExternalIdentifier());
 		for (ExternalIdentifier eid : base.getWorkExternalIdentifier()) {
 			for (ExternalIdentifier eid2 : filter.getWorkExternalIdentifier()) {
 				if (eid.getExternalIdentifierId().equals(eid2.getExternalIdentifierId())
-						&& eid.getExternalIdentifierType().equals(eid2.getExternalIdentifierType()) &&
-						eid.getRelationship().equals(eid2.getRelationship())) {
+						&& eid.getExternalIdentifierType().equals(eid2.getExternalIdentifierType())
+						&& eid.getRelationship().equals(eid2.getRelationship())) {
 					ids.remove(eid);
 				}
 			}

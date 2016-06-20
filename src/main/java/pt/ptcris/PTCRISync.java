@@ -1,6 +1,7 @@
 package pt.ptcris;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,27 +16,37 @@ import pt.ptcris.utils.UpdateRecord;
 import pt.ptcris.ORCIDHelper;
 
 /**
+ * <p>
  * An implementation of the PTCRISync synchronization service based on the
  * version 4.1 of the specification. This service allows CRIS services to keep
  * their repositories synchronized with ORCID. This requires the CRIS service to
  * have access to the ORCID Member API.
+ * </p>
  * 
- * The service has two main functionalities: to keep a set of local works
- * updated in a user ORCID profile through an
+ * <p>
+ * The service has two main functionalities: to keep a set of local productions
+ * updated in an ORCID user profile through an
  * {@link #export(ORCIDClient, List, ProgressHandler) export} procedure, and
- * import works not known locally from the ORCID profile, either through the
- * {@link #importWorks(ORCIDClient, List, ProgressHandler) import} of complete
- * new works or through the
+ * import productions not known locally from the ORCID profile, either through
+ * the {@link #importWorks(ORCIDClient, List, ProgressHandler) import} of
+ * complete new productions or through the
  * {@link #importUpdates(ORCIDClient, List, ProgressHandler) import} of new
- * information for already known works.
+ * information for already known productions.
+ * </p>
  * 
+ * <p>
  * The implementation of the service assumes that its user communicates the
- * local works following the ORCID schema. This uniforms the API and simplifies
- * the synchronization process.
+ * local productions following the ORCID schema, in particular encoding them as
+ * ORCID {@link Work works}. This uniforms the API and simplifies the
+ * synchronization process.
+ * </p>
  * 
- * The communication with ORCID is encapsulated by an ORCID {@link ORCIDClient
+ * <p>
+ * The communication with ORCID is encapsulated in an ORCID {@link ORCIDClient
  * client} that contains information regarding the CRIS Member API and the ORCID
- * profile that is to be managed.
+ * profile that is to be managed. Most of the communication is however handled
+ * by an {@link ORCIDHelper helper}.
+ * </p>
  * 
  * @see <a
  *      href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
@@ -44,28 +55,49 @@ import pt.ptcris.ORCIDHelper;
 public class PTCRISync {
 
 	/**
-	 * Exports a list of works to an ORCID profile. This procedure manages the
-	 * works in the ORCID profile that are sourced by the CRIS set in the
-	 * client.
+	 * <p>
+	 * Exports a list of local CRIS productions to an ORCID profile. This
+	 * procedure essentially manages the works in the ORCID profile that are
+	 * sourced by the CRIS, both set in the client.
+	 * </p>
 	 * 
+	 * <p>
 	 * The procedure detects every CRIS sourced work in the ORCID profile that
 	 * matches any local work that is being exported; if there is no matching
-	 * local work, the ORCID work is deleted. Otherwise it will be updated with
-	 * the meta-data of one of the matching local works. Finally, for local
-	 * works without any matching ORCID work new ORCID works are created.
+	 * local work, the ORCID work is deleted from the profile. Otherwise it will
+	 * be updated with the meta-data of one of the matching local works.
+	 * Finally, for local works without any matching ORCID work new ORCID works
+	 * are created. The matching is performed by detecting shared
+	 * {@link ExternalIdentifier external identifiers} (see
+	 * {@link ORCIDHelper#getWorksWithSharedUIDs(WorkSummary, Collection)}).
+	 * </p>
 	 * 
+	 * <p>
+	 * The procedure expects the CRIS service to provide the local works in the
+	 * ORCID schema, in particular encoding productions as {@link Work works}.
+	 * Thus, the meta-data of the CRIS sourced works in the ORCID profile is
+	 * exactly that of the provided local productions that are to be exported.
+	 * The put-code of these local productions can however be used as local key
+	 * identifiers, since these are disregarded during the update of the ORCID
+	 * profile (new works are assigned fresh put-codes and updated works use the
+	 * put-code of the existing ORCID work).
+	 * </p>
+	 * 
+	 * <p>
 	 * Note that there is a difference from the PTCRISync specification 4.1 to
 	 * force ORCID works to be updated only once (by a single matching local
 	 * work).
+	 * </p>
 	 * 
 	 * @param orcidClient
 	 *            The ORCID client defining the CRIS Member API and the profile
 	 *            to be managed.
 	 * @param localWorks
-	 *            The list of local works to be exported (those marked as synced).
+	 *            The list of local productions to be exported (those marked as
+	 *            synced).
 	 * @param progressHandler
-	 *            The implementation of the ProgressHandler interface
-	 *            responsible for receiving progress updates.
+	 *            The progress handler responsible for receiving progress
+	 *            updates.
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 */
@@ -119,31 +151,39 @@ public class PTCRISync {
 	}
 
 	/**
-	 * Discover new works in an ORCID profile. Creates creation notifications
-	 * for each work group at ORCID (merged into as a single work by the
-	 * {@link ORCIDHelper helper}) without matching local works (i.e., those
-	 * without shared {@link ExternalIdentifier external identifiers}).
+	 * <p>
+	 * Discovers new works in an ORCID profile given a set of known local CRIS
+	 * productions. Creates creation notifications for each work group at ORCID
+	 * (merged into as a single work by the {@link ORCIDHelper helper}) without
+	 * matching local productions (i.e., those without shared
+	 * {@link ExternalIdentifier external identifiers}).
+	 * </p>
 	 * 
+	 * <p>
 	 * Currently, these creation notifications simply take the shape of ORCID
-	 * works themselves (representing a matching group). The group merging
+	 * works themselves (representing a matching work group). The group merging
 	 * selects the meta-data of the preferred work and the external identifiers
 	 * of the whole group (see {@link ORCIDHelper#groupToWork(WorkGroup)}). The
 	 * selection of the meta-data from a group could be changed without
 	 * affecting the correction of the procedure.
+	 * </p>
 	 * 
-	 * Since the put-code attribute is used as a local key of each work, is
-	 * should be null for these creation notifications.Since only the put-codes
-	 * are being updated, the remainder meta-data of the local works can be
-	 * currently left null.
+	 * <p>
+	 * Since the put-code attribute is used as a local key of each work, it
+	 * should be null for these creation notifications (and not the put-code of
+	 * the ORCID works that gave origin to it). Since only the external
+	 * identifiers of the local productions are used to search for matches, the
+	 * remainder meta-data can be currently left null.
+	 * </p>
 	 * 
 	 * @param orcidClient
 	 *            The ORCID client defining the CRIS Member API and the profile
 	 *            to be managed.
 	 * @param localWorks
-	 *            The full list of works in the local profile.
+	 *            The full list of productions in the local profile.
 	 * @param progressHandler
-	 *            The implementation of the ProgressHandler interface
-	 *            responsible for receiving progress updates
+	 *            The progress handler responsible for receiving progress
+	 *            updates.
 	 * @return The list of new works found in the profile.
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
@@ -180,41 +220,52 @@ public class PTCRISync {
 	}
 
 	/**
-	 * Discover updates to existing works in an ORCID profile. For each work
-	 * group at ORCID (merged into as a single work by the {@link ORCIDHelper
-	 * helper}), finds matching local works (i.e., those with shared
-	 * {@link ExternalIdentifier external identifiers}) and creates update
-	 * notifications if not already up to date.
+	 * <p>
+	 * Discovers updates to existing local CRIS productions in an ORCID profile.
+	 * For each work group at ORCID (merged into as a single work by the
+	 * {@link ORCIDHelper helper}), finds matching local works (i.e., those with
+	 * shared {@link ExternalIdentifier external identifiers}) and creates
+	 * update notifications if not already up to date.
+	 * </p>
 	 * 
+	 * <p>
 	 * Currently, these update notifications simply take the shape of ORCID
-	 * works themselves (representing a matching group). The group merging
+	 * works themselves (representing a matching work group). The group merging
 	 * selects the meta-data of the preferred work and the external identifiers
 	 * of the whole group (see {@link ORCIDHelper#groupToWork(WorkGroup)}). The
 	 * selection of the meta-data from a group could be changed without
 	 * affecting the correction of the procedure.
+	 * </p>
 	 * 
+	 * <p>
 	 * Only the changed data is returned. Concretely, only the new external
 	 * identifiers are contained in the updated works.
+	 * </p>
 	 * 
-	 * The put-code attribute should be used as a local key of each work. This
-	 * means that the returned works representing the updates should have the
-	 * put-code of the local work that is to be updated. Since only the
-	 * put-codes are being updated, the remainder meta-data of the local works
-	 * can be currently left null.
-	 *
+	 * <p>
 	 * The local works are tested to be up-to-date by simply checking whether
 	 * they contain every external identifiers in the ORCID group (see
 	 * {@link ORCIDHelper#updateWork(BigInteger, Work)}).
+	 * </p>
 	 * 
+	 * <p>
+	 * The put-code attribute should be used as a local key of each work. This
+	 * means that the returned works representing the updates should have the
+	 * put-code of the local work that is to be updated (and not the put-code of
+	 * the ORCID works that gave origin to it). Since only the external
+	 * identifiers of the local productions are used to search for matches, the
+	 * remainder meta-data can be currently left null.
+	 * </p>
+	 *
 	 * @param orcidClient
 	 *            The ORCID client defining the CRIS Member API and the profile
 	 *            to be managed.
 	 * @param localWorks
-	 *            The list of works for which we wish to discover updates (local
-	 *            works marked as synced).
+	 *            The list of local productions for which we wish to discover
+	 *            updates (those marked as synced).
 	 * @param progressHandler
-	 *            The implementation of the ProgressHandler interface
-	 *            responsible for receiving progress updates
+	 *            The progress handler responsible for receiving progress
+	 *            updates.
 	 * @return The list of updated works found in the profile.
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
