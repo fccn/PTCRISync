@@ -19,6 +19,7 @@ import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary.Works;
 import org.um.dsi.gavea.orcid.model.activities.Identifier;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
+import org.um.dsi.gavea.orcid.model.common.ActivitySummary;
 import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
 import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
@@ -39,7 +40,7 @@ import pt.ptcris.workers.ORCIDUpdWorker;
  */
 public class ORCIDHelper {
 
-	private boolean threaded = true;
+	private boolean threaded = false;
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
@@ -133,6 +134,100 @@ public class ORCIDHelper {
 	}
 
 	/**
+	 * @see {@link ORCIDClient#deleteWork(BigInteger)}
+	 */
+	public void deleteWork(BigInteger putCode) throws OrcidClientException {
+		_log.debug("[deleteWork] " + putCode);
+
+		if (threaded) {
+			ORCIDDelWorker worker = new ORCIDDelWorker(client, putCode, _log);
+			executor.execute(worker);
+		} else
+			client.deleteWork(putCode);
+
+	}
+
+	/**
+	 * @see {@link ORCIDClient#getWork(BigInteger)}
+	 */
+	public void getFullWork(BigInteger putCode, Set<Work> works) throws OrcidClientException {
+		_log.debug("[getFullWork] " + putCode);
+		if (threaded) {
+			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, putCode, _log);
+			executor.execute(worker);
+		} else
+			works.add(client.getWork(putCode));
+	}
+
+	/**
+	 * @see {@link ORCIDClient#getWork(BigInteger)}
+	 */
+	public Work getFullWork(BigInteger putCode) throws OrcidClientException {
+		_log.debug("[getFullWork] " + putCode);
+		return client.getWork(putCode);
+	}
+
+	/**
+	 * @see {@link ORCIDClient#updateWork(BigInteger, Work)}
+	 */
+	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
+		_log.debug("[updateWork] " + putCode);
+		work.setPutCode(putCode);
+
+		if (threaded) {
+			ORCIDUpdWorker worker = new ORCIDUpdWorker(client, work, _log);
+			executor.execute(worker);
+		} else
+			client.updateWork(work.getPutCode(), work);
+
+	}
+
+	/**
+	 * @see {@link ORCIDClient#addWork(Work)}
+	 */
+	public Work addWork(Work work) throws OrcidClientException {
+		_log.debug("[addWork]" + getWorkTitle(work));
+
+		// Remove any putCode if exists
+		work.setPutCode(null);
+
+		if (threaded) {
+			ORCIDAddWorker worker = new ORCIDAddWorker(client, work, _log);
+			executor.execute(worker);
+		} else {
+			BigInteger putCode = client.addWork(work);
+			work.setPutCode(putCode);
+			_log.debug("[addWork] " + work.getPutCode());
+		}
+
+		return work;
+	}
+
+	/**
+	 * @see {@link ORCIDClient#getActivitiesSummary()}
+	 */
+	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
+		_log.debug("[getActivitiesSummary]");
+		return client.getActivitiesSummary();
+	}
+
+	/**
+	 * Waits for all active works communicating with ORCID to finish (if
+	 * multi-threading is enabled).
+	 * 
+	 * @return Whether the workers finished before the timeout.
+	 * @throws InterruptedException
+	 */
+	public boolean waitWorkers() throws InterruptedException {
+		if (!threaded)
+			return true;
+		executor.shutdown();
+		boolean timeout = executor.awaitTermination(100, TimeUnit.SECONDS);
+		executor = Executors.newFixedThreadPool(100);
+		return timeout;
+	}
+
+	/**
 	 * Retrieves the entire set of putCodes from an Activities Summary,
 	 * independently of the source.
 	 * 
@@ -140,7 +235,7 @@ public class ORCIDHelper {
 	 *            the summaries from which to collect the put-codes.
 	 * @return a list of put-codes in the summaries.
 	 */
-	public static List<BigInteger> getWorkSummaryPutCodes(ActivitiesSummary activitiesSummary)
+	public static List<BigInteger> getSummaryPutCodes(ActivitiesSummary activitiesSummary)
 			throws NullPointerException {
 		List<BigInteger> pubCodesList = new LinkedList<BigInteger>();
 		List<WorkSummary> workSummaryList;
@@ -183,7 +278,7 @@ public class ORCIDHelper {
 	 * @return the work's put-code.
 	 * @throws NullPointerException
 	 */
-	public static BigInteger getWorkPutCode(Work work) throws NullPointerException {
+	public static BigInteger getWorkPutCode(ActivitySummary work) throws NullPointerException {
 		return work.getPutCode();
 	}
 
@@ -304,84 +399,6 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * @see {@link ORCIDClient#deleteWork(BigInteger)}
-	 */
-	public void deleteWork(BigInteger putCode) throws OrcidClientException {
-		_log.debug("[deleteWork] " + putCode);
-
-		if (threaded) {
-			ORCIDDelWorker worker = new ORCIDDelWorker(client, putCode, _log);
-			executor.execute(worker);
-		} else
-			client.deleteWork(putCode);
-
-	}
-
-	/**
-	 * @see {@link ORCIDClient#getWork(BigInteger)}
-	 */
-	public void getFullWork(BigInteger putCode, Set<Work> works) throws OrcidClientException {
-		_log.debug("[getFullWork] " + putCode);
-		if (threaded) {
-			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, putCode, _log);
-			executor.execute(worker);
-		} else
-			works.add(client.getWork(putCode));
-	}
-
-	public Work getFullWork(BigInteger putCode) throws OrcidClientException {
-		_log.debug("[getFullWork] " + putCode);
-		return client.getWork(putCode);
-	}
-
-	/**
-	 * @see {@link ORCIDClient#updateWork(BigInteger, Work)}
-	 */
-	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
-		_log.debug("[updateWork] " + putCode);
-		work.setPutCode(putCode);
-
-		if (threaded) {
-			ORCIDUpdWorker worker = new ORCIDUpdWorker(client, work, _log);
-			executor.execute(worker);
-		} else
-			client.updateWork(work.getPutCode(), work);
-
-	}
-
-	/**
-	 * @see {@link ORCIDClient#addWork(Work)}
-	 */
-	public Work addWork(Work work) throws OrcidClientException {
-		_log.debug("[addWork]" + getWorkTitle(work));
-
-		// Remove any putCode if exists
-		work.setPutCode(null);
-
-		if (threaded) {
-			ORCIDClient c = new ORCIDClientImpl(((ORCIDClientImpl) client).loginUri, ((ORCIDClientImpl) client).apiUri,
-					((ORCIDClientImpl) client).clientId, ((ORCIDClientImpl) client).clientSecret,
-					((ORCIDClientImpl) client).redirectUri, ((ORCIDClientImpl) client).orcidToken);
-			ORCIDAddWorker worker = new ORCIDAddWorker(c, work, _log);
-			executor.execute(worker);
-		} else {
-			BigInteger putCode = client.addWork(work);
-			work.setPutCode(putCode);
-			_log.debug("[addWork] " + work.getPutCode());
-		}
-
-		return work;
-	}
-
-	/**
-	 * @see {@link ORCIDClient#getActivitiesSummary()}
-	 */
-	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
-		_log.debug("[getActivitiesSummary]");
-		return client.getActivitiesSummary();
-	}
-
-	/**
 	 * Merges a work group into a single work summary. Simply selects the
 	 * meta-data from the first work of the group (i.e., the preferred one) and
 	 * assigns it any extra external identifiers from the remainder works.
@@ -407,6 +424,12 @@ public class ORCIDHelper {
 		return dummy;
 	}
 
+	/**
+	 * Calculates the difference between two sets of external identifiers.
+	 * @param base
+	 * @param filter
+	 * @return
+	 */
 	public static WorkExternalIdentifiers difference(WorkExternalIdentifiers base, WorkExternalIdentifiers filter) {
 		List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(base.getWorkExternalIdentifier());
 		for (ExternalIdentifier eid : base.getWorkExternalIdentifier()) {
@@ -422,47 +445,35 @@ public class ORCIDHelper {
 		return new WorkExternalIdentifiers(ids);
 	}
 
-	public boolean waitWorkers() throws InterruptedException {
-		executor.shutdown();
-		boolean timeout = executor.awaitTermination(100, TimeUnit.SECONDS);
-		executor = Executors.newFixedThreadPool(100);
-		return timeout;
+	public static void copy(ActivitySummary from, ActivitySummary to) {
+		to.setCreatedDate(from.getCreatedDate());
+		to.setDisplayIndex(from.getDisplayIndex());
+		to.setLastModifiedDate(from.getLastModifiedDate());
+		to.setPath(from.getPath());
+		to.setPutCode(from.getPutCode());
+		to.setSource(from.getSource());
+		to.setVisibility(from.getVisibility());
 	}
-
+	
 	public static WorkSummary clone(WorkSummary aux) {
 		WorkSummary dummy = new WorkSummary();
-		dummy.setCreatedDate(aux.getCreatedDate());
-		dummy.setDisplayIndex(aux.getDisplayIndex());
-		dummy.setLastModifiedDate(aux.getLastModifiedDate());
-		dummy.setPath(aux.getPath());
+		copy(aux, dummy);
 		dummy.setPublicationDate(aux.getPublicationDate());
-		dummy.setPutCode(aux.getPutCode());
-		dummy.setSource(aux.getSource());
 		dummy.setTitle(aux.getTitle());
 		dummy.setType(aux.getType());
-		dummy.setVisibility(aux.getVisibility());
 		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
 		return dummy;
 	}
 
 	public static Work clone(Work aux) {
 		Work dummy = new Work();
-		dummy.setCreatedDate(aux.getCreatedDate());
-		dummy.setDisplayIndex(aux.getDisplayIndex());
-		dummy.setLastModifiedDate(aux.getLastModifiedDate());
-		dummy.setPath(aux.getPath());
+		copy(aux, dummy);
 		dummy.setPublicationDate(aux.getPublicationDate());
-		dummy.setPutCode(aux.getPutCode());
-		dummy.setSource(aux.getSource());
 		dummy.setTitle(aux.getTitle());
 		dummy.setType(aux.getType());
-		dummy.setVisibility(aux.getVisibility());
 		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
+		dummy.setContributors(aux.getContributors());
 		return dummy;
-	}
-
-	public static BigInteger getWorkPutCode(WorkSummary remoteWork) {
-		return remoteWork.getPutCode();
 	}
 
 }

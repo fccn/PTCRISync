@@ -19,13 +19,9 @@ import org.um.dsi.gavea.orcid.model.common.ScopePathType;
  */
 public class ORCIDClientImpl implements ORCIDClient {
 
-	public final OrcidAccessToken orcidToken;
-	public final OrcidOAuthClient orcidClient;
-	public final String loginUri;
-	public final String clientId;
-	public final String apiUri;
-	public final String clientSecret;
-	public final String redirectUri;
+	private final OrcidAccessToken orcidToken;
+	private final OrcidOAuthClient orcidClient;
+	private final String clientId;
 
 	/**
 	 * Instantiates an ORCID client to communicate with the ORCID API.
@@ -47,10 +43,6 @@ public class ORCIDClientImpl implements ORCIDClient {
 			OrcidAccessToken orcidToken) {
 		this.orcidToken = orcidToken;
 		this.clientId = clientId;
-		this.loginUri = loginUri;
-		this.apiUri = apiUri;
-		this.clientSecret = clientSecret;
-		this.redirectUri = redirectUri;
 		
 		// Instantiate the ORCID Client
 		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId, clientSecret, redirectUri);

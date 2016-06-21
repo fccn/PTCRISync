@@ -1,7 +1,5 @@
 package pt.ptcris.workers;
 
-import java.math.BigInteger;
-
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;

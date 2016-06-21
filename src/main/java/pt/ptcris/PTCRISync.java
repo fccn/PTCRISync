@@ -1,7 +1,6 @@
 package pt.ptcris;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -133,6 +132,7 @@ public class PTCRISync {
 				localWorks.remove(localWork);
 			}
 		}
+		
 		helper.waitWorkers();
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
