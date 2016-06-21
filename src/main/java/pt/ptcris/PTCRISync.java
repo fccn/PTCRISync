@@ -22,7 +22,7 @@ import pt.ptcris.ORCIDHelper;
 /**
  * <p>
  * An implementation of the PTCRISync synchronization service based on the
- * version 4.1 of the specification. This service allows CRIS services to keep
+ * version 4.2 of the specification. This service allows CRIS services to keep
  * their repositories synchronized with ORCID. This requires the CRIS service to
  * have access to the ORCID Member API.
  * </p>
