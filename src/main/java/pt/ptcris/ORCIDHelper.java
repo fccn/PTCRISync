@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,12 +27,19 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
+import pt.ptcris.workers.ORCIDAddWorker;
+import pt.ptcris.workers.ORCIDDelWorker;
+import pt.ptcris.workers.ORCIDGetWorker;
+import pt.ptcris.workers.ORCIDUpdWorker;
+
 /**
  * An helper to simplify the use of the low-level ORCID
  * {@link pt.ptcris.ORCIDClient client}.
  *
  */
 public class ORCIDHelper {
+
+	private boolean threaded = true;
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
@@ -38,6 +48,8 @@ public class ORCIDHelper {
 	 * being managed and the Member API id being user to source works.
 	 */
 	public final ORCIDClient client;
+
+	private ExecutorService executor = Executors.newFixedThreadPool(100);
 
 	/**
 	 * Initializes the helper with a given ORCID client.
@@ -159,6 +171,10 @@ public class ORCIDHelper {
 		return work.getTitle().getTitle();
 	}
 
+	public static String getWorkTitle(WorkSummary work) throws NullPointerException {
+		return work.getTitle().getTitle();
+	}
+
 	/**
 	 * Retrieves the put-code from a work.
 	 * 
@@ -240,15 +256,15 @@ public class ORCIDHelper {
 	 * 
 	 * @param existingWork
 	 *            The potentially out of date work.
-	 * @param updatedWork
+	 * @param workSummary
 	 *            The up to date work.
 	 * @return true if all the UIDs between the two works are the same, false
 	 *         otherwise.
 	 */
-	public static boolean isAlreadyUpToDate(Work existingWork, Work updatedWork) {
+	public static boolean isAlreadyUpToDate(Work existingWork, WorkSummary workSummary) {
 		Set<ExternalIdentifier> uids1 = new HashSet<ExternalIdentifier>(existingWork.getExternalIdentifiers()
 				.getWorkExternalIdentifier());
-		Set<ExternalIdentifier> uids2 = new HashSet<ExternalIdentifier>(updatedWork.getExternalIdentifiers()
+		Set<ExternalIdentifier> uids2 = new HashSet<ExternalIdentifier>(workSummary.getExternalIdentifiers()
 				.getWorkExternalIdentifier());
 		for (ExternalIdentifier x : uids2) {
 			boolean found = false;
@@ -292,12 +308,27 @@ public class ORCIDHelper {
 	 */
 	public void deleteWork(BigInteger putCode) throws OrcidClientException {
 		_log.debug("[deleteWork] " + putCode);
-		client.deleteWork(putCode);
+
+		if (threaded) {
+			ORCIDDelWorker worker = new ORCIDDelWorker(client, putCode, _log);
+			executor.execute(worker);
+		} else
+			client.deleteWork(putCode);
+
 	}
 
 	/**
 	 * @see {@link ORCIDClient#getWork(BigInteger)}
 	 */
+	public void getFullWork(BigInteger putCode, Set<Work> works) throws OrcidClientException {
+		_log.debug("[getFullWork] " + putCode);
+		if (threaded) {
+			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, putCode, _log);
+			executor.execute(worker);
+		} else
+			works.add(client.getWork(putCode));
+	}
+
 	public Work getFullWork(BigInteger putCode) throws OrcidClientException {
 		_log.debug("[getFullWork] " + putCode);
 		return client.getWork(putCode);
@@ -309,7 +340,13 @@ public class ORCIDHelper {
 	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
 		_log.debug("[updateWork] " + putCode);
 		work.setPutCode(putCode);
-		client.updateWork(putCode, work);
+
+		if (threaded) {
+			ORCIDUpdWorker worker = new ORCIDUpdWorker(client, work, _log);
+			executor.execute(worker);
+		} else
+			client.updateWork(work.getPutCode(), work);
+
 	}
 
 	/**
@@ -320,9 +357,19 @@ public class ORCIDHelper {
 
 		// Remove any putCode if exists
 		work.setPutCode(null);
-		BigInteger putCode = client.addWork(work);
-		work.setPutCode(putCode);
-		_log.debug("[addWork] " + putCode);
+
+		if (threaded) {
+			ORCIDClient c = new ORCIDClientImpl(((ORCIDClientImpl) client).loginUri, ((ORCIDClientImpl) client).apiUri,
+					((ORCIDClientImpl) client).clientId, ((ORCIDClientImpl) client).clientSecret,
+					((ORCIDClientImpl) client).redirectUri, ((ORCIDClientImpl) client).orcidToken);
+			ORCIDAddWorker worker = new ORCIDAddWorker(c, work, _log);
+			executor.execute(worker);
+		} else {
+			BigInteger putCode = client.addWork(work);
+			work.setPutCode(putCode);
+			_log.debug("[addWork] " + work.getPutCode());
+		}
+
 		return work;
 	}
 
@@ -332,15 +379,6 @@ public class ORCIDHelper {
 	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
 		_log.debug("[getActivitiesSummary]");
 		return client.getActivitiesSummary();
-	}
-
-	/**
-	 * The low level client being user to communicate with the ORCID API.
-	 * 
-	 * @return the ORCID client.
-	 */
-	public ORCIDClient getClient() {
-		return this.client;
 	}
 
 	/**
@@ -354,17 +392,7 @@ public class ORCIDHelper {
 	 */
 	private static WorkSummary groupToWork(WorkGroup group) {
 		WorkSummary aux = group.getWorkSummary().get(0);
-		WorkSummary dummy = new WorkSummary();
-		dummy.setCreatedDate(aux.getCreatedDate());
-		dummy.setDisplayIndex(aux.getDisplayIndex());
-		dummy.setLastModifiedDate(aux.getLastModifiedDate());
-		dummy.setPath(aux.getPath());
-		dummy.setPublicationDate(aux.getPublicationDate());
-		dummy.setPutCode(aux.getPutCode());
-		dummy.setSource(aux.getSource());
-		dummy.setTitle(aux.getTitle());
-		dummy.setType(aux.getType());
-		dummy.setVisibility(aux.getVisibility());
+		WorkSummary dummy = clone(aux);
 
 		List<ExternalIdentifier> eids = new ArrayList<ExternalIdentifier>();
 		for (Identifier id : group.getIdentifiers().getIdentifier()) {
@@ -393,4 +421,48 @@ public class ORCIDHelper {
 
 		return new WorkExternalIdentifiers(ids);
 	}
+
+	public boolean waitWorkers() throws InterruptedException {
+		executor.shutdown();
+		boolean timeout = executor.awaitTermination(100, TimeUnit.SECONDS);
+		executor = Executors.newFixedThreadPool(100);
+		return timeout;
+	}
+
+	public static WorkSummary clone(WorkSummary aux) {
+		WorkSummary dummy = new WorkSummary();
+		dummy.setCreatedDate(aux.getCreatedDate());
+		dummy.setDisplayIndex(aux.getDisplayIndex());
+		dummy.setLastModifiedDate(aux.getLastModifiedDate());
+		dummy.setPath(aux.getPath());
+		dummy.setPublicationDate(aux.getPublicationDate());
+		dummy.setPutCode(aux.getPutCode());
+		dummy.setSource(aux.getSource());
+		dummy.setTitle(aux.getTitle());
+		dummy.setType(aux.getType());
+		dummy.setVisibility(aux.getVisibility());
+		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
+		return dummy;
+	}
+
+	public static Work clone(Work aux) {
+		Work dummy = new Work();
+		dummy.setCreatedDate(aux.getCreatedDate());
+		dummy.setDisplayIndex(aux.getDisplayIndex());
+		dummy.setLastModifiedDate(aux.getLastModifiedDate());
+		dummy.setPath(aux.getPath());
+		dummy.setPublicationDate(aux.getPublicationDate());
+		dummy.setPutCode(aux.getPutCode());
+		dummy.setSource(aux.getSource());
+		dummy.setTitle(aux.getTitle());
+		dummy.setType(aux.getType());
+		dummy.setVisibility(aux.getVisibility());
+		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
+		return dummy;
+	}
+
+	public static BigInteger getWorkPutCode(WorkSummary remoteWork) {
+		return remoteWork.getPutCode();
+	}
+
 }

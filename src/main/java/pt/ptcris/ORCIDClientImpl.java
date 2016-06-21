@@ -19,9 +19,13 @@ import org.um.dsi.gavea.orcid.model.common.ScopePathType;
  */
 public class ORCIDClientImpl implements ORCIDClient {
 
-	private final OrcidAccessToken orcidToken;
-	private final OrcidOAuthClient orcidClient;
-	private final String clientId;
+	public final OrcidAccessToken orcidToken;
+	public final OrcidOAuthClient orcidClient;
+	public final String loginUri;
+	public final String clientId;
+	public final String apiUri;
+	public final String clientSecret;
+	public final String redirectUri;
 
 	/**
 	 * Instantiates an ORCID client to communicate with the ORCID API.
@@ -43,10 +47,13 @@ public class ORCIDClientImpl implements ORCIDClient {
 			OrcidAccessToken orcidToken) {
 		this.orcidToken = orcidToken;
 		this.clientId = clientId;
-
+		this.loginUri = loginUri;
+		this.apiUri = apiUri;
+		this.clientSecret = clientSecret;
+		this.redirectUri = redirectUri;
+		
 		// Instantiate the ORCID Client
 		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId, clientSecret, redirectUri);
-		
 		List<ScopePathType> scopes = new ArrayList<ScopePathType>();
 		scopes.add(ScopePathType.AUTHENTICATE);
 		scopes.add(ScopePathType.ORCID_PROFILE_READ_LIMITED);
@@ -67,6 +74,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * @see pt.ptcris.ORCIDClient#addWork(Work)
 	 */
 	public BigInteger addWork(Work work) throws OrcidClientException {
+		System.out.println(work.toString());
 		return new BigInteger(this.orcidClient.addWork(this.orcidToken, work));
 	}
 

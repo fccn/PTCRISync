@@ -1,15 +1,16 @@
 package pt.ptcris.utils;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 public class UpdateRecord {
 
 	private Work localWork;
-	private Work remoteWork;
+	private WorkSummary remoteWork;
 
-	public UpdateRecord(Work localWork, Work remoteWork) {
+	public UpdateRecord(Work localWork, WorkSummary workSummary) {
 		this.localWork = localWork;
-		this.remoteWork = remoteWork;
+		this.remoteWork = workSummary;
 	}
 
 	public Work getLocalWork() {
@@ -20,11 +21,11 @@ public class UpdateRecord {
 		this.localWork = localWork;
 	}
 
-	public Work getRemoteWork() {
+	public WorkSummary getRemoteWork() {
 		return remoteWork;
 	}
 
-	public void setRemoteWork(Work remoteWork) {
+	public void setRemoteWork(WorkSummary remoteWork) {
 		this.remoteWork = remoteWork;
 	}
 }
