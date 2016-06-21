@@ -1,24 +1,26 @@
-package tests;
+package pt.ptcris.test.scenarios;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    scenario1.class,
-    scenario2.class,
-    scenario3.class,
-    scenario4.class,
-    scenario5.class,
-    scenario6.class,
-    scenario7.class,
-    scenario8.class,
-    scenario9.class,
-    scenario10.class,
-    scenario11.class,
-    scenario12.class,
-    scenario13.class,
-    scenario14.class
+    Scenario1.class,
+    Scenario2.class,
+    Scenario3.class,
+    Scenario4.class,
+    Scenario5.class,
+    Scenario6.class,
+    Scenario7.class,
+    Scenario8.class,
+    Scenario9.class,
+    Scenario10.class,
+    Scenario11.class,
+    Scenario12.class,
+    Scenario13.class,
+    Scenario14.class,
+    Scenario15.class,
+    Scenario16.class
 })
 public class AllTests {
 }
