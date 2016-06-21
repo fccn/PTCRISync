@@ -1,4 +1,4 @@
-package main;
+package pt.ptcris.test;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,20 +7,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import org.orcid.jaxb.model.record_rc2.Work;
+import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
+import org.um.dsi.gavea.orcid.model.work.Work;
 
+import pt.ptcris.ORCIDClient;
 import pt.ptcris.ORCIDException;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.handlers.ProgressHandler;
+import pt.ptcris.test.scenarios.ScenarioOrcidClient;
 
 public class MainTester implements ProgressHandler {
 	private static Logger logger = Logger.getLogger(MainTester.class.getName());
 
-	private static final String orcidID = "0000-0000-0000-0000";
-	private static final String accessToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-	private static final String serviceSourceName = "Local CRIS";
-
-	public static void main(String[] args) throws ORCIDException {
+	public static void main(String[] args) throws ORCIDException, OrcidClientException {
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setFormatter(new SimpleFormatter());
 		handler.setLevel(Level.ALL);
@@ -30,9 +29,11 @@ public class MainTester implements ProgressHandler {
 		List<Work> works = new LinkedList<Work>();
 		MainTester progressHandler = new MainTester();
 
-		PTCRISync.export(orcidID, accessToken, works, serviceSourceName, progressHandler);
-		List<Work> worksToImport = PTCRISync.importWorks(orcidID, accessToken, works, progressHandler);
-		List<Work> worksToUpdate = PTCRISync.importUpdates(orcidID, accessToken, works, progressHandler);
+		ORCIDClient client = ScenarioOrcidClient.getClientWork(1);
+		
+		PTCRISync.export(client, works, progressHandler);
+		List<Work> worksToImport = PTCRISync.importWorks(client, works, progressHandler);
+		List<Work> worksToUpdate = PTCRISync.importUpdates(client, works, progressHandler);
 	}
 
 	@Override

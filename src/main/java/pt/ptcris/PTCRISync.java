@@ -107,7 +107,7 @@ public class PTCRISync {
 	 * @throws InterruptedException
 	 */
 	public static void export(ORCIDClient orcidClient, List<Work> localWorks, ProgressHandler progressHandler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException {
 
 		int progress = 0;
 		progressHandler.setProgress(progress);
@@ -132,8 +132,13 @@ public class PTCRISync {
 				localWorks.remove(localWork);
 			}
 		}
-		
-		helper.waitWorkers();
+
+		try {
+			helper.waitWorkers();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
 		for (int counter = 0; counter != recordsToUpdate.size(); counter++) {
@@ -152,7 +157,12 @@ public class PTCRISync {
 			helper.addWork(localWorks.get(counter));
 		}
 
-		helper.waitWorkers();
+		try {
+			helper.waitWorkers();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		progressHandler.done();
 
@@ -198,7 +208,7 @@ public class PTCRISync {
 	 * @throws InterruptedException
 	 */
 	public static List<Work> importWorks(ORCIDClient orcidClient, List<Work> localWorks, ProgressHandler progressHandler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
@@ -223,7 +233,12 @@ public class PTCRISync {
 			}
 		}
 
-		helper.waitWorkers();
+		try {
+			helper.waitWorkers();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		for (Work fullWork : fullWorks) {
 			int counter = putcodes.get(fullWork.getPutCode());
@@ -284,7 +299,7 @@ public class PTCRISync {
 	 * @throws InterruptedException
 	 */
 	public static List<Work> importUpdates(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler) throws OrcidClientException, InterruptedException {
+			ProgressHandler progressHandler) throws OrcidClientException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
