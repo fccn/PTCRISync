@@ -65,8 +65,10 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Retrieves the entire set of work summaries from the ORCID profile. Merges
-	 * each ORCID group into a single summary, following {@link #groupToWork}.
+	 * Retrieves the entire set of work summaries from the ORCID profile that
+	 * have at least an external identifier set. Merges each ORCID group into a
+	 * single summary, following {@link #groupToWork}. Groups without external
+	 * identifiers are ignored.
 	 * 
 	 * @return The set of work summaries in the ORCID profile.
 	 * @throws OrcidClientException
@@ -78,7 +80,8 @@ public class ORCIDHelper {
 		List<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup();
 		List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
 		for (WorkGroup group : workGroupList) {
-			workSummaryList.add(groupToWork(group));
+			if (!group.getIdentifiers().getIdentifier().isEmpty())
+				workSummaryList.add(groupToWork(group));
 		}
 		return workSummaryList;
 	}
@@ -235,8 +238,7 @@ public class ORCIDHelper {
 	 *            the summaries from which to collect the put-codes.
 	 * @return a list of put-codes in the summaries.
 	 */
-	public static List<BigInteger> getSummaryPutCodes(ActivitiesSummary activitiesSummary)
-			throws NullPointerException {
+	public static List<BigInteger> getSummaryPutCodes(ActivitiesSummary activitiesSummary) throws NullPointerException {
 		List<BigInteger> pubCodesList = new LinkedList<BigInteger>();
 		List<WorkSummary> workSummaryList;
 		BigInteger putCode;
@@ -426,6 +428,7 @@ public class ORCIDHelper {
 
 	/**
 	 * Calculates the difference between two sets of external identifiers.
+	 * 
 	 * @param base
 	 * @param filter
 	 * @return
@@ -454,7 +457,7 @@ public class ORCIDHelper {
 		to.setSource(from.getSource());
 		to.setVisibility(from.getVisibility());
 	}
-	
+
 	public static WorkSummary clone(WorkSummary aux) {
 		WorkSummary dummy = new WorkSummary();
 		copy(aux, dummy);
