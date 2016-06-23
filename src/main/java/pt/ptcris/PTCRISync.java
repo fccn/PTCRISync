@@ -75,7 +75,14 @@ public class PTCRISync {
 	 * Finally, for local works without any matching ORCID work new ORCID works
 	 * are created. The matching is performed by detecting shared
 	 * {@link ExternalIdentifier external identifiers} (see
-	 * {@link ORCIDHelper#getWorksWithSharedUIDs(WorkSummary, Collection)}).
+	 * {@link ORCIDHelper#getExternalIdentifiersDiff(WorkSummary, Collection)}).
+	 * </p>
+	 * 
+	 * <p>
+	 * The update stage must be two-phased in order to avoid potential
+	 * conflicts: the first phase removes external identifiers that are obsolete
+	 * from the CRIS sourced works, so that there are no conflicts with the new
+	 * ones inserted in the second phase.
 	 * </p>
 	 * 
 	 * <p>
@@ -94,6 +101,9 @@ public class PTCRISync {
 	 * force ORCID works to be updated only once (by a single matching local
 	 * work).
 	 * </p>
+	 * 
+	 * TODO: ORCID conflict errors 409 must be handled if the user submits works
+	 * to be exported with overlapping external identifiers.
 	 * 
 	 * @param orcidClient
 	 *            The ORCID client defining the CRIS Member API and the profile
@@ -125,7 +135,7 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					orcidWorks.get(counter), localWorks);
 			if (matchingWorks.isEmpty()) {
 				helper.deleteWork(orcidWorks.get(counter).getPutCode());
@@ -143,7 +153,6 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			// TODO: handle ORCID conflict errors 409
 			if (!recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
 				Work localWork = recordsToUpdate.get(counter).getLocalWork();
 				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
@@ -162,7 +171,6 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			// TODO: handle ORCID conflict errors 409
 			if (!recordsToUpdate.get(counter).getMatches().less.isEmpty()
 					|| recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
 				Work localWork = recordsToUpdate.get(counter).getLocalWork();
@@ -181,7 +189,6 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / localWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			// TODO: handle ORCID conflict errors 409
 			helper.addWork(localWorks.get(counter));
 		}
 
@@ -249,7 +256,7 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					orcidWorks.get(counter), localWorks);
 			if (matchingWorks.isEmpty()) {
 				helper.getFullWork(orcidWorks.get(counter).getPutCode(), fullWorks);
@@ -337,7 +344,7 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					orcidWorks.get(counter), localWorks);
 			if (!matchingWorks.isEmpty()) {
 				for (Work mathingWork : matchingWorks.keySet()) {

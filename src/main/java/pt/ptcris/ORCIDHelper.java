@@ -14,10 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
@@ -46,7 +42,7 @@ import pt.ptcris.workers.ORCIDUpdWorker;
  */
 public class ORCIDHelper {
 
-	private boolean threaded = true;
+	private boolean threaded = false;
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
@@ -199,7 +195,7 @@ public class ORCIDHelper {
 
 		// Remove any putCode if exists
 		work.setPutCode(null);
-		
+
 		if (threaded) {
 			ORCIDAddWorker worker = new ORCIDAddWorker(client, work, _log);
 			executor.execute(worker);
@@ -291,76 +287,27 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Selects from a set of works those that share some UIDs (external
-	 * identifiers) with a given work summary.
+	 * Calculates the symmetric difference of {@link ExternalIdentifier external
+	 * identifiers} between a work and a set of works. Works that do not match
+	 * (i.e., no identifiers is common) are ignored.
 	 * 
 	 * @param work
-	 *            The work summary to compare with the set of works.
+	 *            The work summary to be compared with <code>works</code>.
 	 * @param works
-	 *            The set of works to search for productions with shared UIDs.
-	 * @return The set of works with matching UIDs.
+	 *            The set of works to be compared with <code>work</code>.
+	 * @return The symmetric difference of external identifiers between
+	 *         <code>work</code> and every <code>works</code>.
 	 */
-	public static Map<Work, ExternalIdentifiersUpdate> getWorksWithSharedUIDs(WorkSummary work, Collection<Work> works) {
+	public static Map<Work, ExternalIdentifiersUpdate> getExternalIdentifiersDiff(WorkSummary work,
+			Collection<Work> works) {
 		Map<Work, ExternalIdentifiersUpdate> matches = new HashMap<Work, ExternalIdentifiersUpdate>();
 		for (Work match : works) {
-			ExternalIdentifiersUpdate aux = checkDuplicateUIDs(match.getExternalIdentifiers(),
+			ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(match.getExternalIdentifiers(),
 					work.getExternalIdentifiers());
 			if (!aux.same.isEmpty())
 				matches.put(match, aux);
 		}
 		return matches;
-	}
-
-	/**
-	 * Tests whether two sets of UIDs (external identifiers) have duplicates.
-	 * The algorithm is the same as the one implemented by the ORCID service.
-	 * Only considered duplicate if UIDs have the same relationship and are not
-	 * "part of".
-	 * 
-	 * TODO: optimize
-	 * 
-	 * @param uids1
-	 *            a set of UIDs.
-	 * @param uids2
-	 *            another set of UIDs.
-	 * @return whether there are duplicate UIDs.
-	 */
-	private static ExternalIdentifiersUpdate checkDuplicateUIDs(WorkExternalIdentifiers uids1,
-			WorkExternalIdentifiers uids2) {
-		Set<ExternalIdentifier> less = new HashSet<ExternalIdentifier>(uids1.getWorkExternalIdentifier());
-		Set<ExternalIdentifier> same = new HashSet<ExternalIdentifier>();
-		Set<ExternalIdentifier> more = new HashSet<ExternalIdentifier>(uids2.getWorkExternalIdentifier());
-		if (uids2 != null && uids1 != null) {
-			for (ExternalIdentifier uid2 : uids2.getWorkExternalIdentifier()) {
-				for (ExternalIdentifier uid1 : uids1.getWorkExternalIdentifier()) {
-					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship())
-							&& uid1.getExternalIdentifierId().equals(uid2.getExternalIdentifierId())
-							&& uid1.getExternalIdentifierType().equals(uid2.getExternalIdentifierType())) {
-						same.add(uid2);
-						less.remove(uid1);
-						more.remove(uid2);
-					}
-				}
-			}
-		}
-		return new ExternalIdentifiersUpdate(less, same, more);
-	}
-
-	/**
-	 * Tests whether two UID relationship types are the same but not part of.
-	 * 
-	 * @param r1
-	 *            a UID relationship type.
-	 * @param r2
-	 *            another UID relationship type.
-	 * @return whether UIDs are the same but not part of.
-	 */
-	private static boolean sameButNotBothPartOf(RelationshipType r1, RelationshipType r2) {
-		if (r1 == null && r2 == null)
-			return true;
-		if (r1 != null && r1.equals(r2) && !r1.equals(RelationshipType.PART_OF))
-			return true;
-		return false;
 	}
 
 	/**
