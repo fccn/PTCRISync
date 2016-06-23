@@ -3,14 +3,20 @@ package pt.ptcris;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +46,7 @@ import pt.ptcris.workers.ORCIDUpdWorker;
  */
 public class ORCIDHelper {
 
-	private boolean threaded = false;
+	private boolean threaded = true;
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
@@ -193,7 +199,7 @@ public class ORCIDHelper {
 
 		// Remove any putCode if exists
 		work.setPutCode(null);
-
+		
 		if (threaded) {
 			ORCIDAddWorker worker = new ORCIDAddWorker(client, work, _log);
 			executor.execute(worker);
@@ -294,11 +300,13 @@ public class ORCIDHelper {
 	 *            The set of works to search for productions with shared UIDs.
 	 * @return The set of works with matching UIDs.
 	 */
-	public static List<Work> getWorksWithSharedUIDs(WorkSummary work, Collection<Work> works) {
-		List<Work> matches = new LinkedList<Work>();
+	public static Map<Work, ExternalIdentifiersUpdate> getWorksWithSharedUIDs(WorkSummary work, Collection<Work> works) {
+		Map<Work, ExternalIdentifiersUpdate> matches = new HashMap<Work, ExternalIdentifiersUpdate>();
 		for (Work match : works) {
-			if (checkDuplicateUIDs(match.getExternalIdentifiers(), work.getExternalIdentifiers()))
-				matches.add(match);
+			ExternalIdentifiersUpdate aux = checkDuplicateUIDs(match.getExternalIdentifiers(),
+					work.getExternalIdentifiers());
+			if (!aux.same.isEmpty())
+				matches.put(match, aux);
 		}
 		return matches;
 	}
@@ -309,25 +317,33 @@ public class ORCIDHelper {
 	 * Only considered duplicate if UIDs have the same relationship and are not
 	 * "part of".
 	 * 
+	 * TODO: optimize
+	 * 
 	 * @param uids1
 	 *            a set of UIDs.
 	 * @param uids2
 	 *            another set of UIDs.
 	 * @return whether there are duplicate UIDs.
 	 */
-	private static boolean checkDuplicateUIDs(WorkExternalIdentifiers uids1, WorkExternalIdentifiers uids2) {
+	private static ExternalIdentifiersUpdate checkDuplicateUIDs(WorkExternalIdentifiers uids1,
+			WorkExternalIdentifiers uids2) {
+		Set<ExternalIdentifier> less = new HashSet<ExternalIdentifier>(uids1.getWorkExternalIdentifier());
+		Set<ExternalIdentifier> same = new HashSet<ExternalIdentifier>();
+		Set<ExternalIdentifier> more = new HashSet<ExternalIdentifier>(uids2.getWorkExternalIdentifier());
 		if (uids2 != null && uids1 != null) {
 			for (ExternalIdentifier uid2 : uids2.getWorkExternalIdentifier()) {
 				for (ExternalIdentifier uid1 : uids1.getWorkExternalIdentifier()) {
 					if (sameButNotBothPartOf(uid2.getRelationship(), uid1.getRelationship())
 							&& uid1.getExternalIdentifierId().equals(uid2.getExternalIdentifierId())
 							&& uid1.getExternalIdentifierType().equals(uid2.getExternalIdentifierType())) {
-						return true;
+						same.add(uid2);
+						less.remove(uid1);
+						more.remove(uid2);
 					}
 				}
 			}
 		}
-		return false;
+		return new ExternalIdentifiersUpdate(less, same, more);
 	}
 
 	/**

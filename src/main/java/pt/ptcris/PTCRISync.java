@@ -1,6 +1,7 @@
 package pt.ptcris;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.handlers.ProgressHandler;
@@ -107,7 +109,7 @@ public class PTCRISync {
 	 * @throws InterruptedException
 	 */
 	public static void export(ORCIDClient orcidClient, List<Work> localWorks, ProgressHandler progressHandler)
-			throws OrcidClientException {
+			throws OrcidClientException, InterruptedException {
 
 		int progress = 0;
 		progressHandler.setProgress(progress);
@@ -123,30 +125,55 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			List<Work> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), localWorks);
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(
+					orcidWorks.get(counter), localWorks);
 			if (matchingWorks.isEmpty()) {
 				helper.deleteWork(orcidWorks.get(counter).getPutCode());
 			} else {
-				Work localWork = matchingWorks.get(0);
-				recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter)));
+				Work localWork = matchingWorks.keySet().iterator().next();
+				recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks.get(localWork)));
 				localWorks.remove(localWork);
 			}
 		}
 
-		try {
-			helper.waitWorkers();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		helper.waitWorkers();
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
 		for (int counter = 0; counter != recordsToUpdate.size(); counter++) {
 			progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			helper.updateWork(ORCIDHelper.getWorkPutCode(recordsToUpdate.get(counter).getRemoteWork()), recordsToUpdate
-					.get(counter).getLocalWork());
+			// TODO: handle ORCID conflict errors 409
+			if (!recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
+				Work localWork = recordsToUpdate.get(counter).getLocalWork();
+				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
+				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(recordsToUpdate.get(counter)
+						.getMatches().same);
+				weids.setWorkExternalIdentifier(ids);
+				localWork.setExternalIdentifiers(weids);
+				helper.updateWork(ORCIDHelper.getWorkPutCode(recordsToUpdate.get(counter).getRemoteWork()), localWork);
+			}
+		}
+
+		helper.waitWorkers();
+
+		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
+		for (int counter = 0; counter != recordsToUpdate.size(); counter++) {
+			progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
+			progressHandler.setProgress(progress);
+
+			// TODO: handle ORCID conflict errors 409
+			if (!recordsToUpdate.get(counter).getMatches().less.isEmpty()
+					|| recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
+				Work localWork = recordsToUpdate.get(counter).getLocalWork();
+				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
+				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(recordsToUpdate.get(counter)
+						.getMatches().same);
+				ids.addAll(recordsToUpdate.get(counter).getMatches().less);
+				weids.setWorkExternalIdentifier(ids);
+				localWork.setExternalIdentifiers(weids);
+				helper.updateWork(ORCIDHelper.getWorkPutCode(recordsToUpdate.get(counter).getRemoteWork()), localWork);
+			}
 		}
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING_WORKS");
@@ -154,15 +181,11 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / localWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
+			// TODO: handle ORCID conflict errors 409
 			helper.addWork(localWorks.get(counter));
 		}
 
-		try {
-			helper.waitWorkers();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		helper.waitWorkers();
 
 		progressHandler.done();
 
@@ -226,7 +249,8 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			List<Work> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), localWorks);
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(
+					orcidWorks.get(counter), localWorks);
 			if (matchingWorks.isEmpty()) {
 				helper.getFullWork(orcidWorks.get(counter).getPutCode(), fullWorks);
 				putcodes.put(orcidWorks.get(counter).getPutCode(), counter);
@@ -313,13 +337,16 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			List<Work> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(orcidWorks.get(counter), localWorks);
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getWorksWithSharedUIDs(
+					orcidWorks.get(counter), localWorks);
 			if (!matchingWorks.isEmpty()) {
-				for (Work mathingWork : matchingWorks) {
+				for (Work mathingWork : matchingWorks.keySet()) {
 					if (!ORCIDHelper.isAlreadyUpToDate(mathingWork, orcidWorks.get(counter))) {
 						Work workUpdate = ORCIDHelper.clone(mathingWork);
-						workUpdate.setExternalIdentifiers(ORCIDHelper.difference(orcidWorks.get(counter)
-								.getExternalIdentifiers(), mathingWork.getExternalIdentifiers()));
+						WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
+						weids.setWorkExternalIdentifier(new ArrayList<ExternalIdentifier>(matchingWorks
+								.get(mathingWork).more));
+						workUpdate.setExternalIdentifiers(weids);
 						worksToUpdate.add(workUpdate);
 					}
 				}
