@@ -12,7 +12,7 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
-import pt.ptcris.ORCIDException;
+import pt.ptcris.PTCRISyncException;
 import pt.ptcris.ORCIDHelper;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.handlers.ProgressHandler;
@@ -45,7 +45,7 @@ public abstract class Scenario {
 	}
 
 	@Test
-	public void test() throws ORCIDException, OrcidClientException, InterruptedException {
+	public void test() throws PTCRISyncException, OrcidClientException, InterruptedException {
 		ProgressHandler handler = ScenariosHelper.handler();
 
 		long startTime = System.currentTimeMillis();

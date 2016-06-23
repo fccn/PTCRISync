@@ -9,6 +9,12 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
 
+/**
+ * Features:
+ * export add
+ * export update {same,less}
+ * 
+ */
 public class Scenario14 extends Scenario {
 
 	@Override

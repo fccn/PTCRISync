@@ -9,6 +9,11 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
 
+/**
+ * Features:
+ * modification notifications with {same,more,less}
+ * 
+ */
 public class Scenario15 extends Scenario {
 
 	@Override

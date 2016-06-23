@@ -9,6 +9,12 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
 
+/**
+ * Features:
+ * creation notification
+ * 
+ */
+
 public class Scenario5 extends Scenario {
 
 	@Override

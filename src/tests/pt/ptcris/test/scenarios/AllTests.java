@@ -20,7 +20,9 @@ import org.junit.runners.Suite;
     Scenario13.class,
     Scenario14.class,
     Scenario15.class,
-    Scenario16.class
+    Scenario16.class,
+    Scenario17.class,
+    Scenario18.class
 })
 public class AllTests {
 }
