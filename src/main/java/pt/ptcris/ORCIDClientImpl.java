@@ -66,7 +66,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * @see pt.ptcris.ORCIDClient#addWork(Work)
 	 */
 	public BigInteger addWork(Work work) throws OrcidClientException {
-		System.out.println(work.toString());
+		//System.out.println(work.toString());
 		return new BigInteger(this.orcidClient.addWork(this.orcidToken, work));
 	}
 

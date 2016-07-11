@@ -380,7 +380,7 @@ public class ORCIDHelper {
 		for (Identifier id : group.getIdentifiers().getIdentifier()) {
 			ExternalIdentifier eid = new ExternalIdentifier();
 			eid.setRelationship(RelationshipType.SELF);
-			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id.getExternalIdentifierType()));
+			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id.getExternalIdentifierType().toLowerCase()));
 			eid.setExternalIdentifierId(id.getExternalIdentifierId());
 			eids.add(eid);
 		}
