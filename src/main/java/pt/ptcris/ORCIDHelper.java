@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +23,7 @@ import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ActivitySummary;
 import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.common.Visibility;
 import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.ExternalIdentifierType;
 import org.um.dsi.gavea.orcid.model.work.Work;
@@ -42,6 +42,7 @@ import pt.ptcris.workers.ORCIDUpdWorker;
  */
 public class ORCIDHelper {
 
+	// remove threaded post, preserve threaded get
 	private boolean threaded = false;
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
@@ -144,12 +145,7 @@ public class ORCIDHelper {
 	public void deleteWork(BigInteger putCode) throws OrcidClientException {
 		_log.debug("[deleteWork] " + putCode);
 
-		if (threaded) {
-			ORCIDDelWorker worker = new ORCIDDelWorker(client, putCode, _log);
-			executor.execute(worker);
-		} else
-			client.deleteWork(putCode);
-
+		client.deleteWork(putCode);
 	}
 
 	/**
@@ -178,34 +174,23 @@ public class ORCIDHelper {
 	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
 		_log.debug("[updateWork] " + putCode);
 		work.setPutCode(putCode);
-
-		if (threaded) {
-			ORCIDUpdWorker worker = new ORCIDUpdWorker(client, work, _log);
-			executor.execute(worker);
-		} else
-			client.updateWork(work.getPutCode(), work);
-
+		
+		client.updateWork(work.getPutCode(), work);
 	}
 
 	/**
 	 * @see {@link ORCIDClient#addWork(Work)}
 	 */
-	public Work addWork(Work work) throws OrcidClientException {
+	public BigInteger addWork(Work work) throws OrcidClientException {
 		_log.debug("[addWork]" + getWorkTitle(work));
 
 		// Remove any putCode if exists
 		work.setPutCode(null);
 
-		if (threaded) {
-			ORCIDAddWorker worker = new ORCIDAddWorker(client, work, _log);
-			executor.execute(worker);
-		} else {
-			BigInteger putCode = client.addWork(work);
-			work.setPutCode(putCode);
-			_log.debug("[addWork] " + work.getPutCode());
-		}
+		BigInteger putCode = client.addWork(work);
+		_log.debug("[addWork] " + putCode);
 
-		return work;
+		return putCode;
 	}
 
 	/**
@@ -274,15 +259,7 @@ public class ORCIDHelper {
 		return work.getTitle().getTitle();
 	}
 
-	/**
-	 * Retrieves the put-code from a work.
-	 * 
-	 * @param work
-	 *            the work.
-	 * @return the work's put-code.
-	 * @throws NullPointerException
-	 */
-	public static BigInteger getWorkPutCode(ActivitySummary work) throws NullPointerException {
+	public static BigInteger getWorkLocalCode(ActivitySummary work) throws NullPointerException {
 		return work.getPutCode();
 	}
 
@@ -314,6 +291,9 @@ public class ORCIDHelper {
 	 * Checks whether a work is already up to date regarding another one, i.e.,
 	 * whether a work has the same UIDs as another one.
 	 * 
+	 * This test is expected to be used by the import algorithms, where only new
+	 * UIDs are to be considered.
+	 * 
 	 * @param existingWork
 	 *            The potentially out of date work.
 	 * @param workSummary
@@ -321,26 +301,40 @@ public class ORCIDHelper {
 	 * @return true if all the UIDs between the two works are the same, false
 	 *         otherwise.
 	 */
-	public static boolean isAlreadyUpToDate(Work existingWork, WorkSummary workSummary) {
-		Set<ExternalIdentifier> uids1 = new HashSet<ExternalIdentifier>(existingWork.getExternalIdentifiers()
-				.getWorkExternalIdentifier());
-		Set<ExternalIdentifier> uids2 = new HashSet<ExternalIdentifier>(workSummary.getExternalIdentifiers()
-				.getWorkExternalIdentifier());
-		for (ExternalIdentifier x : uids2) {
-			boolean found = false;
-			Iterator<ExternalIdentifier> it = uids1.iterator();
-			while (it.hasNext() && !found) {
-				ExternalIdentifier y = it.next();
-				if (x.getExternalIdentifierId().equals(y.getExternalIdentifierId())
-						&& x.getExternalIdentifierType().equals(y.getExternalIdentifierType())
-						&& x.getRelationship().equals(y.getRelationship()))
-					found = true;
-			}
-			if (!found)
-				return false;
-		}
+	public static boolean hasNewIDs(Work existingWork, WorkSummary workSummary) {
+		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
+				workSummary.getExternalIdentifiers());
 
-		return true;
+		return aux.more.isEmpty();
+	}
+
+	/**
+	 * Checks whether a work is already up to date regarding another one,
+	 * considering the UIDs and the meta-data.
+	 * 
+	 * This test is expected to be used by the export algorithms, where the
+	 * meta-data is expected to be up-to-date on the remote profile.
+	 * 
+	 * @param existingWork
+	 *            The potentially out of date work.
+	 * @param workSummary
+	 *            The up to date work.
+	 * @return true if all the UIDs and the meta-data between the two works are
+	 *         the same, false otherwise.
+	 */
+	public static boolean isUpToDate(Work existingWork, WorkSummary workSummary) {
+		return isIDsUpToDate(existingWork, workSummary) && isMetaUpToDate(existingWork, workSummary);
+	}
+
+	private static boolean isMetaUpToDate(Work existingWork, WorkSummary workSummary) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private static boolean isIDsUpToDate(Work existingWork, WorkSummary workSummary) {
+		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
+				workSummary.getExternalIdentifiers());
+		return aux.more.isEmpty() && aux.less.isEmpty();
 	}
 
 	// TODO: needed because JAXB does not define equals
@@ -380,35 +374,14 @@ public class ORCIDHelper {
 		for (Identifier id : group.getIdentifiers().getIdentifier()) {
 			ExternalIdentifier eid = new ExternalIdentifier();
 			eid.setRelationship(RelationshipType.SELF);
-			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id.getExternalIdentifierType()));
+			eid.setExternalIdentifierType(ExternalIdentifierType
+					.fromValue(id.getExternalIdentifierType()));
 			eid.setExternalIdentifierId(id.getExternalIdentifierId());
 			eids.add(eid);
 		}
 		dummy.setExternalIdentifiers(new WorkExternalIdentifiers(eids));
 
 		return dummy;
-	}
-
-	/**
-	 * Calculates the difference between two sets of external identifiers.
-	 * 
-	 * @param base
-	 * @param filter
-	 * @return
-	 */
-	public static WorkExternalIdentifiers difference(WorkExternalIdentifiers base, WorkExternalIdentifiers filter) {
-		List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(base.getWorkExternalIdentifier());
-		for (ExternalIdentifier eid : base.getWorkExternalIdentifier()) {
-			for (ExternalIdentifier eid2 : filter.getWorkExternalIdentifier()) {
-				if (eid.getExternalIdentifierId().equals(eid2.getExternalIdentifierId())
-						&& eid.getExternalIdentifierType().equals(eid2.getExternalIdentifierType())
-						&& eid.getRelationship().equals(eid2.getRelationship())) {
-					ids.remove(eid);
-				}
-			}
-		}
-
-		return new WorkExternalIdentifiers(ids);
 	}
 
 	public static void copy(ActivitySummary from, ActivitySummary to) {
