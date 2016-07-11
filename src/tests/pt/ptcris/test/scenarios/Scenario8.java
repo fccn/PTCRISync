@@ -19,28 +19,28 @@ public class Scenario8 extends Scenario {
 	@Override
 	List<Work> setupORCIDFixtureWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEID(BigInteger.valueOf(2), "Meta-data 0", "0", "0"));
+		works.add(ScenariosHelper.workDOIEID(BigInteger.valueOf(2), "Meta-data 0", "DOI0", "EID0"));
 		return works;
 	}
 
 	@Override
 	List<Work> setupLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(1), "Meta-data 1", "1"));
+		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(1), "Meta-data 1", "DOI1"));
 		return works;
 	}
 
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"Meta-data 0","0","0", "1"));
+		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2),"Meta-data 0","DOI0", "Handle1"));
 		return works;
 	}
 
 	@Override
 	List<Work> expectedSourcedORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"Meta-data 0","0","0", "1"));
+		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2),"Meta-data 0","DOI0", "Handle1"));
 		return works;
 	}
 

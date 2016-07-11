@@ -92,8 +92,8 @@ public class ScenariosHelper {
 
 		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
 
-		uids.getWorkExternalIdentifier().add(e);
 		uids.getWorkExternalIdentifier().add(e1);
+		uids.getWorkExternalIdentifier().add(e);
 
 		work.setExternalIdentifiers(uids);
 
@@ -188,9 +188,9 @@ public class ScenariosHelper {
 
 		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
 
-		uids.getWorkExternalIdentifier().add(e);
 		uids.getWorkExternalIdentifier().add(e1);
 		uids.getWorkExternalIdentifier().add(e2);
+		uids.getWorkExternalIdentifier().add(e);
 
 		work.setExternalIdentifiers(uids);
 
@@ -201,6 +201,49 @@ public class ScenariosHelper {
 		return work;
 	}
 
+	static Work workDOIEIDHANDLEHANDLE(BigInteger key, String meta, String doi, String eid, String handle1, String handle2) {
+		Work work = new Work();
+		WorkTitle title = new WorkTitle();
+		title.setTitle(meta);
+		work.setTitle(title);
+
+		ExternalIdentifier e = new ExternalIdentifier();
+		e.setRelationship(RelationshipType.SELF);
+		e.setExternalIdentifierId(eid);
+		e.setExternalIdentifierType(ExternalIdentifierType.EID);
+
+		ExternalIdentifier e1 = new ExternalIdentifier();
+		e1.setRelationship(RelationshipType.SELF);
+		e1.setExternalIdentifierId(doi);
+		e1.setExternalIdentifierType(ExternalIdentifierType.DOI);
+
+		ExternalIdentifier e2 = new ExternalIdentifier();
+		e2.setRelationship(RelationshipType.SELF);
+		e2.setExternalIdentifierId(handle1);
+		e2.setExternalIdentifierType(ExternalIdentifierType.HANDLE);
+
+		ExternalIdentifier e3 = new ExternalIdentifier();
+		e3.setRelationship(RelationshipType.SELF);
+		e3.setExternalIdentifierId(handle2);
+		e3.setExternalIdentifierType(ExternalIdentifierType.HANDLE);
+		
+		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
+
+		uids.getWorkExternalIdentifier().add(e1);
+		uids.getWorkExternalIdentifier().add(e2);
+		uids.getWorkExternalIdentifier().add(e);
+		uids.getWorkExternalIdentifier().add(e3);
+
+		work.setExternalIdentifiers(uids);
+
+		work.setType(WorkType.CONFERENCE_PAPER);
+
+		work.setPutCode(key);
+
+		return work;
+	}
+
+	
 	static Work workDOIDOIEIDHANDLE(BigInteger key, String meta, String doi1, String doi2, String eid, String handle) {
 		Work work = workDOIEIDHANDLE(key, meta, doi1, eid, handle);
 
@@ -281,5 +324,61 @@ public class ScenariosHelper {
 		for (WorkSummary work : helper.getSourcedWorkSummaries())
 			helper.deleteWork(work.getPutCode());
 
+	}
+
+	public static Work workDOIDOIEIDEIDHANDLEHANDLE(BigInteger key, String meta, String doi1, String doi2,
+			String eid1, String eid2, String handle1, String handle2) {
+		Work work = new Work();
+		WorkTitle title = new WorkTitle();
+		title.setTitle(meta);
+		work.setTitle(title);
+
+		ExternalIdentifier e = new ExternalIdentifier();
+		e.setRelationship(RelationshipType.SELF);
+		e.setExternalIdentifierId(eid1);
+		e.setExternalIdentifierType(ExternalIdentifierType.EID);
+
+		ExternalIdentifier e1 = new ExternalIdentifier();
+		e1.setRelationship(RelationshipType.SELF);
+		e1.setExternalIdentifierId(doi1);
+		e1.setExternalIdentifierType(ExternalIdentifierType.DOI);
+
+		ExternalIdentifier e2 = new ExternalIdentifier();
+		e2.setRelationship(RelationshipType.SELF);
+		e2.setExternalIdentifierId(handle1);
+		e2.setExternalIdentifierType(ExternalIdentifierType.HANDLE);
+		
+		ExternalIdentifier e3 = new ExternalIdentifier();
+		e3.setRelationship(RelationshipType.SELF);
+		e3.setExternalIdentifierId(eid2);
+		e3.setExternalIdentifierType(ExternalIdentifierType.EID);
+
+		ExternalIdentifier e4 = new ExternalIdentifier();
+		e4.setRelationship(RelationshipType.SELF);
+		e4.setExternalIdentifierId(doi2);
+		e4.setExternalIdentifierType(ExternalIdentifierType.DOI);
+
+		ExternalIdentifier e5 = new ExternalIdentifier();
+		e5.setRelationship(RelationshipType.SELF);
+		e5.setExternalIdentifierId(handle2);
+		e5.setExternalIdentifierType(ExternalIdentifierType.HANDLE);
+
+
+		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
+
+		uids.getWorkExternalIdentifier().add(e1);
+		uids.getWorkExternalIdentifier().add(e2);
+		uids.getWorkExternalIdentifier().add(e);
+		uids.getWorkExternalIdentifier().add(e3);
+		uids.getWorkExternalIdentifier().add(e4);
+		uids.getWorkExternalIdentifier().add(e5);
+
+		work.setExternalIdentifiers(uids);
+
+		work.setType(WorkType.CONFERENCE_PAPER);
+
+		work.setPutCode(key);
+
+		return work;
 	}
 }

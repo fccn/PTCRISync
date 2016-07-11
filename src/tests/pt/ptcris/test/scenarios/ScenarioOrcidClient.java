@@ -8,7 +8,7 @@ import pt.ptcris.ORCIDClientImpl;
 public class ScenarioOrcidClient {
 
 	private static final String orcid_login_uri = "https://sandbox.orcid.org";
-	private static final String orcid_api_uri = "https://api.sandbox.orcid.org";
+	private static final String orcid_api_uri = "https://api.sandbox.orcid.org/";
 	private static final String orcid_redirect_uri = "https://developers.google.com/oauthplayground";
 
 	private static final String orcid_client_id_fixture = "APP-JFDCD0I82SXO91F9";
@@ -22,7 +22,7 @@ public class ScenarioOrcidClient {
 	private static final String[] orcid_profile_work_secret = { "dd90ad6f-3ec2-4a0a-8762-725f95389b22",
 			"e49393b9-9494-4085-bf71-3c6bb03f3873", "c8962118-bd00-4bd2-8784-8b7bf0c3b84b" };
 	private static final String[] orcid_profile_work_secret_fixture = { "ba052ca1-b65b-41d4-969a-bc97a0f67386",
-			"7b8b8632-62b8-4015-a34a-c03a297a2ddf", "3d38cae4-0c2a-4ef8-8d55-7b6a9863dbbf" };
+			"7b8b8632-62b8-4015-a34a-c03a297a2ddf", "59e45d2f-d7e0-47fa-b6a1-31e0066781f3" };
 
 	public static ORCIDClient getClientWork(int i) {
 		ORCIDClientImpl orcidClient = new ORCIDClientImpl(orcid_login_uri, orcid_api_uri, orcid_client_id,
