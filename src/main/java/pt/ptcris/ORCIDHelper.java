@@ -259,10 +259,20 @@ public class ORCIDHelper {
 		return work.getTitle().getTitle();
 	}
 
-	public static BigInteger getWorkLocalCode(ActivitySummary work) throws NullPointerException {
+	public static BigInteger getWorkLocalKey(ActivitySummary work) {
 		return work.getPutCode();
 	}
+	
+	public static void setWorkLocalKey(ActivitySummary work, BigInteger putcode) {
+		work.setPutCode(putcode);
+	}
 
+	public static void cleanWorkLocalKey(ActivitySummary work) {
+		work.setPutCode(null);
+	}
+	
+	
+	
 	/**
 	 * Calculates the symmetric difference of {@link ExternalIdentifier external
 	 * identifiers} between a work and a set of works. Works that do not match
@@ -273,7 +283,7 @@ public class ORCIDHelper {
 	 * @param works
 	 *            The set of works to be compared with <code>work</code>.
 	 * @return The symmetric difference of external identifiers between
-	 *         <code>work</code> and every <code>works</code>.
+	 *         <code>work</code> and each <code>works</code>.
 	 */
 	public static Map<Work, ExternalIdentifiersUpdate> getExternalIdentifiersDiff(WorkSummary work,
 			Collection<Work> works) {
