@@ -117,17 +117,20 @@ public class PTCRISync {
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 * @throws InterruptedException
+	 * @throws NullPointerException
 	 */
-	public static void export(ORCIDClient orcidClient, List<Work> localWorks, ProgressHandler progressHandler)
-			throws OrcidClientException, InterruptedException {
+	public static Map<BigInteger, Integer> export(ORCIDClient orcidClient, List<Work> localWorks,
+			ProgressHandler progressHandler) throws InterruptedException, NullPointerException, OrcidClientException {
+
+		Map<BigInteger, Integer> result = new HashMap<BigInteger, Integer>();
 
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_STARTED");
 
 		ORCIDHelper helper = new ORCIDHelper(orcidClient);
-
 		List<WorkSummary> orcidWorks = helper.getSourcedWorkSummaries();
+
 		List<UpdateRecord> recordsToUpdate = new LinkedList<UpdateRecord>();
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_WORKS_ITERATION");
@@ -138,15 +141,17 @@ public class PTCRISync {
 			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					orcidWorks.get(counter), localWorks);
 			if (matchingWorks.isEmpty()) {
-				helper.deleteWork(orcidWorks.get(counter).getPutCode());
+				try {
+					helper.deleteWork(orcidWorks.get(counter).getPutCode());
+				} catch (OrcidClientException e) {
+					// TODO: what to do?
+				}
 			} else {
 				Work localWork = matchingWorks.keySet().iterator().next();
 				recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks.get(localWork)));
 				localWorks.remove(localWork);
 			}
 		}
-
-		helper.waitWorkers();
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
 		for (int counter = 0; counter != recordsToUpdate.size(); counter++) {
@@ -160,11 +165,16 @@ public class PTCRISync {
 						.getMatches().same);
 				weids.setWorkExternalIdentifier(ids);
 				localWork.setExternalIdentifiers(weids);
-				helper.updateWork(ORCIDHelper.getWorkPutCode(recordsToUpdate.get(counter).getRemoteWork()), localWork);
+				try {
+					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(),
+							localWork);
+					result.put(ORCIDHelper.getWorkLocalCode(localWork), 200);
+				} catch (OrcidClientException e) {
+					result.put(ORCIDHelper.getWorkLocalCode(localWork), e.getCode());
+					// TODO: what else to do?
+				}
 			}
 		}
-
-		helper.waitWorkers();
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
 		for (int counter = 0; counter != recordsToUpdate.size(); counter++) {
@@ -180,7 +190,14 @@ public class PTCRISync {
 				ids.addAll(recordsToUpdate.get(counter).getMatches().less);
 				weids.setWorkExternalIdentifier(ids);
 				localWork.setExternalIdentifiers(weids);
-				helper.updateWork(ORCIDHelper.getWorkPutCode(recordsToUpdate.get(counter).getRemoteWork()), localWork);
+				try {
+					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(),
+							localWork);
+					result.put(localWork.getPutCode(), 200);
+				} catch (OrcidClientException e) {
+					result.put(localWork.getPutCode(), e.getCode());
+					// TODO: what else to do?
+				}
 			}
 		}
 
@@ -189,14 +206,24 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / localWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			helper.addWork(localWorks.get(counter));
-		}
+			Work localWork = localWorks.get(counter);
 
-		helper.waitWorkers();
+			try {
+				BigInteger remotePutcode = helper.addWork(localWork);
+				result.put(localWork.getPutCode(), 200);
+			} catch (OrcidClientException e) {
+				result.put(localWork.getPutCode(), e.getCode());
+				// TODO: what else to do?
+			}
+		}
 
 		progressHandler.done();
 
+		return result;
 	}
+
+	// public static Map<BigInteger,String> exportUpdates(ORCIDClient
+	// orcidClient, List<Work> localWorks, ProgressHandler progressHandler);
 
 	/**
 	 * <p>
@@ -348,7 +375,7 @@ public class PTCRISync {
 					orcidWorks.get(counter), localWorks);
 			if (!matchingWorks.isEmpty()) {
 				for (Work mathingWork : matchingWorks.keySet()) {
-					if (!ORCIDHelper.isAlreadyUpToDate(mathingWork, orcidWorks.get(counter))) {
+					if (!ORCIDHelper.hasNewIDs(mathingWork, orcidWorks.get(counter))) {
 						Work workUpdate = ORCIDHelper.clone(mathingWork);
 						WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
 						weids.setWorkExternalIdentifier(new ArrayList<ExternalIdentifier>(matchingWorks
