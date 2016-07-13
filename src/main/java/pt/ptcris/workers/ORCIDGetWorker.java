@@ -1,6 +1,7 @@
 package pt.ptcris.workers;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -11,10 +12,10 @@ import pt.ptcris.ORCIDClient;
 
 public class ORCIDGetWorker extends ORCIDWorker {
 
-	private final Set<Work> works;
+	private final Collection<Work> works;
 	private final BigInteger putCode;
 	
-	public ORCIDGetWorker(ORCIDClient client, Set<Work> works, BigInteger putCode, Logger log) {
+	public ORCIDGetWorker(ORCIDClient client, Collection<Work> works, BigInteger putCode, Logger log) {
 		super(client, log);
 		this.works = works;
 		this.putCode = putCode;

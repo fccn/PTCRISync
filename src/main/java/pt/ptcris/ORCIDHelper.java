@@ -43,7 +43,7 @@ public class ORCIDHelper {
 	public static final int ADDOK = 200;
 	public static final int INVALID = -11;
 	public static final int CONFLICT = 409;
-	
+
 	// remove threaded post, preserve threaded get
 	private boolean threaded = false;
 
@@ -72,8 +72,7 @@ public class ORCIDHelper {
 	/**
 	 * Retrieves the entire set of work summaries from the ORCID profile that
 	 * have at least an external identifier set. Merges each ORCID group into a
-	 * single summary, following {@link #groupToWork}. Groups without external
-	 * identifiers are ignored.
+	 * single summary, following {@link #groupToWork}.
 	 * 
 	 * @return The set of work summaries in the ORCID profile.
 	 * @throws OrcidClientException
@@ -84,10 +83,8 @@ public class ORCIDHelper {
 		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		List<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup();
 		List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		for (WorkGroup group : workGroupList) {
-			if (!group.getIdentifiers().getIdentifier().isEmpty())
-				workSummaryList.add(groupToWork(group));
-		}
+		for (WorkGroup group : workGroupList)
+			workSummaryList.add(groupToWork(group));
 		return workSummaryList;
 	}
 
@@ -155,13 +152,17 @@ public class ORCIDHelper {
 	 * 
 	 * @see {@link ORCIDClient#getWork(BigInteger)}
 	 */
-	public void getFullWork(BigInteger putCode, Set<Work> works) throws OrcidClientException {
-		_log.debug("[getFullWork] " + putCode);
+	public void getFullWork(WorkSummary work, Collection<Work> works) throws OrcidClientException {
+		_log.debug("[getFullWork] " + work.getPutCode());
 		if (threaded) {
-			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, putCode, _log);
+			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, work.getPutCode(), _log);
 			executor.execute(worker);
-		} else
-			works.add(client.getWork(putCode));
+		} else {
+			Work fullWork = client.getWork(work.getPutCode());
+			fullWork.setExternalIdentifiers(work.getExternalIdentifiers());
+			cleanWorkLocalKey(fullWork);
+			works.add(fullWork);
+		}
 	}
 
 	/**
@@ -357,12 +358,42 @@ public class ORCIDHelper {
 		return isIDsUpToDate(existingWork, workSummary) && isMetaUpToDate(existingWork, workSummary);
 	}
 
-	private static boolean isMetaUpToDate(Work existingWork, WorkSummary workSummary) {
+	private static boolean isMetaUpToDate(Work work1, WorkSummary work2) {
 		boolean res = true;
-		res &= getWorkTitle(existingWork).equals(getWorkTitle(workSummary));
-		res &= (existingWork.getPublicationDate() == null && workSummary.getPublicationDate() == null)
-				|| existingWork.getPublicationDate().getYear().getValue().equals(workSummary.getPublicationDate().getYear().getValue());
-		res &= existingWork.getType().equals(workSummary.getType());
+		res &= (work1.getTitle() == null && work2.getTitle() == null)
+				|| (work1.getTitle() != null && work2.getTitle() != null && getWorkTitle(work1).equals(
+						getWorkTitle(work2)));
+		res &= (work1.getPublicationDate() == null && work2.getPublicationDate() == null)
+				|| (work1.getPublicationDate() != null && work2.getPublicationDate() != null && work1
+						.getPublicationDate().getYear().getValue()
+						.equals(work2.getPublicationDate().getYear().getValue()));
+		res &= (work1.getType() == null && work2.getType() == null)
+				|| (work1.getType() != null && work2.getType() != null && work1.getType().equals(work2.getType()));
+		// TODO: contributors! but they are not in the summary...
+		return res;
+	}
+
+	private static boolean isIDsUpToDate(Work existingWork, Work workSummary) {
+		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
+				workSummary.getExternalIdentifiers());
+		return aux.more.isEmpty() && aux.less.isEmpty();
+	}
+
+	public static boolean isUpToDate(Work existingWork, Work workSummary) {
+		return isIDsUpToDate(existingWork, workSummary) && isMetaUpToDate(existingWork, workSummary);
+	}
+
+	private static boolean isMetaUpToDate(Work work1, Work work2) {
+		boolean res = true;
+		res &= (work1.getTitle() == null && work2.getTitle() == null)
+				|| (work1.getTitle() != null && work2.getTitle() != null && getWorkTitle(work1).equals(
+						getWorkTitle(work2)));
+		res &= (work1.getPublicationDate() == null && work2.getPublicationDate() == null)
+				|| (work1.getPublicationDate() != null && work2.getPublicationDate() != null && work1
+						.getPublicationDate().getYear().getValue()
+						.equals(work2.getPublicationDate().getYear().getValue()));
+		res &= (work1.getType() == null && work2.getType() == null)
+				|| (work1.getType() != null && work2.getType() != null && work1.getType().equals(work2.getType()));
 		// TODO: contributors! but they are not in the summary...
 		return res;
 	}
@@ -373,11 +404,26 @@ public class ORCIDHelper {
 		return aux.more.isEmpty() && aux.less.isEmpty();
 	}
 
-	public static boolean hasMinimalQuality(Work existingWork) {
+	public static boolean hasMinimalQuality(Work work) {
 		boolean res = true;
-		res &= getWorkTitle(existingWork) != null;
-		res &= (existingWork.getPublicationDate() != null && existingWork.getPublicationDate().getYear() != null);
-		res &= existingWork.getType() != null;
+		res &= work.getExternalIdentifiers() != null
+				&& work.getExternalIdentifiers().getWorkExternalIdentifier() != null
+				&& !work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty();
+		res &= getWorkTitle(work) != null;
+		res &= (work.getPublicationDate() != null && work.getPublicationDate().getYear() != null);
+		res &= work.getType() != null;
+		// TODO: contributors! but they are not in the summary...
+		return res;
+	}
+
+	public static boolean hasMinimalQuality(WorkSummary work) {
+		boolean res = true;
+		res &= work.getExternalIdentifiers() != null
+				&& work.getExternalIdentifiers().getWorkExternalIdentifier() != null
+				&& !work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty();
+		res &= getWorkTitle(work) != null;
+		res &= (work.getPublicationDate() != null && work.getPublicationDate().getYear() != null);
+		res &= work.getType() != null;
 		// TODO: contributors! but they are not in the summary...
 		return res;
 	}
