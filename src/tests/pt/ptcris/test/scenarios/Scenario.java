@@ -50,19 +50,19 @@ public abstract class Scenario {
 	public void test() throws PTCRISyncException, OrcidClientException, InterruptedException {
 		ProgressHandler handler = ScenariosHelper.handler();
 
+		handler.setCurrentStatus(this.getClass().getName()+" start");
 		long startTime = System.currentTimeMillis();
 		Map<BigInteger, Integer> codes = PTCRISync.export(helper.client, exportWorks, handler);
 
 		List<Work> worksToImport = PTCRISync.importWorks(helper.client, localWorks, handler);
 		List<Work> worksToUpdate = PTCRISync.importUpdates(helper.client, localWorks, handler);
 		List<Work> worksToInvalid = PTCRISync.importInvalid(helper.client, localWorks, handler);
-		System.out.println(System.currentTimeMillis() - startTime);
+		long time = System.currentTimeMillis() - startTime;
+		handler.setCurrentStatus(this.getClass().getName()+": "+time+"ms");
 
 		List<Work> allImports = new ArrayList<Work>(worksToImport);
 		allImports.addAll(worksToUpdate);
 		localWorks.addAll(allImports);
-
-		handler.setCurrentStatus(localWorks.toString());
 
 		List<Work> expectedLocal = expectedImportedLocalWorks();
 		List<Work> expectedInvalid = expectedImportedInvalidWorks();

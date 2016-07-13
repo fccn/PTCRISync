@@ -55,7 +55,7 @@ public class Scenario13 extends Scenario {
 	@Override
 	List<Work> expectedImportedInvalidWorks() {
 		List<Work> works = new ArrayList<Work>();
-		Work work = ScenariosHelper.workDOI(null, "1", "5");
+		Work work = ScenariosHelper.workDOI(null, "1", "I2");
 		work.setPublicationDate(null);
 		works.add(work);
 		return works;
