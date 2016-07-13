@@ -29,7 +29,7 @@ public class ScenarioInvalidCRIS1 extends Scenario {
 	@Override
 	List<Work> expectedImportedLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(3), "3", "0"));
+		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(3), null, "0"));
 		return works;
 	}
 
@@ -39,6 +39,15 @@ public class ScenarioInvalidCRIS1 extends Scenario {
 			return ORCIDHelper.CONFLICT;
 		else
 			return ORCIDHelper.ADDOK;
+	}
+
+	@Override
+	List<Work> expectedImportedInvalidWorks() {
+		List<Work> works = new ArrayList<Work>();
+		Work work = ScenariosHelper.workDOI(null, "1", "5");
+		work.setPublicationDate(null);
+		works.add(work);
+		return works;
 	}
 
 	@Override
