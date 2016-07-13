@@ -60,9 +60,9 @@ import pt.ptcris.ORCIDHelper;
  */
 public class PTCRISync {
 
-	private static final int UPTODATE = -10;
-	private static final int OK = 200;
-	private static final int INVALID = -11;
+	public static final int UPTODATE = -10;
+	public static final int OK = 200;
+	public static final int INVALID = -11;
 
 	/**
 	 * <p>
@@ -266,9 +266,9 @@ public class PTCRISync {
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
-					result.put(localWork.getPutCode(), OK);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), OK);
 				} catch (OrcidClientException e) {
-					result.put(localWork.getPutCode(), e.getCode());
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
 					// TODO: what else to do?
 				}
 			}
@@ -284,9 +284,9 @@ public class PTCRISync {
 			// local works that were not updated remaining
 			try {
 				BigInteger remotePutcode = helper.addWork(localWork);
-				result.put(localWork.getPutCode(), OK);
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), OK);
 			} catch (OrcidClientException e) {
-				result.put(localWork.getPutCode(), e.getCode());
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
 				// TODO: what else to do?
 			}
 		}

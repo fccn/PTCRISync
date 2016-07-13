@@ -182,10 +182,11 @@ public class ORCIDHelper {
 	public BigInteger addWork(Work work) throws OrcidClientException {
 		_log.debug("[addWork]" + getWorkTitle(work));
 
+		Work clone = ORCIDHelper.clone(work);
 		// Remove any putCode if exists
-		work.setPutCode(null);
+		clone.setPutCode(null);
 
-		BigInteger putCode = client.addWork(work);
+		BigInteger putCode = client.addWork(clone);
 		_log.debug("[addWork] " + putCode);
 
 		return putCode;
