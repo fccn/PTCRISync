@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.datatype.DatatypeConstants;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
@@ -23,17 +25,13 @@ import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ActivitySummary;
 import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
-import org.um.dsi.gavea.orcid.model.common.Visibility;
 import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.ExternalIdentifierType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
-import pt.ptcris.workers.ORCIDAddWorker;
-import pt.ptcris.workers.ORCIDDelWorker;
 import pt.ptcris.workers.ORCIDGetWorker;
-import pt.ptcris.workers.ORCIDUpdWorker;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -337,10 +335,14 @@ public class ORCIDHelper {
 	}
 
 	private static boolean isMetaUpToDate(Work existingWork, WorkSummary workSummary) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean res = true;
+		res &= getWorkTitle(existingWork).equals(getWorkTitle(workSummary));
+		res &= (existingWork.getPublicationDate() == null && workSummary.getPublicationDate() == null) || existingWork.getPublicationDate().getYear().equals(workSummary.getPublicationDate().getYear());
+		res &= existingWork.getType().equals(workSummary.getType());
+		// TODO: contributors! but they are not in the summary...
+		return res;
 	}
-
+	
 	private static boolean isIDsUpToDate(Work existingWork, WorkSummary workSummary) {
 		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
 				workSummary.getExternalIdentifiers());

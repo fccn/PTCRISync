@@ -60,6 +60,8 @@ import pt.ptcris.ORCIDHelper;
  */
 public class PTCRISync {
 
+	private static final int UPTODATE = -10;
+
 	/**
 	 * <p>
 	 * Exports a list of local CRIS productions to an ORCID profile. This
@@ -121,6 +123,17 @@ public class PTCRISync {
 	 */
 	public static Map<BigInteger, Integer> export(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler) throws InterruptedException, NullPointerException, OrcidClientException {
+		return exportBase(orcidClient, localWorks, progressHandler, false);
+	}
+
+	public static Map<BigInteger, Integer> exportForce(ORCIDClient orcidClient, List<Work> localWorks,
+			ProgressHandler progressHandler) throws InterruptedException, NullPointerException, OrcidClientException {
+		return exportBase(orcidClient, localWorks, progressHandler, true);
+	}
+	
+	private static Map<BigInteger, Integer> exportBase(ORCIDClient orcidClient, List<Work> localWorks,
+			ProgressHandler progressHandler, boolean force) throws InterruptedException, NullPointerException,
+			OrcidClientException {
 
 		Map<BigInteger, Integer> result = new HashMap<BigInteger, Integer>();
 
@@ -148,7 +161,11 @@ public class PTCRISync {
 				}
 			} else {
 				Work localWork = matchingWorks.keySet().iterator().next();
-				recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks.get(localWork)));
+				if (!ORCIDHelper.isUpToDate(localWork, orcidWorks.get(counter)) || force)
+					recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks
+							.get(localWork)));
+				else
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), UPTODATE);
 				localWorks.remove(localWork);
 			}
 		}
@@ -166,8 +183,7 @@ public class PTCRISync {
 				weids.setWorkExternalIdentifier(ids);
 				localWork.setExternalIdentifiers(weids);
 				try {
-					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(),
-							localWork);
+					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
 					result.put(ORCIDHelper.getWorkLocalKey(localWork), 200);
 				} catch (OrcidClientException e) {
 					result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
@@ -182,7 +198,15 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			if (!recordsToUpdate.get(counter).getMatches().less.isEmpty()
-					|| recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
+					|| recordsToUpdate.get(counter).getMatches().more.isEmpty()) { // it
+																					// is
+																					// only
+																					// in
+																					// the
+																					// list
+																					// of
+																					// not
+																					// up-to-date
 				Work localWork = recordsToUpdate.get(counter).getLocalWork();
 				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
 				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(recordsToUpdate.get(counter)
@@ -191,8 +215,7 @@ public class PTCRISync {
 				weids.setWorkExternalIdentifier(ids);
 				localWork.setExternalIdentifiers(weids);
 				try {
-					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(),
-							localWork);
+					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
 					result.put(localWork.getPutCode(), 200);
 				} catch (OrcidClientException e) {
 					result.put(localWork.getPutCode(), e.getCode());
@@ -221,9 +244,6 @@ public class PTCRISync {
 
 		return result;
 	}
-
-	// public static Map<BigInteger,String> exportUpdates(ORCIDClient
-	// orcidClient, List<Work> localWorks, ProgressHandler progressHandler);
 
 	/**
 	 * <p>
@@ -380,7 +400,7 @@ public class PTCRISync {
 						WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
 						weids.setWorkExternalIdentifier(new ArrayList<ExternalIdentifier>(matchingLocalWorks
 								.get(mathingLocalWork).more));
-						ORCIDHelper.setWorkLocalKey(workUpdate,ORCIDHelper.getWorkLocalKey(mathingLocalWork));
+						ORCIDHelper.setWorkLocalKey(workUpdate, ORCIDHelper.getWorkLocalKey(mathingLocalWork));
 						workUpdate.setExternalIdentifiers(weids);
 						worksToUpdate.add(workUpdate);
 					}
