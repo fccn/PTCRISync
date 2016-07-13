@@ -60,10 +60,6 @@ import pt.ptcris.ORCIDHelper;
  */
 public class PTCRISync {
 
-	public static final int UPTODATE = -10;
-	public static final int OK = 200;
-	public static final int INVALID = -11;
-
 	/**
 	 * <p>
 	 * A version of the export procedure (see
@@ -113,7 +109,7 @@ public class PTCRISync {
 	 * <p>
 	 * Exports a list of local CRIS productions to an ORCID profile. This
 	 * procedure essentially manages the works in the ORCID profile that are
-	 * sourced by the CRIS, both set in the client.
+	 * sourced by the CRIS, both specified in the client.
 	 * </p>
 	 * 
 	 * <p>
@@ -125,6 +121,13 @@ public class PTCRISync {
 	 * are created. The matching is performed by detecting shared
 	 * {@link ExternalIdentifier external identifiers} (see
 	 * {@link ORCIDHelper#getExternalIdentifiersDiff(WorkSummary, Collection)}).
+	 * </p>
+	 * 
+	 * <p>
+	 * Unless {@code forced}, the ORCID works with exact external identifiers
+	 * are only updated if the meta-data is not up-to-date. Currently, the
+	 * title, publication year and type are considered (see
+	 * {@link ORCIDHelper#isUpToDate(Work, WorkSummary)}).
 	 * </p>
 	 * 
 	 * <p>
@@ -146,13 +149,24 @@ public class PTCRISync {
 	 * </p>
 	 * 
 	 * <p>
-	 * Note that there is a difference from the PTCRISync specification 4.1 to
-	 * force ORCID works to be updated only once (by a single matching local
-	 * work).
+	 * The provided local works must match a quality criteria to be kept
+	 * synchronized in ORCID. Currently, this forces the existance of external
+	 * identifiers, the title, publication year and publication type (see
+	 * {@link ORCIDHelper#hasMinimalQuality(Work)}).
 	 * </p>
 	 * 
-	 * TODO: ORCID conflict errors 409 must be handled if the user submits works
-	 * to be exported with overlapping external identifiers.
+	 * <p>
+	 * The procedure reports the status of the passed local works. The codes are
+	 * the same as reported by the ORCID API, with two exceptions: when a local
+	 * work does not match the quality criteria ({@link ORCIDHelper#INVALID})
+	 * and when an ORCID work is not updated due to already being up-to-date (
+	 * {@link ORCIDHelper#UPTODATE}).
+	 * </p>
+	 * 
+	 * TODO: The procedure does not currently consider the contributors
+	 * (authors) of a work when assessing the quality criteria nor when
+	 * assessing whether an ORCID work is up-to-date, as this would require the
+	 * retrieval of the full work, and an additional call to the ORCID API.
 	 * 
 	 * @param orcidClient
 	 *            The ORCID client defining the CRIS Member API and the profile
@@ -163,13 +177,18 @@ public class PTCRISync {
 	 * @param progressHandler
 	 *            The progress handler responsible for receiving progress
 	 *            updates.
+	 * @param forced
+	 *            Whether the update of ORCID works should be forced, even if
+	 *            up-to-date.
+	 * @returns The status of the export of each of the provided local works.
+	 * 
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 * @throws InterruptedException
 	 * @throws NullPointerException
 	 */
 	private static Map<BigInteger, Integer> exportBase(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler, boolean force) throws InterruptedException, OrcidClientException {
+			ProgressHandler progressHandler, boolean forced) throws InterruptedException, OrcidClientException {
 
 		int progress = 0;
 		progressHandler.setProgress(progress);
@@ -191,7 +210,7 @@ public class PTCRISync {
 
 			if (!ORCIDHelper.hasMinimalQuality(localWork)) {
 				no_quality.add(localWork);
-				result.put(ORCIDHelper.getWorkLocalKey(localWork), INVALID);
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.INVALID);
 			}
 		}
 		localWorks.removeAll(no_quality);
@@ -216,11 +235,11 @@ public class PTCRISync {
 			else {
 				Work localWork = matchingWorks.keySet().iterator().next();
 				// if the remote work is not up-to-date or forced updates
-				if (!ORCIDHelper.isUpToDate(localWork, orcidWorks.get(counter)) || force)
+				if (!ORCIDHelper.isUpToDate(localWork, orcidWorks.get(counter)) || forced)
 					recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks
 							.get(localWork)));
 				else
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), UPTODATE);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.UPTODATE);
 				localWorks.remove(localWork);
 			}
 		}
@@ -240,7 +259,7 @@ public class PTCRISync {
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), OK);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.UPDATEOK);
 				} catch (OrcidClientException e) {
 					result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
 					// TODO: what else to do?
@@ -266,7 +285,7 @@ public class PTCRISync {
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), OK);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.UPDATEOK);
 				} catch (OrcidClientException e) {
 					result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
 					// TODO: what else to do?
@@ -284,7 +303,7 @@ public class PTCRISync {
 			// local works that were not updated remaining
 			try {
 				BigInteger remotePutcode = helper.addWork(localWork);
-				result.put(ORCIDHelper.getWorkLocalKey(localWork), OK);
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.ADDOK);
 			} catch (OrcidClientException e) {
 				result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
 				// TODO: what else to do?

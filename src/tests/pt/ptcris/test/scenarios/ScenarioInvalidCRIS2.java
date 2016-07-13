@@ -8,7 +8,6 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
-import pt.ptcris.PTCRISync;
 
 public class ScenarioInvalidCRIS2 extends Scenario {
 
@@ -29,9 +28,9 @@ public class ScenarioInvalidCRIS2 extends Scenario {
 	@Override
 	Integer expectedExportCodes(BigInteger code) {
 		if (code.equals(BigInteger.valueOf(2)))
-			return PTCRISync.INVALID;
+			return ORCIDHelper.INVALID;
 		else
-			return PTCRISync.OK;
+			return ORCIDHelper.ADDOK;
 	}
 
 	@Override

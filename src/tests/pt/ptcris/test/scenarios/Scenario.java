@@ -107,7 +107,7 @@ public abstract class Scenario {
 	}
 	
 	Integer expectedExportCodes(BigInteger putCode) {
-		return PTCRISync.OK;
+		return ORCIDHelper.ADDOK;
 	}
 
 	abstract ORCIDHelper clientFixture() throws OrcidClientException;

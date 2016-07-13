@@ -8,7 +8,6 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
-import pt.ptcris.PTCRISync;
 
 public class ScenarioInvalidCRIS1 extends Scenario {
 
@@ -26,7 +25,7 @@ public class ScenarioInvalidCRIS1 extends Scenario {
 		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2), "Meta-data 3", "0", "1"));
 		return works;
 	}
-	
+
 	@Override
 	List<Work> expectedImportedLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -37,11 +36,11 @@ public class ScenarioInvalidCRIS1 extends Scenario {
 	@Override
 	Integer expectedExportCodes(BigInteger code) {
 		if (code.equals(BigInteger.valueOf(3)))
-			return 409;
+			return ORCIDHelper.CONFLICT;
 		else
-			return PTCRISync.OK;
+			return ORCIDHelper.ADDOK;
 	}
-	
+
 	@Override
 	ORCIDHelper clientSource() throws OrcidClientException {
 		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(0));
