@@ -25,8 +25,7 @@ import org.junit.runners.Suite;
     Scenario18.class,
     Scenario19.class,
     ScenarioInvalidCRIS1.class,
-    ScenarioInvalidCRIS2.class,
-    ScenarioInvalidORCID.class
+    ScenarioInvalidCRIS2.class
 })
 public class AllTests {
 }

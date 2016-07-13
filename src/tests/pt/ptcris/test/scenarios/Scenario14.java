@@ -10,9 +10,7 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 import pt.ptcris.ORCIDHelper;
 
 /**
- * Features:
- * export add
- * export update {same,less}
+ * Features: export add export update {same,less}
  * 
  */
 public class Scenario14 extends Scenario {
@@ -20,23 +18,32 @@ public class Scenario14 extends Scenario {
 	@Override
 	List<Work> setupORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIHANDLE(null,"Meta-data 3","0", "1"));
+		works.add(ScenariosHelper.workDOIHANDLE(null, "3", "0", "1"));
 		return works;
 	}
 
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(2),"Meta-data 3", "0"));
-		works.add(ScenariosHelper.workHANDLE(BigInteger.valueOf(1), "Meta-data 1", "1"));
+		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(2), "3", "0"));
+		works.add(ScenariosHelper.workHANDLE(BigInteger.valueOf(1), "1", "1"));
 		return works;
 	}
 
 	@Override
 	List<Work> expectedSourcedORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(2),"Meta-data 3", "0"));
-		works.add(ScenariosHelper.workHANDLE(BigInteger.valueOf(1), "Meta-data 1", "1"));
+		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(2), "3", "0"));
+		works.add(ScenariosHelper.workHANDLE(BigInteger.valueOf(1), "1", "1"));
+		return works;
+	}
+	
+	@Override
+	List<Work> expectedImportedInvalidWorks() {
+		List<Work> works = new ArrayList<Work>();
+		Work work = ScenariosHelper.workDOI(null, "1", "5");
+		work.setPublicationDate(null);
+		works.add(work);
 		return works;
 	}
 

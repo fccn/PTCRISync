@@ -17,21 +17,21 @@ public class Scenario19 extends Scenario {
 	@Override
 	List<Work> setupORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(null, "Meta-data 1", "1", "0", "0"));
+		works.add(ScenariosHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
 		return works;
 	}
 
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(BigInteger.valueOf(0), "Meta-data 1", "1", "0", "0"));
+		works.add(ScenariosHelper.workDOIEIDHANDLE(BigInteger.valueOf(0), "1", "1", "0", "0"));
 		return works;
 	}
 
 	@Override
 	List<Work> expectedSourcedORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(null, "Meta-data 1", "1", "0", "0"));
+		works.add(ScenariosHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
 		return works;
 	}
 

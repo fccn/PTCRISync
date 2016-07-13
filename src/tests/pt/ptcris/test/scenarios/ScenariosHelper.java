@@ -22,63 +22,60 @@ import pt.ptcris.handlers.ProgressHandler;
 public class ScenariosHelper {
 
 	private static Tester progressHandler;
-	
-	static Work workDOI(BigInteger key, String meta, String doi) {
+
+	static Work work(BigInteger key, String meta) {
 		Work work = new Work();
-		WorkTitle title = new WorkTitle();
-		title.setTitle(meta);
-		work.setTitle(title);
+
+		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
+		work.setExternalIdentifiers(uids);
+
+		work.setPutCode(key);
+
+		if (meta != null) {
+			WorkTitle title = new WorkTitle();
+			title.setTitle("Meta-data " + meta);
+			work.setTitle(title);
+
+			if (meta.equals("0"))
+				work.setType(WorkType.JOURNAL_ARTICLE);
+			else
+				work.setType(WorkType.CONFERENCE_PAPER);
+
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta), null, null);
+			work.setPublicationDate(date);
+		}
+
+		return work;
+	}
+
+	static Work workDOI(BigInteger key, String meta, String doi) {
+		Work work = work(key, meta);
 
 		ExternalIdentifier e1 = new ExternalIdentifier();
 		e1.setRelationship(RelationshipType.SELF);
 		e1.setExternalIdentifierId(doi);
 		e1.setExternalIdentifierType(ExternalIdentifierType.DOI);
 
-		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
-
-		uids.getWorkExternalIdentifier().add(e1);
-
-		work.setExternalIdentifiers(uids);
-
-		work.setType(WorkType.CONFERENCE_PAPER);
-
-		FuzzyDate date = new FuzzyDate(new Year("2016"), null, null);
-		work.setPublicationDate(date);
-		
-		work.setPutCode(key);
+		work.getExternalIdentifiers().getWorkExternalIdentifier().add(e1);
 
 		return work;
 	}
 
 	static Work workHANDLE(BigInteger key, String meta, String handle) {
-		Work work = new Work();
-		WorkTitle title = new WorkTitle();
-		title.setTitle(meta);
-		work.setTitle(title);
+		Work work = work(key, meta);
 
 		ExternalIdentifier e1 = new ExternalIdentifier();
 		e1.setRelationship(RelationshipType.SELF);
 		e1.setExternalIdentifierId(handle);
 		e1.setExternalIdentifierType(ExternalIdentifierType.HANDLE);
 
-		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
-
-		uids.getWorkExternalIdentifier().add(e1);
-
-		work.setExternalIdentifiers(uids);
-
-		work.setType(WorkType.CONFERENCE_PAPER);
-
-		FuzzyDate date = new FuzzyDate(new Year("2016"), null, null);
-		work.setPublicationDate(date);
-		
-		work.setPutCode(key);
+		work.getExternalIdentifiers().getWorkExternalIdentifier().add(e1);
 
 		return work;
 	}
 
 	static Work workDOIEID(BigInteger key, String meta, String doi, String eid) {
-		Work work = workDOI(key,meta,doi);
+		Work work = workDOI(key, meta, doi);
 
 		ExternalIdentifier e = new ExternalIdentifier();
 		e.setRelationship(RelationshipType.SELF);
@@ -91,7 +88,7 @@ public class ScenariosHelper {
 	}
 
 	static Work workDOIHANDLE(BigInteger key, String meta, String doi, String handle) {
-		Work work = workDOI(key,meta,doi);
+		Work work = workDOI(key, meta, doi);
 
 		ExternalIdentifier e = new ExternalIdentifier();
 		e.setRelationship(RelationshipType.SELF);
@@ -104,7 +101,7 @@ public class ScenariosHelper {
 	}
 
 	static Work workEIDHANDLE(BigInteger key, String meta, String eid, String handle) {
-		Work work = workHANDLE(key,meta,handle);
+		Work work = workHANDLE(key, meta, handle);
 
 		ExternalIdentifier e = new ExternalIdentifier();
 		e.setRelationship(RelationshipType.SELF);
@@ -116,9 +113,8 @@ public class ScenariosHelper {
 		return work;
 	}
 
-
 	static Work workDOIEIDHANDLE(BigInteger key, String meta, String doi, String eid, String handle) {
-		Work work = workDOIEID(key,meta,doi,eid);
+		Work work = workDOIEID(key, meta, doi, eid);
 
 		ExternalIdentifier e2 = new ExternalIdentifier();
 		e2.setRelationship(RelationshipType.SELF);
@@ -129,7 +125,7 @@ public class ScenariosHelper {
 
 		return work;
 	}
-	
+
 	static Work workDOIDOIEIDHANDLE(BigInteger key, String meta, String doi1, String doi2, String eid, String handle) {
 		Work work = workDOIEIDHANDLE(key, meta, doi1, eid, handle);
 
@@ -154,8 +150,6 @@ public class ScenariosHelper {
 		}
 		return progressHandler;
 	}
-
-
 
 	static void cleanUp(ORCIDHelper helper) throws Exception {
 		helper.deleteAllSourcedWorks();

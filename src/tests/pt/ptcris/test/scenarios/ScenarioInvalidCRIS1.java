@@ -14,22 +14,22 @@ public class ScenarioInvalidCRIS1 extends Scenario {
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2), "Meta-data 3", "0", "1"));
-		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(3), "Meta-data 3", "1", "1"));
+		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2), "3", "0", "1"));
+		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(3), "3", "1", "1"));
 		return works;
 	}
 
 	@Override
 	List<Work> expectedSourcedORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2), "Meta-data 3", "0", "1"));
+		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2), "3", "0", "1"));
 		return works;
 	}
 
 	@Override
 	List<Work> expectedImportedLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(3), "Meta-data 3", "0"));
+		works.add(ScenariosHelper.workDOI(BigInteger.valueOf(3), "3", "0"));
 		return works;
 	}
 

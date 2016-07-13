@@ -14,7 +14,7 @@ public class ScenarioInvalidCRIS2 extends Scenario {
 	@Override
 	List<Work> setupLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workHANDLE(BigInteger.valueOf(1), "Meta-data 1", "1"));
+		works.add(ScenariosHelper.workHANDLE(BigInteger.valueOf(1), "1", "1"));
 		return works;
 	}
 

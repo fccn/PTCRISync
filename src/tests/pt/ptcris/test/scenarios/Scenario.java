@@ -15,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
@@ -52,10 +51,11 @@ public abstract class Scenario {
 		ProgressHandler handler = ScenariosHelper.handler();
 
 		long startTime = System.currentTimeMillis();
-		Map<BigInteger,Integer> codes = PTCRISync.export(helper.client, exportWorks, handler);
+		Map<BigInteger, Integer> codes = PTCRISync.export(helper.client, exportWorks, handler);
 
 		List<Work> worksToImport = PTCRISync.importWorks(helper.client, localWorks, handler);
 		List<Work> worksToUpdate = PTCRISync.importUpdates(helper.client, localWorks, handler);
+		List<Work> worksToInvalid = PTCRISync.importInvalid(helper.client, localWorks, handler);
 		System.out.println(System.currentTimeMillis() - startTime);
 
 		List<Work> allImports = new ArrayList<Work>(worksToImport);
@@ -65,12 +65,16 @@ public abstract class Scenario {
 		handler.setCurrentStatus(localWorks.toString());
 
 		List<Work> expectedLocal = expectedImportedLocalWorks();
+		List<Work> expectedInvalid = expectedImportedInvalidWorks();
 		List<Work> expectedORCID = expectedSourcedORCIDWorks();
 		List<WorkSummary> sourcedORCID = helper.getSourcedWorkSummaries();
 
 		assertEquals(expectedLocal.size(), allImports.size());
 		assertTrue(correctImports(expectedLocal, allImports));
 
+		assertEquals(expectedInvalid.size(), worksToInvalid.size());
+		assertTrue(correctImports(expectedInvalid, worksToInvalid));
+		
 		assertEquals(expectedORCID.size(), sourcedORCID.size());
 		assertTrue(correctCodes(codes));
 		assertTrue(correctExport(expectedORCID, sourcedORCID));
@@ -101,11 +105,15 @@ public abstract class Scenario {
 	List<Work> expectedImportedLocalWorks() {
 		return new ArrayList<Work>();
 	}
+	
+	List<Work> expectedImportedInvalidWorks() {
+		return new ArrayList<Work>();
+	}
 
 	List<Work> exportLocalWorks() {
 		return new ArrayList<Work>();
 	}
-	
+
 	Integer expectedExportCodes(BigInteger putCode) {
 		return ORCIDHelper.ADDOK;
 	}
@@ -119,15 +127,11 @@ public abstract class Scenario {
 		Set<Work> ws2 = new HashSet<Work>(works2);
 
 		for (Work work1 : works1) {
-			Set<ExternalIdentifier> uids1 = new HashSet<ExternalIdentifier>(work1.getExternalIdentifiers()
-					.getWorkExternalIdentifier());
 			Iterator<Work> it = ws2.iterator();
 			boolean found = false;
 			while (it.hasNext() && !found) {
 				Work work2 = it.next();
-				Set<ExternalIdentifier> uids2 = new HashSet<ExternalIdentifier>(work2.getExternalIdentifiers()
-						.getWorkExternalIdentifier());
-				if (ORCIDHelper.equalsUIDs(uids1, uids2)
+				if (ORCIDHelper.isUpToDate(work1, work2)
 						&& ((work1.getPutCode() == null && work2.getPutCode() == null) || (work1.getPutCode()
 								.equals(work2.getPutCode())))) {
 					ws1.remove(work1);
@@ -148,7 +152,7 @@ public abstract class Scenario {
 			boolean found = false;
 			while (it.hasNext() && !found) {
 				WorkSummary work2 = it.next();
-				if(ORCIDHelper.isUpToDate(work1, work2)) {
+				if (ORCIDHelper.isUpToDate(work1, work2)) {
 					ws1.remove(work1);
 					ws2.remove(work2);
 					found = true;
@@ -157,7 +161,6 @@ public abstract class Scenario {
 		}
 		return ws1.isEmpty() && ws2.isEmpty();
 	}
-	
 
 	private boolean correctCodes(Map<BigInteger, Integer> codes) {
 		for (BigInteger code : codes.keySet())

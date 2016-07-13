@@ -19,17 +19,17 @@ public class Scenario4 extends Scenario {
 	@Override
 	List<Work> setupORCIDFixtureWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEID(null, "Meta-data 0", "0", "0"));
+		works.add(ScenariosHelper.workDOIEID(null, "0", "0", "0"));
 		return works;
 	}
 
 	@Override
 	List<Work> setupLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIDOIEIDHANDLE(BigInteger.valueOf(2),"Meta-data 0","0","1","0", "1"));
+		works.add(ScenariosHelper.workDOIDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "1", "0", "1"));
 		return works;
 	}
-	
+
 	@Override
 	ORCIDHelper clientSource() throws OrcidClientException {
 		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(2));
