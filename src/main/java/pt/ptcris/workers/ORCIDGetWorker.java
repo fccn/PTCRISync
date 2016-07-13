@@ -1,30 +1,34 @@
 package pt.ptcris.workers;
 
-import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.ORCIDHelper;
 
 public class ORCIDGetWorker extends ORCIDWorker {
 
 	private final Collection<Work> works;
-	private final BigInteger putCode;
-	
-	public ORCIDGetWorker(ORCIDClient client, Collection<Work> works, BigInteger putCode, Logger log) {
+	private final WorkSummary work;
+
+	public ORCIDGetWorker(ORCIDClient client, Collection<Work> works, WorkSummary work, Logger log) {
 		super(client, log);
 		this.works = works;
-		this.putCode = putCode;
+		this.work = work;
 	}
 
 	public void run() {
 		try {
-			works.add(client.getWork(putCode));		
-			} catch (OrcidClientException e) {
+			Work fullWork = client.getWork(work.getPutCode());
+			fullWork.setExternalIdentifiers(work.getExternalIdentifiers());
+			ORCIDHelper.cleanWorkLocalKey(fullWork);
+			works.add(fullWork);
+
+		} catch (OrcidClientException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

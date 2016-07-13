@@ -45,7 +45,7 @@ public class ORCIDHelper {
 	public static final int CONFLICT = 409;
 
 	// remove threaded post, preserve threaded get
-	private boolean threaded = false;
+	private boolean threaded = true;
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
@@ -55,7 +55,7 @@ public class ORCIDHelper {
 	 */
 	public final ORCIDClient client;
 
-	private ExecutorService executor = Executors.newFixedThreadPool(100);
+	private ExecutorService executor = Executors.newFixedThreadPool(10);
 
 	/**
 	 * Initializes the helper with a given ORCID client.
@@ -155,7 +155,7 @@ public class ORCIDHelper {
 	public void getFullWork(WorkSummary work, Collection<Work> works) throws OrcidClientException {
 		_log.debug("[getFullWork] " + work.getPutCode());
 		if (threaded) {
-			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, work.getPutCode(), _log);
+			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, work, _log);
 			executor.execute(worker);
 		} else {
 			Work fullWork = client.getWork(work.getPutCode());
@@ -409,7 +409,7 @@ public class ORCIDHelper {
 		res &= work.getExternalIdentifiers() != null
 				&& work.getExternalIdentifiers().getWorkExternalIdentifier() != null
 				&& !work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty();
-		res &= getWorkTitle(work) != null;
+		res &= work.getTitle() != null && getWorkTitle(work) != null;
 		res &= (work.getPublicationDate() != null && work.getPublicationDate().getYear() != null);
 		res &= work.getType() != null;
 		// TODO: contributors! but they are not in the summary...
