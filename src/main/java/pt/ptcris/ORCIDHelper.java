@@ -13,8 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.datatype.DatatypeConstants;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
@@ -147,6 +145,8 @@ public class ORCIDHelper {
 	}
 
 	/**
+	 * TODO: doc
+	 * 
 	 * @see {@link ORCIDClient#getWork(BigInteger)}
 	 */
 	public void getFullWork(BigInteger putCode, Set<Work> works) throws OrcidClientException {
@@ -172,7 +172,7 @@ public class ORCIDHelper {
 	public void updateWork(BigInteger putCode, Work work) throws OrcidClientException {
 		_log.debug("[updateWork] " + putCode);
 		work.setPutCode(putCode);
-		
+
 		client.updateWork(work.getPutCode(), work);
 	}
 
@@ -257,20 +257,36 @@ public class ORCIDHelper {
 		return work.getTitle().getTitle();
 	}
 
+	/**
+	 * TODO: doc
+	 * 
+	 * @param work
+	 * @return
+	 */
 	public static BigInteger getWorkLocalKey(ActivitySummary work) {
 		return work.getPutCode();
 	}
-	
+
+	/**
+	 * TODO: doc
+	 * 
+	 * @param work
+	 * @return
+	 */
 	public static void setWorkLocalKey(ActivitySummary work, BigInteger putcode) {
 		work.setPutCode(putcode);
 	}
 
+	/**
+	 * TODO: doc
+	 * 
+	 * @param work
+	 * @return
+	 */
 	public static void cleanWorkLocalKey(ActivitySummary work) {
 		work.setPutCode(null);
 	}
-	
-	
-	
+
 	/**
 	 * Calculates the symmetric difference of {@link ExternalIdentifier external
 	 * identifiers} between a work and a set of works. Works that do not match
@@ -337,16 +353,26 @@ public class ORCIDHelper {
 	private static boolean isMetaUpToDate(Work existingWork, WorkSummary workSummary) {
 		boolean res = true;
 		res &= getWorkTitle(existingWork).equals(getWorkTitle(workSummary));
-		res &= (existingWork.getPublicationDate() == null && workSummary.getPublicationDate() == null) || existingWork.getPublicationDate().getYear().equals(workSummary.getPublicationDate().getYear());
+		res &= (existingWork.getPublicationDate() == null && workSummary.getPublicationDate() == null)
+				|| existingWork.getPublicationDate().getYear().getValue().equals(workSummary.getPublicationDate().getYear().getValue());
 		res &= existingWork.getType().equals(workSummary.getType());
 		// TODO: contributors! but they are not in the summary...
 		return res;
 	}
-	
+
 	private static boolean isIDsUpToDate(Work existingWork, WorkSummary workSummary) {
 		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
 				workSummary.getExternalIdentifiers());
 		return aux.more.isEmpty() && aux.less.isEmpty();
+	}
+
+	public static boolean hasMinimalQuality(Work existingWork) {
+		boolean res = true;
+		res &= getWorkTitle(existingWork) != null;
+		res &= (existingWork.getPublicationDate() != null && existingWork.getPublicationDate().getYear() != null);
+		res &= existingWork.getType() != null;
+		// TODO: contributors! but they are not in the summary...
+		return res;
 	}
 
 	// TODO: needed because JAXB does not define equals
@@ -386,7 +412,8 @@ public class ORCIDHelper {
 		for (Identifier id : group.getIdentifiers().getIdentifier()) {
 			ExternalIdentifier eid = new ExternalIdentifier();
 			eid.setRelationship(RelationshipType.SELF);
-			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id.getExternalIdentifierType().toLowerCase()));
+			eid.setExternalIdentifierType(ExternalIdentifierType
+					.fromValue(id.getExternalIdentifierType().toLowerCase()));
 			eid.setExternalIdentifierId(id.getExternalIdentifierId());
 			eids.add(eid);
 		}

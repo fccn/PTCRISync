@@ -61,6 +61,53 @@ import pt.ptcris.ORCIDHelper;
 public class PTCRISync {
 
 	private static final int UPTODATE = -10;
+	private static final int OK = 200;
+	private static final int INVALID = -11;
+
+	/**
+	 * <p>
+	 * A version of the export procedure (see
+	 * {@link #exportBase(ORCIDClient, List, ProgressHandler, boolean)}) that
+	 * tests whether the meta-data is up-to-date prior to updating a work in
+	 * ORCID.
+	 * 
+	 * <p>
+	 * A work is assumed to be up-to-date if the external identifiers, title,
+	 * type and publication year are the same (see
+	 * {@link ORCIDHelper#isUpToDate(Work, WorkSummary)}).
+	 * </p>
+	 * 
+	 * TODO: the algorithm does not currently consider contributors because this
+	 * information is not contained in the work summaries, which would require
+	 * additional calls to the ORCID API.
+	 * 
+	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
+	 */
+	public static Map<BigInteger, Integer> export(ORCIDClient orcidClient, List<Work> localWorks,
+			ProgressHandler progressHandler) throws InterruptedException, OrcidClientException {
+		return exportBase(orcidClient, localWorks, progressHandler, false);
+	}
+
+	/**
+	 * <p>
+	 * A version of the export procedure (see
+	 * {@link #exportBase(ORCIDClient, List, ProgressHandler, boolean)}) that
+	 * forces the update of the CRIS sourced works at ORCID, even if they are
+	 * already up-to-date.
+	 * </p>
+	 * 
+	 * <p>
+	 * This caller of this method should guarantee that the input local works
+	 * have been effectively updated, otherwise there will be unnecessary calls
+	 * to the ORCID API.
+	 * </p>
+	 * 
+	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
+	 */
+	public static Map<BigInteger, Integer> exportForce(ORCIDClient orcidClient, List<Work> localWorks,
+			ProgressHandler progressHandler) throws InterruptedException, OrcidClientException {
+		return exportBase(orcidClient, localWorks, progressHandler, true);
+	}
 
 	/**
 	 * <p>
@@ -121,30 +168,33 @@ public class PTCRISync {
 	 * @throws InterruptedException
 	 * @throws NullPointerException
 	 */
-	public static Map<BigInteger, Integer> export(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler) throws InterruptedException, NullPointerException, OrcidClientException {
-		return exportBase(orcidClient, localWorks, progressHandler, false);
-	}
-
-	public static Map<BigInteger, Integer> exportForce(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler) throws InterruptedException, NullPointerException, OrcidClientException {
-		return exportBase(orcidClient, localWorks, progressHandler, true);
-	}
-	
 	private static Map<BigInteger, Integer> exportBase(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler, boolean force) throws InterruptedException, NullPointerException,
-			OrcidClientException {
-
-		Map<BigInteger, Integer> result = new HashMap<BigInteger, Integer>();
+			ProgressHandler progressHandler, boolean force) throws InterruptedException, OrcidClientException {
 
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_STARTED");
 
+		Map<BigInteger, Integer> result = new HashMap<BigInteger, Integer>();
+
 		ORCIDHelper helper = new ORCIDHelper(orcidClient);
 		List<WorkSummary> orcidWorks = helper.getSourcedWorkSummaries();
 
 		List<UpdateRecord> recordsToUpdate = new LinkedList<UpdateRecord>();
+
+		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_WORKS_QUALITY");
+		Set<Work> no_quality = new HashSet<Work>();
+		for (int counter = 0; counter != localWorks.size(); counter++) {
+			progress = (int) ((double) ((double) counter / localWorks.size()) * 100);
+			progressHandler.setProgress(progress);
+			Work localWork = localWorks.get(counter);
+
+			if (!ORCIDHelper.hasMinimalQuality(localWork)) {
+				no_quality.add(localWork);
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), INVALID);
+			}
+		}
+		localWorks.removeAll(no_quality);
 
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_WORKS_ITERATION");
 		for (int counter = 0; counter != orcidWorks.size(); counter++) {
@@ -153,14 +203,19 @@ public class PTCRISync {
 
 			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					orcidWorks.get(counter), localWorks);
+			// there is no local work matching a CRIS sourced remote work
 			if (matchingWorks.isEmpty()) {
 				try {
 					helper.deleteWork(orcidWorks.get(counter).getPutCode());
 				} catch (OrcidClientException e) {
 					// TODO: what to do?
 				}
-			} else {
+			}
+			// there is at least one local work matching a CRIS sourced remote
+			// work
+			else {
 				Work localWork = matchingWorks.keySet().iterator().next();
+				// if the remote work is not up-to-date or forced updates
 				if (!ORCIDHelper.isUpToDate(localWork, orcidWorks.get(counter)) || force)
 					recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks
 							.get(localWork)));
@@ -170,11 +225,12 @@ public class PTCRISync {
 			}
 		}
 
-		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
+		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS_PHASE_1");
 		for (int counter = 0; counter != recordsToUpdate.size(); counter++) {
 			progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
 			progressHandler.setProgress(progress);
 
+			// the remote work has spurious external identifiers
 			if (!recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
 				Work localWork = recordsToUpdate.get(counter).getLocalWork();
 				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
@@ -184,7 +240,7 @@ public class PTCRISync {
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), 200);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), OK);
 				} catch (OrcidClientException e) {
 					result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
 					// TODO: what else to do?
@@ -192,21 +248,15 @@ public class PTCRISync {
 			}
 		}
 
-		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS");
+		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS_PHASE_2");
 		for (int counter = 0; counter != recordsToUpdate.size(); counter++) {
 			progress = (int) ((double) ((double) counter / recordsToUpdate.size()) * 100);
 			progressHandler.setProgress(progress);
 
+			// the remote work is missing external identifiers or not updated in
+			// the 1st phase
 			if (!recordsToUpdate.get(counter).getMatches().less.isEmpty()
-					|| recordsToUpdate.get(counter).getMatches().more.isEmpty()) { // it
-																					// is
-																					// only
-																					// in
-																					// the
-																					// list
-																					// of
-																					// not
-																					// up-to-date
+					|| recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
 				Work localWork = recordsToUpdate.get(counter).getLocalWork();
 				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
 				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(recordsToUpdate.get(counter)
@@ -216,7 +266,7 @@ public class PTCRISync {
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
-					result.put(localWork.getPutCode(), 200);
+					result.put(localWork.getPutCode(), OK);
 				} catch (OrcidClientException e) {
 					result.put(localWork.getPutCode(), e.getCode());
 					// TODO: what else to do?
@@ -231,9 +281,10 @@ public class PTCRISync {
 
 			Work localWork = localWorks.get(counter);
 
+			// local works that were not updated remaining
 			try {
 				BigInteger remotePutcode = helper.addWork(localWork);
-				result.put(localWork.getPutCode(), 200);
+				result.put(localWork.getPutCode(), OK);
 			} catch (OrcidClientException e) {
 				result.put(localWork.getPutCode(), e.getCode());
 				// TODO: what else to do?
