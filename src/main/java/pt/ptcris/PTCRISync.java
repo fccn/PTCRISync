@@ -150,7 +150,7 @@ public class PTCRISync {
 	 * 
 	 * <p>
 	 * The provided local works must match a quality criteria to be kept
-	 * synchronized in ORCID. Currently, this forces the existance of external
+	 * synchronized in ORCID. Currently, this forces the existence of external
 	 * identifiers, the title, publication year and publication type (see
 	 * {@link ORCIDHelper#hasMinimalQuality(Work)}).
 	 * </p>
@@ -317,10 +317,10 @@ public class PTCRISync {
 
 	/**
 	 * <p>
-	 * Discovers new works in an ORCID profile given a set of known local CRIS
-	 * productions. Creates creation notifications for each work group at ORCID
-	 * (merged into as a single work by the {@link ORCIDHelper helper}) without
-	 * matching local productions (i.e., those without shared
+	 * Discovers new valid works in an ORCID profile given a set of known local
+	 * CRIS productions. Creates creation notifications for each work group at
+	 * ORCID (merged into as a single work by the {@link ORCIDHelper helper})
+	 * without matching local productions (i.e., those without shared
 	 * {@link ExternalIdentifier external identifiers}).
 	 * </p>
 	 * 
@@ -339,6 +339,15 @@ public class PTCRISync {
 	 * the ORCID works that gave origin to it). Since only the external
 	 * identifiers of the local productions are used to search for matches, the
 	 * remainder meta-data can be currently left null.
+	 * </p>
+	 *
+	 * <p>
+	 * ORCID works without minimal quality are ignored by this procedure.
+	 * Currently, the quality criteria forces the existence of external
+	 * identifiers, the title, publication year and publication type (see
+	 * {@link ORCIDHelper#hasMinimalQuality(Work)}). Works that do not match the
+	 * criteria can be imported with
+	 * {@link #importInvalid(ORCIDClient, List, ProgressHandler)}.
 	 * </p>
 	 * 
 	 * @param orcidClient
@@ -372,8 +381,8 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(mergedOrcidWork,
-					localWorks);
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
+					mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty() && ORCIDHelper.hasMinimalQuality(mergedOrcidWork)) {
 				helper.getFullWork(mergedOrcidWork, worksToImport);
 			}
@@ -471,6 +480,29 @@ public class PTCRISync {
 		return worksToUpdate;
 	}
 
+	/**
+	 * <p>
+	 * Discovers new invalid works (that do not pass the quality criteria) in an
+	 * ORCID profile given a set of known local CRIS productions. Other than the
+	 * criteria, the behavior is similar to that of
+	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
+	 * </p>
+	 * 
+	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
+	 * 
+	 * @param orcidClient
+	 *            The ORCID client defining the CRIS Member API and the profile
+	 *            to be managed.
+	 * @param localWorks
+	 *            The full list of productions in the local profile.
+	 * @param progressHandler
+	 *            The progress handler responsible for receiving progress
+	 *            updates.
+	 * @return The list of invalid works found in the profile.
+	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
+	 * @throws InterruptedException
+	 */
 	public static List<Work> importInvalid(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler) throws OrcidClientException, InterruptedException {
 		int progress = 0;
@@ -489,8 +521,8 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(mergedOrcidWork,
-					localWorks);
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
+					mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty() && !ORCIDHelper.hasMinimalQuality(mergedOrcidWork)) {
 				helper.getFullWork(mergedOrcidWork, worksToImport);
 			}
