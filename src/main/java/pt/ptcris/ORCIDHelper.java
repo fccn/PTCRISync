@@ -38,7 +38,7 @@ import pt.ptcris.workers.ORCIDGetWorker;
  */
 public class ORCIDHelper {
 
-	public static final int UPTODATE = -10;
+	public static final int UPTODATE = 304;
 	public static final int UPDATEOK = 200;
 	public static final int ADDOK = 200;
 	public static final int INVALID = -11;
@@ -506,6 +506,14 @@ public class ORCIDHelper {
 		dummy.setType(aux.getType());
 		dummy.setExternalIdentifiers(aux.getExternalIdentifiers());
 		dummy.setContributors(aux.getContributors());
+
+		dummy.setCitation(aux.getCitation());
+		dummy.setContributors(aux.getContributors());
+		dummy.setCountry(aux.getCountry());
+		dummy.setJournalTitle(aux.getJournalTitle());
+		dummy.setLanguageCode(aux.getLanguageCode());
+		dummy.setShortDescription(aux.getShortDescription());
+		dummy.setUrl(aux.getUrl());
 		return dummy;
 	}
 
