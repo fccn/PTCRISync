@@ -80,7 +80,7 @@ public class PTCRISync {
 	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
 	 */
 	public static Map<BigInteger, Integer> export(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler) throws InterruptedException, OrcidClientException {
+			ProgressHandler progressHandler) throws OrcidClientException {
 		return exportBase(orcidClient, localWorks, progressHandler, false);
 	}
 
@@ -101,7 +101,7 @@ public class PTCRISync {
 	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
 	 */
 	public static Map<BigInteger, Integer> exportForce(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler) throws InterruptedException, OrcidClientException {
+			ProgressHandler progressHandler) throws OrcidClientException {
 		return exportBase(orcidClient, localWorks, progressHandler, true);
 	}
 
@@ -188,7 +188,7 @@ public class PTCRISync {
 	 * @throws NullPointerException
 	 */
 	private static Map<BigInteger, Integer> exportBase(ORCIDClient orcidClient, List<Work> localWorks,
-			ProgressHandler progressHandler, boolean forced) throws InterruptedException, OrcidClientException {
+			ProgressHandler progressHandler, boolean forced) throws OrcidClientException {
 
 		int progress = 0;
 		progressHandler.setProgress(progress);
@@ -235,7 +235,7 @@ public class PTCRISync {
 			else {
 				Work localWork = matchingWorks.keySet().iterator().next();
 				// if the remote work is not up-to-date or forced updates
-				if (!ORCIDHelper.isUpToDate(localWork, orcidWorks.get(counter)) || forced)
+				if (forced || !ORCIDHelper.isUpToDate(localWork, orcidWorks.get(counter)))
 					recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks
 							.get(localWork)));
 				else
@@ -311,7 +311,7 @@ public class PTCRISync {
 		}
 
 		progressHandler.done();
-
+		System.out.println(result);
 		return result;
 	}
 
