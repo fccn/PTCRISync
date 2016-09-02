@@ -57,6 +57,7 @@ public abstract class Scenario {
 		List<Work> worksToImport = PTCRISync.importWorks(helper.client, localWorks, handler);
 		List<Work> worksToUpdate = PTCRISync.importUpdates(helper.client, localWorks, handler);
 		List<Work> worksToInvalid = PTCRISync.importInvalid(helper.client, localWorks, handler);
+		int worksToImportCounter = PTCRISync.importCounter(helper.client, localWorks, handler);
 		long time = System.currentTimeMillis() - startTime;
 		handler.setCurrentStatus(this.getClass().getName()+": "+time+"ms");
 
@@ -68,6 +69,8 @@ public abstract class Scenario {
 		List<Work> expectedInvalid = expectedImportedInvalidWorks();
 		List<Work> expectedORCID = expectedSourcedORCIDWorks();
 		List<WorkSummary> sourcedORCID = helper.getSourcedWorkSummaries();
+
+		assertEquals(worksToImport.size(), worksToImportCounter);
 
 		assertEquals(expectedLocal.size(), allImports.size());
 		assertTrue(correctImports(expectedLocal, allImports));
