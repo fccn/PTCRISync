@@ -397,6 +397,57 @@ public class PTCRISync {
 
 	/**
 	 * <p>
+	 * Counts new valid works in an ORCID profile given a set of known local
+	 * CRIS productions, following the criteria of
+	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
+	 * </p>
+	 * 
+	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
+	 * 
+	 * @param orcidClient
+	 *            The ORCID client defining the CRIS Member API and the profile
+	 *            to be managed.
+	 * @param localWorks
+	 *            The full list of productions in the local profile.
+	 * @param progressHandler
+	 *            The progress handler responsible for receiving progress
+	 *            updates.
+	 * @return The number of new works found in the profile.
+	 * @throws OrcidClientException
+	 *             If the communication with ORCID fails.
+	 * @throws InterruptedException
+	 */
+	public static Integer importCounter(ORCIDClient orcidClient, List<Work> localWorks, ProgressHandler progressHandler)
+			throws OrcidClientException, InterruptedException {
+		int progress = 0;
+		int c = 0;
+		progressHandler.setProgress(progress);
+		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
+
+		ORCIDHelper helper = new ORCIDHelper(orcidClient);
+
+		List<WorkSummary> mergedOrcidWorks = helper.getAllWorkSummaries();
+
+		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
+		for (int counter = 0; counter != mergedOrcidWorks.size(); counter++) {
+			progress = (int) ((double) ((double) counter / mergedOrcidWorks.size()) * 100);
+			progressHandler.setProgress(progress);
+
+			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
+			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
+					mergedOrcidWork, localWorks);
+			if (matchingWorks.isEmpty() && ORCIDHelper.hasMinimalQuality(mergedOrcidWork)) {
+				c++;
+			}
+		}
+
+		progressHandler.done();
+
+		return c;
+	}
+
+	/**
+	 * <p>
 	 * Discovers updates to existing local CRIS productions in an ORCID profile.
 	 * For each work group at ORCID (merged into as a single work by the
 	 * {@link ORCIDHelper helper}), finds matching local productions (i.e.,
