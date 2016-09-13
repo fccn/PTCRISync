@@ -311,7 +311,6 @@ public class PTCRISync {
 		}
 
 		progressHandler.done();
-		System.out.println(result);
 		return result;
 	}
 
@@ -538,6 +537,10 @@ public class PTCRISync {
 	 * criteria, the behavior is similar to that of
 	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
 	 * </p>
+	 * 
+	 * 
+	 * TODO: Return a list of reasons why it was rejected.
+	 * 
 	 * 
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
 	 * 

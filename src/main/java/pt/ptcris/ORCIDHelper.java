@@ -44,7 +44,9 @@ public class ORCIDHelper {
 	public static final int INVALID = -11;
 	public static final int CONFLICT = 409;
 
-	// remove threaded post, preserve threaded get
+	/**
+	 * Whether to multi-thread the "get" of full works.
+	 */
 	private boolean threaded = true;
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
@@ -65,7 +67,7 @@ public class ORCIDHelper {
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 */
-	public ORCIDHelper(ORCIDClient orcidClient) throws OrcidClientException {
+	public ORCIDHelper(ORCIDClient orcidClient) {
 		this.client = orcidClient;
 	}
 
@@ -81,10 +83,12 @@ public class ORCIDHelper {
 	 */
 	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException {
 		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
-		List<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup();
 		List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		for (WorkGroup group : workGroupList)
-			workSummaryList.add(groupToWork(group));
+		if (activitiesSummary != null && activitiesSummary.getWorks() != null) {
+			List<WorkGroup> workGroupList = activitiesSummary.getWorks().getGroup();
+			for (WorkGroup group : workGroupList)
+				workSummaryList.add(groupToWork(group));
+		}
 		return workSummaryList;
 	}
 
@@ -99,28 +103,24 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 */
 	public List<WorkSummary> getSourcedWorkSummaries() throws OrcidClientException, NullPointerException {
-
 		ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		String sourceClientID = client.getClientId();
-		Works works = activitiesSummary.getWorks();
-		List<WorkSummary> returnedWorkSummary = new LinkedList<WorkSummary>();
+		List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
 
-		if (works == null) {
-			return returnedWorkSummary;
-		}
-		List<WorkGroup> workGroupList = works.getGroup();
-
-		for (WorkGroup workGroup : workGroupList) {
-			for (WorkSummary workSummary : workGroup.getWorkSummary()) {
-				ClientId workClient = workSummary.getSource().getSourceClientId();
-				// may be null is entry added by the user
-				if (workClient != null && workClient.getUriPath().equals(sourceClientID)) {
-					returnedWorkSummary.add(workSummary);
+		if (activitiesSummary != null && activitiesSummary.getWorks() != null) {
+			Works works = activitiesSummary.getWorks();
+			List<WorkGroup> workGroupList = works.getGroup();
+			for (WorkGroup workGroup : workGroupList) {
+				for (WorkSummary workSummary : workGroup.getWorkSummary()) {
+					ClientId workClient = workSummary.getSource().getSourceClientId();
+					// may be null is entry added by the user
+					if (workClient != null && workClient.getUriPath().equals(sourceClientID)) {
+						workSummaryList.add(workSummary);
+					}
 				}
 			}
 		}
-
-		return returnedWorkSummary;
+		return workSummaryList;
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class ORCIDHelper {
 		Work clone = ORCIDHelper.clone(work);
 		// Remove any putCode if exists
 		clone.setPutCode(putCode);
-		
+
 		client.updateWork(putCode, clone);
 	}
 
