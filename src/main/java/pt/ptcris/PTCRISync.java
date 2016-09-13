@@ -368,7 +368,7 @@ public class PTCRISync {
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
 
-		Map<BigInteger,Work> worksToImport = new HashMap<BigInteger,Work>();
+		Map<BigInteger, Work> worksToImport = new HashMap<BigInteger, Work>();
 
 		ORCIDHelper helper = new ORCIDHelper(orcidClient);
 
@@ -533,14 +533,10 @@ public class PTCRISync {
 	/**
 	 * <p>
 	 * Discovers new invalid works (that do not pass the quality criteria) in an
-	 * ORCID profile given a set of known local CRIS productions. Other than the
-	 * criteria, the behavior is similar to that of
-	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
+	 * ORCID profile given a set of known local CRIS productions, as well as the
+	 * causes for invalidity (defined at {@link ORCIDHelper}). Other than the criteria, the behavior is similar
+	 * to that of {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
 	 * </p>
-	 * 
-	 * 
-	 * TODO: Return a list of reasons why it was rejected.
-	 * 
 	 * 
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
 	 * 
@@ -552,19 +548,20 @@ public class PTCRISync {
 	 * @param progressHandler
 	 *            The progress handler responsible for receiving progress
 	 *            updates.
-	 * @return The list of invalid works found in the profile.
+	 * @return The list of invalid works found in the profile, as well as the
+	 *         invalid fields.
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 * @throws InterruptedException
 	 */
-	public static Map<Work,Set<String>> importInvalid(ORCIDClient orcidClient, List<Work> localWorks,
+	public static Map<Work, Set<String>> importInvalid(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler) throws OrcidClientException, InterruptedException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
 
-		Map<BigInteger,Set<String>> invalidsToImport = new HashMap<BigInteger,Set<String>>();
-		Map<BigInteger,Work> worksToImport = new HashMap<BigInteger,Work>();
+		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
+		Map<BigInteger, Work> worksToImport = new HashMap<BigInteger, Work>();
 
 		ORCIDHelper helper = new ORCIDHelper(orcidClient);
 
@@ -589,11 +586,11 @@ public class PTCRISync {
 
 		progressHandler.done();
 
-		Map<Work,Set<String>> res = new HashMap<Work,Set<String>>();
+		Map<Work, Set<String>> res = new HashMap<Work, Set<String>>();
 
 		for (BigInteger i : worksToImport.keySet())
 			res.put(worksToImport.get(i), invalidsToImport.get(i));
-		
+
 		return res;
 	}
 
