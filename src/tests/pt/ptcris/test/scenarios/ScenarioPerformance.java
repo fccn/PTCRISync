@@ -1,9 +1,11 @@
 package pt.ptcris.test.scenarios;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
@@ -118,13 +120,20 @@ public class ScenarioPerformance extends Scenario {
 	}
 
 	@Override
+	Set<String> expectedInvalidCodes(BigInteger putCode) {
+		Set<String> res = new HashSet<String>();
+		res.add(ORCIDHelper.INVALID_PUBLICATIONDATE);
+		return res;
+	}
+
+	@Override
 	ORCIDHelper clientSource() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(0));
+		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(ScenarioOrcidClient.ZEROVALIDWORKS));
 	}
 
 	@Override
 	ORCIDHelper clientFixture() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(0));
+		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(ScenarioOrcidClient.ZEROVALIDWORKS));
 	}
 
 }

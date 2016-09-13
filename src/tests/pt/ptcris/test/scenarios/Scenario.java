@@ -56,7 +56,7 @@ public abstract class Scenario {
 
 		List<Work> worksToImport = PTCRISync.importWorks(helper.client, localWorks, handler);
 		List<Work> worksToUpdate = PTCRISync.importUpdates(helper.client, localWorks, handler);
-		List<Work> worksToInvalid = PTCRISync.importInvalid(helper.client, localWorks, handler);
+		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalid(helper.client, localWorks, handler);
 		int worksToImportCounter = PTCRISync.importCounter(helper.client, localWorks, handler);
 		long time = System.currentTimeMillis() - startTime;
 		handler.setCurrentStatus(this.getClass().getName()+": "+time+"ms");
@@ -76,7 +76,8 @@ public abstract class Scenario {
 		assertTrue(correctImports(expectedLocal, allImports));
 
 		assertEquals(expectedInvalid.size(), worksToInvalid.size());
-		assertTrue(correctImports(expectedInvalid, worksToInvalid));
+		assertTrue(correctInvalids(worksToInvalid));
+		assertTrue(correctImports(expectedInvalid, worksToInvalid.keySet()));
 		
 		assertEquals(expectedORCID.size(), sourcedORCID.size());
 		assertTrue(correctCodes(codes));
@@ -119,6 +120,10 @@ public abstract class Scenario {
 
 	Integer expectedExportCodes(BigInteger putCode) {
 		return ORCIDHelper.ADDOK;
+	}
+
+	Set<String> expectedInvalidCodes(BigInteger putCode) {
+		return new HashSet<String>();
 	}
 
 	abstract ORCIDHelper clientFixture();
@@ -168,6 +173,13 @@ public abstract class Scenario {
 	private boolean correctCodes(Map<BigInteger, Integer> codes) {
 		for (BigInteger code : codes.keySet())
 			if (!codes.get(code).equals(expectedExportCodes(code)))
+				return false;
+		return true;
+	}
+
+	private boolean correctInvalids(Map<Work, Set<String>> codes) {
+		for (Work work : codes.keySet())
+			if (!codes.get(work).equals(expectedInvalidCodes(work.getPutCode())))
 				return false;
 		return true;
 	}

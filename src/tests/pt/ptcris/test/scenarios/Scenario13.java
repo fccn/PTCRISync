@@ -2,7 +2,9 @@ package pt.ptcris.test.scenarios;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
@@ -58,6 +60,13 @@ public class Scenario13 extends Scenario {
 		work.setPublicationDate(null);
 		works.add(work);
 		return works;
+	}
+
+	@Override
+	Set<String> expectedInvalidCodes(BigInteger putCode) {
+		Set<String> res = new HashSet<String>();
+		res.add(ORCIDHelper.INVALID_PUBLICATIONDATE);
+		return res;
 	}
 
 	@Override

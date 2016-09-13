@@ -2,7 +2,9 @@ package pt.ptcris.test.scenarios;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
@@ -33,6 +35,13 @@ public class Scenario15 extends Scenario {
 		List<Work> works = new ArrayList<Work>();
 		works.add(ScenariosHelper.work(null, "0"));
 		return works;
+	}
+
+	@Override
+	Set<String> expectedInvalidCodes(BigInteger putCode) {
+		Set<String> res = new HashSet<String>();
+		res.add(ORCIDHelper.INVALID_WORKEXTERNALIDENTIFIERS);
+		return res;
 	}
 
 	@Override
