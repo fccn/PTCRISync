@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +45,13 @@ public class ORCIDHelper {
 	public static final int INVALID = -11;
 	public static final int CONFLICT = 409;
 
+	public static final String INVALID_EXTERNALIDENTIFIERS = "ExternalIdentifiers";
+	public static final String INVALID_WORKEXTERNALIDENTIFIERS = "WorkExternalIdentifiers";
+	public static final String INVALID_TITLE = "Title";
+	public static final String INVALID_PUBLICATIONDATE = "PublicationDate";
+	public static final String INVALID_YEAR = "Year";
+	public static final String INVALID_TYPE = "Type";
+	
 	/**
 	 * Whether to multi-thread the "get" of full works.
 	 */
@@ -152,7 +160,7 @@ public class ORCIDHelper {
 	 * 
 	 * @see {@link ORCIDClient#getWork(BigInteger)}
 	 */
-	public void getFullWork(WorkSummary work, Collection<Work> works) throws OrcidClientException {
+	public void getFullWork(WorkSummary work, Map<BigInteger,Work> works) throws OrcidClientException {
 		_log.debug("[getFullWork] " + work.getPutCode());
 		if (threaded) {
 			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, work, _log);
@@ -161,7 +169,7 @@ public class ORCIDHelper {
 			Work fullWork = client.getWork(work.getPutCode());
 			fullWork.setExternalIdentifiers(work.getExternalIdentifiers());
 			cleanWorkLocalKey(fullWork);
-			works.add(fullWork);
+			works.put(work.getPutCode(),fullWork);
 		}
 	}
 
@@ -419,14 +427,23 @@ public class ORCIDHelper {
 		return res;
 	}
 
-	public static boolean hasMinimalQuality(WorkSummary work) {
-		boolean res = true;
-		res &= work.getExternalIdentifiers() != null
-				&& work.getExternalIdentifiers().getWorkExternalIdentifier() != null
-				&& !work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty();
-		res &= getWorkTitle(work) != null;
-		res &= (work.getPublicationDate() != null && work.getPublicationDate().getYear() != null);
-		res &= work.getType() != null;
+	public static Set<String> testMinimalQuality(WorkSummary work) {
+		Set<String> res = new HashSet<String>();
+		if (work.getExternalIdentifiers() == null)
+			res.add(INVALID_EXTERNALIDENTIFIERS);
+		else if (work.getExternalIdentifiers().getWorkExternalIdentifier() == null
+				|| work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty())
+			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
+		if (work.getTitle() == null)
+			res.add(INVALID_TITLE);
+		else if (work.getTitle().getTitle() == null)
+			res.add(INVALID_TITLE);
+		if (work.getPublicationDate() == null)
+			res.add(INVALID_PUBLICATIONDATE);
+		else if (work.getPublicationDate().getYear() == null)
+			res.add(INVALID_YEAR);
+		if (work.getType() == null)
+			res.add(INVALID_TYPE);
 		// TODO: contributors! but they are not in the summary...
 		return res;
 	}

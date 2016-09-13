@@ -368,7 +368,7 @@ public class PTCRISync {
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
 
-		List<Work> worksToImport = new LinkedList<Work>();
+		Map<BigInteger,Work> worksToImport = new HashMap<BigInteger,Work>();
 
 		ORCIDHelper helper = new ORCIDHelper(orcidClient);
 
@@ -382,7 +382,7 @@ public class PTCRISync {
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
 			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					mergedOrcidWork, localWorks);
-			if (matchingWorks.isEmpty() && ORCIDHelper.hasMinimalQuality(mergedOrcidWork)) {
+			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				helper.getFullWork(mergedOrcidWork, worksToImport);
 			}
 		}
@@ -391,7 +391,7 @@ public class PTCRISync {
 
 		progressHandler.done();
 
-		return worksToImport;
+		return new LinkedList<Work>(worksToImport.values());
 	}
 
 	/**
@@ -435,7 +435,7 @@ public class PTCRISync {
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
 			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					mergedOrcidWork, localWorks);
-			if (matchingWorks.isEmpty() && ORCIDHelper.hasMinimalQuality(mergedOrcidWork)) {
+			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				c++;
 			}
 		}
@@ -557,13 +557,14 @@ public class PTCRISync {
 	 *             If the communication with ORCID fails.
 	 * @throws InterruptedException
 	 */
-	public static List<Work> importInvalid(ORCIDClient orcidClient, List<Work> localWorks,
+	public static Map<Work,Set<String>> importInvalid(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler) throws OrcidClientException, InterruptedException {
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
 
-		List<Work> worksToImport = new LinkedList<Work>();
+		Map<BigInteger,Set<String>> invalidsToImport = new HashMap<BigInteger,Set<String>>();
+		Map<BigInteger,Work> worksToImport = new HashMap<BigInteger,Work>();
 
 		ORCIDHelper helper = new ORCIDHelper(orcidClient);
 
@@ -577,7 +578,9 @@ public class PTCRISync {
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
 			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper.getExternalIdentifiersDiff(
 					mergedOrcidWork, localWorks);
-			if (matchingWorks.isEmpty() && !ORCIDHelper.hasMinimalQuality(mergedOrcidWork)) {
+			Set<String> invalids = ORCIDHelper.testMinimalQuality(mergedOrcidWork);
+			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);
+			if (matchingWorks.isEmpty() && !invalids.isEmpty()) {
 				helper.getFullWork(mergedOrcidWork, worksToImport);
 			}
 		}
@@ -586,7 +589,12 @@ public class PTCRISync {
 
 		progressHandler.done();
 
-		return worksToImport;
+		Map<Work,Set<String>> res = new HashMap<Work,Set<String>>();
+
+		for (BigInteger i : worksToImport.keySet())
+			res.put(worksToImport.get(i), invalidsToImport.get(i));
+		
+		return res;
 	}
 
 }
