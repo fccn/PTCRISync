@@ -24,6 +24,7 @@ import org.junit.runners.Suite;
     Scenario17.class,
     Scenario18.class,
     Scenario19.class,
+    Scenario20.class,
     ScenarioInvalidCRIS1.class,
     ScenarioInvalidCRIS2.class,
     ScenarioPerformance.class

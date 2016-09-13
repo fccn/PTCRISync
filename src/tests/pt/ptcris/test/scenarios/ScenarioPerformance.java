@@ -118,12 +118,12 @@ public class ScenarioPerformance extends Scenario {
 	}
 
 	@Override
-	ORCIDHelper clientSource() throws OrcidClientException {
+	ORCIDHelper clientSource() {
 		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(0));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() throws OrcidClientException {
+	ORCIDHelper clientFixture() {
 		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(0));
 	}
 

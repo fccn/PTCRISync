@@ -121,9 +121,9 @@ public abstract class Scenario {
 		return ORCIDHelper.ADDOK;
 	}
 
-	abstract ORCIDHelper clientFixture() throws OrcidClientException;
+	abstract ORCIDHelper clientFixture();
 
-	abstract ORCIDHelper clientSource() throws OrcidClientException;
+	abstract ORCIDHelper clientSource();
 
 	static boolean correctImports(Collection<Work> works1, Collection<Work> works2) {
 		Set<Work> ws1 = new HashSet<Work>(works1);

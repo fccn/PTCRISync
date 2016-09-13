@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
@@ -37,13 +36,13 @@ public class Scenario15 extends Scenario {
 	}
 
 	@Override
-	ORCIDHelper clientSource() throws OrcidClientException {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(1));
+	ORCIDHelper clientSource() {
+		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(ScenarioOrcidClient.ONEVALIDWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() throws OrcidClientException {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(1));
+	ORCIDHelper clientFixture() {
+		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(ScenarioOrcidClient.ONEVALIDWORKS));
 	}
 
 }
