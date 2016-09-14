@@ -415,14 +415,23 @@ public class ORCIDHelper {
 		return aux.more.isEmpty() && aux.less.isEmpty();
 	}
 
-	public static boolean hasMinimalQuality(Work work) {
-		boolean res = true;
-		res &= work.getExternalIdentifiers() != null
-				&& work.getExternalIdentifiers().getWorkExternalIdentifier() != null
-				&& !work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty();
-		res &= work.getTitle() != null && getWorkTitle(work) != null;
-		res &= (work.getPublicationDate() != null && work.getPublicationDate().getYear() != null);
-		res &= work.getType() != null;
+	public static Set<String> testMinimalQuality(Work work) {
+		Set<String> res = new HashSet<String>();
+		if (work.getExternalIdentifiers() == null)
+			res.add(INVALID_EXTERNALIDENTIFIERS);
+		else if (work.getExternalIdentifiers().getWorkExternalIdentifier() == null
+				|| work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty())
+			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
+		if (work.getTitle() == null)
+			res.add(INVALID_TITLE);
+		else if (work.getTitle().getTitle() == null)
+			res.add(INVALID_TITLE);
+		if (work.getPublicationDate() == null)
+			res.add(INVALID_PUBLICATIONDATE);
+		else if (work.getPublicationDate().getYear() == null)
+			res.add(INVALID_YEAR);
+		if (work.getType() == null)
+			res.add(INVALID_TYPE);
 		// TODO: contributors! but they are not in the summary...
 		return res;
 	}
