@@ -1,7 +1,7 @@
 package pt.ptcris.workers;
 
 import java.math.BigInteger;
-import java.util.Collection;
+import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -12,27 +12,57 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.ORCIDHelper;
 
-public class ORCIDGetWorker extends ORCIDWorker {
+/**
+ * A worker thread that can be used to GET works from ORCID.
+ *
+ * @see ORCIDWorker
+ *
+ * @author nmm
+ *
+ */
+public final class ORCIDGetWorker extends ORCIDWorker {
 
-	private final Map<BigInteger,Work> works;
 	private final WorkSummary work;
 
-	public ORCIDGetWorker(ORCIDClient client, Map<BigInteger,Work> works, WorkSummary work, Logger log) {
-		super(client, log);
-		this.works = works;
+	/**
+	 * A threaded worker that can be launched in parallel to GET works with the
+	 * ORCID API. The provided {@link ORCIDClient client} defines the
+	 * communication channel.
+	 *
+	 * @param work
+	 *            the summary specifying the full work to be retrieved
+	 * @param client
+	 *            the ORCID communication client
+	 * @param cb
+	 *            the callback object to return results
+	 * @param log
+	 *            a logger
+	 * @throws NullPointerException
+	 *             if the work is null
+	 * @throws InvalidParameterException
+	 *             if the work's putcode is undefined
+	 */
+	public ORCIDGetWorker(WorkSummary work, ORCIDClient client,
+			Map<BigInteger, Object> cb, Logger log)
+			throws InvalidParameterException, NullPointerException {
+		super(client, cb, log);
+		if (work == null)
+			throw new NullPointerException("GET: Work must not be null.");
+		if (work.getPutCode() == null)
+			throw new InvalidParameterException(
+					"GET: Work must have a putcode defined.");
 		this.work = work;
 	}
 
+	@Override
 	public void run() {
 		try {
-			Work fullWork = client.getWork(work.getPutCode());
+			final Work fullWork = client.getWork(work.getPutCode());
 			fullWork.setExternalIdentifiers(work.getExternalIdentifiers());
 			ORCIDHelper.cleanWorkLocalKey(fullWork);
-			works.put(work.getPutCode(),fullWork);
-
-		} catch (OrcidClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			callback(work.getPutCode(), fullWork);
+		} catch (final OrcidClientException e) {
+			callback(work.getPutCode(), e);
 		}
 	}
 

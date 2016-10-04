@@ -1,8 +1,5 @@
 package pt.ptcris.utils;
 
-import java.util.Set;
-
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
