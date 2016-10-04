@@ -9,6 +9,7 @@ import java.util.Set;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * Features: export updates with {less,same,more}
@@ -37,11 +38,11 @@ public class Scenario19 extends Scenario {
 	}
 
 	@Override
-	Integer expectedExportCodes(BigInteger code) {
+	int expectedExportCodes(BigInteger code) {
 		if (code.equals(BigInteger.valueOf(0)))
-			return ORCIDHelper.UPTODATE;
+			return PTCRISyncResult.UPTODATE;
 		else
-			return ORCIDHelper.ADDOK;
+			return PTCRISyncResult.ADDOK;
 	}
 
 	@Override

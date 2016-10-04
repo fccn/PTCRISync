@@ -18,9 +18,9 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
-import pt.ptcris.PTCRISyncException;
 import pt.ptcris.ORCIDHelper;
 import pt.ptcris.PTCRISync;
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.handlers.ProgressHandler;
 
 /* TODO: Scenarios with notifications in the pre-state (7 and 16) must 
@@ -47,12 +47,12 @@ public abstract class Scenario {
 	}
 
 	@Test
-	public void test() throws PTCRISyncException, OrcidClientException, InterruptedException {
+	public void test() throws OrcidClientException, InterruptedException {
 		ProgressHandler handler = ScenariosHelper.handler();
 
 		handler.setCurrentStatus(this.getClass().getName()+" start");
 		long startTime = System.currentTimeMillis();
-		Map<BigInteger, Integer> codes = PTCRISync.export(helper.client, exportWorks, handler);
+		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.export(helper.client, exportWorks, handler);
 
 		List<Work> worksToImport = PTCRISync.importWorks(helper.client, localWorks, handler);
 		List<Work> worksToUpdate = PTCRISync.importUpdates(helper.client, localWorks, handler);
@@ -118,8 +118,8 @@ public abstract class Scenario {
 		return new ArrayList<Work>();
 	}
 
-	Integer expectedExportCodes(BigInteger putCode) {
-		return ORCIDHelper.ADDOK;
+	int expectedExportCodes(BigInteger putCode) {
+		return PTCRISyncResult.ADDOK;
 	}
 
 	Set<String> expectedInvalidCodes(BigInteger putCode) {
@@ -170,9 +170,9 @@ public abstract class Scenario {
 		return ws1.isEmpty() && ws2.isEmpty();
 	}
 
-	private boolean correctCodes(Map<BigInteger, Integer> codes) {
-		for (BigInteger code : codes.keySet())
-			if (!codes.get(code).equals(expectedExportCodes(code)))
+	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
+		for (BigInteger id : results.keySet())
+			if (!(results.get(id).code == expectedExportCodes(id)))
 				return false;
 		return true;
 	}

@@ -17,7 +17,6 @@ import org.um.dsi.gavea.orcid.model.work.WorkTitle;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
-import pt.ptcris.PTCRISyncException;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.test.scenarios.ScenarioOrcidClient;
@@ -25,7 +24,7 @@ import pt.ptcris.test.scenarios.ScenarioOrcidClient;
 public class MainTester2 implements ProgressHandler {
 	private static Logger logger = Logger.getLogger(MainTester2.class.getName());
 
-	public static void main(String[] args) throws PTCRISyncException, OrcidClientException, InterruptedException {
+	public static void main(String[] args) throws OrcidClientException, InterruptedException {
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setFormatter(new SimpleFormatter());
 		handler.setLevel(Level.ALL);

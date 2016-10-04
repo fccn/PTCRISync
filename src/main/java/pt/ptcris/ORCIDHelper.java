@@ -39,11 +39,6 @@ import pt.ptcris.workers.ORCIDGetWorker;
  */
 public class ORCIDHelper {
 
-	public static final int UPTODATE = 304;
-	public static final int UPDATEOK = 200;
-	public static final int ADDOK = 200;
-	public static final int INVALID = -11;
-	public static final int CONFLICT = 409;
 
 	public static final String INVALID_EXTERNALIDENTIFIERS = "ExternalIdentifiers";
 	public static final String INVALID_WORKEXTERNALIDENTIFIERS = "WorkExternalIdentifiers";

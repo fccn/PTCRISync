@@ -9,6 +9,7 @@ import java.util.Set;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDHelper;
+import pt.ptcris.PTCRISyncResult;
 
 public class ScenarioInvalidCRIS1 extends Scenario {
 
@@ -35,11 +36,11 @@ public class ScenarioInvalidCRIS1 extends Scenario {
 	}
 
 	@Override
-	Integer expectedExportCodes(BigInteger code) {
+	int expectedExportCodes(BigInteger code) {
 		if (code.equals(BigInteger.valueOf(3)))
-			return ORCIDHelper.CONFLICT;
+			return PTCRISyncResult.CONFLICT;
 		else
-			return ORCIDHelper.ADDOK;
+			return PTCRISyncResult.ADDOK;
 	}
 
 	@Override
