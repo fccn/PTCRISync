@@ -3,15 +3,13 @@ package pt.ptcris.utils;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
-import pt.ptcris.ExternalIdentifiersUpdate;
-
 public class UpdateRecord {
 
 	private Work localWork;
 	private WorkSummary remoteWork;
-	private ExternalIdentifiersUpdate matches;
+	private ExternalIdsDiff matches;
 	
-	public UpdateRecord(Work localWork, WorkSummary workSummary, ExternalIdentifiersUpdate matches) {
+	public UpdateRecord(Work localWork, WorkSummary workSummary, ExternalIdsDiff matches) {
 		this.localWork = localWork;
 		this.remoteWork = workSummary;
 		this.matches = matches;
@@ -33,7 +31,7 @@ public class UpdateRecord {
 		this.remoteWork = remoteWork;
 	}
 	
-	public ExternalIdentifiersUpdate getMatches() {
+	public ExternalIdsDiff getMatches() {
 		return matches;
 	}
 

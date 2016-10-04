@@ -15,8 +15,6 @@ import pt.ptcris.ORCIDClient;
  *
  * @see ORCIDWorker
  *
- * @author nmm
- *
  */
 public class ORCIDUpdWorker extends ORCIDWorker {
 

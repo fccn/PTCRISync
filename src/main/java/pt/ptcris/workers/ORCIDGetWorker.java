@@ -17,8 +17,6 @@ import pt.ptcris.ORCIDHelper;
  *
  * @see ORCIDWorker
  *
- * @author nmm
- *
  */
 public final class ORCIDGetWorker extends ORCIDWorker {
 

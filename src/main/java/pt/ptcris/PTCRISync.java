@@ -18,6 +18,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.handlers.ProgressHandler;
+import pt.ptcris.utils.ExternalIdsDiff;
 import pt.ptcris.utils.UpdateRecord;
 import pt.ptcris.ORCIDHelper;
 import pt.ptcris.exceptions.InvalidWorkException;
@@ -236,7 +237,7 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper
+			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
 					.getExternalIdentifiersDiff(orcidWorks.get(counter),
 							localWorks);
 			// there is no local work matching a CRIS sourced remote work
@@ -423,7 +424,7 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper
+			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
 					.getExternalIdentifiersDiff(mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty()
 					&& ORCIDHelper.testMinimalQuality(mergedOrcidWork)
@@ -493,7 +494,7 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper
+			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
 					.getExternalIdentifiersDiff(mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty()
 					&& ORCIDHelper.testMinimalQuality(mergedOrcidWork)
@@ -577,7 +578,7 @@ public class PTCRISync {
 			progress = (int) ((double) ((double) counter / orcidWorks.size()) * 100);
 			progressHandler.setProgress(progress);
 
-			Map<Work, ExternalIdentifiersUpdate> matchingLocalWorks = ORCIDHelper
+			Map<Work, ExternalIdsDiff> matchingLocalWorks = ORCIDHelper
 					.getExternalIdentifiersDiff(orcidWorks.get(counter),
 							localWorks);
 			if (!matchingLocalWorks.isEmpty()) {
@@ -658,7 +659,7 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
-			Map<Work, ExternalIdentifiersUpdate> matchingWorks = ORCIDHelper
+			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
 					.getExternalIdentifiersDiff(mergedOrcidWork, localWorks);
 			Set<String> invalids = ORCIDHelper
 					.testMinimalQuality(mergedOrcidWork);

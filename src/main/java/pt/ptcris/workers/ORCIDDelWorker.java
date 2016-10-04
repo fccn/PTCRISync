@@ -13,8 +13,6 @@ import pt.ptcris.ORCIDClient;
  *
  * @see ORCIDWorker
  *
- * @author nmm
- *
  */
 public class ORCIDDelWorker extends ORCIDWorker {
 

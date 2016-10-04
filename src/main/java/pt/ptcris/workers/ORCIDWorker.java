@@ -14,8 +14,6 @@ import pt.ptcris.ORCIDClient;
  * with the Member API, including the user profile being managed and the Member
  * API id being user to source works. Communication is performed via callback.
  *
- * @author nmm
- *
  */
 public abstract class ORCIDWorker extends Thread {
 

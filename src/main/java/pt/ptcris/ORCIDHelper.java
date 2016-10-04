@@ -31,6 +31,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.exceptions.InvalidWorkException;
+import pt.ptcris.utils.ExternalIdsDiff;
 import pt.ptcris.workers.ORCIDGetWorker;
 
 /**
@@ -313,11 +314,11 @@ public class ORCIDHelper {
 	 * @return The symmetric difference of external identifiers between
 	 *         <code>work</code> and each <code>works</code>.
 	 */
-	public static Map<Work, ExternalIdentifiersUpdate> getExternalIdentifiersDiff(WorkSummary work,
+	public static Map<Work, ExternalIdsDiff> getExternalIdentifiersDiff(WorkSummary work,
 			Collection<Work> works) {
-		Map<Work, ExternalIdentifiersUpdate> matches = new HashMap<Work, ExternalIdentifiersUpdate>();
+		Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
-			ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(match.getExternalIdentifiers(),
+			ExternalIdsDiff aux = new ExternalIdsDiff(match.getExternalIdentifiers(),
 					work.getExternalIdentifiers());
 			if (!aux.same.isEmpty())
 				matches.put(match, aux);
@@ -340,7 +341,7 @@ public class ORCIDHelper {
 	 *         otherwise.
 	 */
 	public static boolean hasNewIDs(Work existingWork, WorkSummary workSummary) {
-		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
+		ExternalIdsDiff aux = new ExternalIdsDiff(existingWork.getExternalIdentifiers(),
 				workSummary.getExternalIdentifiers());
 
 		return aux.more.isEmpty();
@@ -380,7 +381,7 @@ public class ORCIDHelper {
 	}
 
 	private static boolean isIDsUpToDate(Work existingWork, Work workSummary) {
-		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
+		ExternalIdsDiff aux = new ExternalIdsDiff(existingWork.getExternalIdentifiers(),
 				workSummary.getExternalIdentifiers());
 		return aux.more.isEmpty() && aux.less.isEmpty();
 	}
@@ -405,7 +406,7 @@ public class ORCIDHelper {
 	}
 
 	private static boolean isIDsUpToDate(Work existingWork, WorkSummary workSummary) {
-		ExternalIdentifiersUpdate aux = new ExternalIdentifiersUpdate(existingWork.getExternalIdentifiers(),
+		ExternalIdsDiff aux = new ExternalIdsDiff(existingWork.getExternalIdentifiers(),
 				workSummary.getExternalIdentifiers());
 		return aux.more.isEmpty() && aux.less.isEmpty();
 	}

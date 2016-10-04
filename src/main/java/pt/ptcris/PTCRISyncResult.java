@@ -9,8 +9,6 @@ import pt.ptcris.exceptions.InvalidWorkException;
  * particular work. Currently only the
  * {@link PTCRISync#export(ORCIDClient, java.util.List, pt.ptcris.handlers.ProgressHandler)
  * export} methods report these results.
- * 
- * @author nmm
  *
  */
 public final class PTCRISyncResult {
@@ -41,7 +39,7 @@ public final class PTCRISyncResult {
 
 	/**
 	 * Creates message reporting a failure at the ORCID API level.
-	 * 
+	 *
 	 * @param exception
 	 *            the ORCID client exception
 	 * @return the resulting message
@@ -52,7 +50,7 @@ public final class PTCRISyncResult {
 
 	/**
 	 * Creates message reporting an invalid work.
-	 * 
+	 *
 	 * @param exception
 	 *            the reasons for invalidity
 	 * @return the resulting message
@@ -66,7 +64,7 @@ public final class PTCRISyncResult {
 
 	/**
 	 * Constructs a PTCRISync result with a code and exception.
-	 * 
+	 *
 	 * @param code
 	 *            the code that defines the outcome
 	 * @param exception
@@ -81,7 +79,7 @@ public final class PTCRISyncResult {
 	/**
 	 * Constructs a PTCRISync result with a sucess code (i.e., without an
 	 * exception).
-	 * 
+	 *
 	 * @param code
 	 *            the code that defines the outcome
 	 */
