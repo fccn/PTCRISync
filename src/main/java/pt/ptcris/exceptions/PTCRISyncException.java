@@ -1,4 +1,4 @@
-package pt.ptcris;
+package pt.ptcris.exceptions;
 
 import java.math.BigInteger;
 
