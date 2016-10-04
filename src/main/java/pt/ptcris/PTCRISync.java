@@ -226,7 +226,7 @@ public class PTCRISync {
 			} catch (InvalidWorkException invalidWork) {
 				no_quality.add(localWork);
 				result.put(ORCIDHelper.getWorkLocalKey(localWork),
-						PTCRISyncResult.INVALID_RESULT);
+						PTCRISyncResult.invalid(invalidWork));
 			}
 		}
 		localWorks.removeAll(no_quality);

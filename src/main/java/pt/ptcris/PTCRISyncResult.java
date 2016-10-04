@@ -2,12 +2,14 @@ package pt.ptcris;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
+import pt.ptcris.exceptions.InvalidWorkException;
+
 public final class PTCRISyncResult {
 
 	public final int code;
-	public final OrcidClientException exception;
+	public final Exception exception;
 	
-	private PTCRISyncResult(int code, OrcidClientException exception) {
+	private PTCRISyncResult(int code, Exception exception) {
 		this.code = code;
 		this.exception = exception;
 	}
@@ -23,13 +25,16 @@ public final class PTCRISyncResult {
 	public static final int INVALID = -11;
 	public static final int CONFLICT = 409;
 
-	public static final PTCRISyncResult INVALID_RESULT = new PTCRISyncResult(INVALID);
 	public static final PTCRISyncResult OK_ADD_RESULT = new PTCRISyncResult(ADDOK);
 	public static final PTCRISyncResult OK_UPD_RESULT = new PTCRISyncResult(UPDATEOK);
 	public static final PTCRISyncResult UPTODATE_RESULT = new PTCRISyncResult(UPTODATE);
 
 	public static PTCRISyncResult fail(OrcidClientException exception) {
 		return new PTCRISyncResult(exception.getCode(), exception);
+	}
+	
+	public static PTCRISyncResult invalid(InvalidWorkException exception) {
+		return new PTCRISyncResult(INVALID, exception);
 	}
 	
 }
