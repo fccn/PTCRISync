@@ -32,8 +32,8 @@ public class MainTester implements ProgressHandler {
 		ORCIDClient client = ScenarioOrcidClient.getClientWork(1);
 		
 		PTCRISync.export(client, works, progressHandler);
-		List<Work> worksToImport = PTCRISync.importWorks(client, works, progressHandler);
-		List<Work> worksToUpdate = PTCRISync.importUpdates(client, works, progressHandler);
+		PTCRISync.importWorks(client, works, progressHandler);
+		PTCRISync.importUpdates(client, works, progressHandler);
 	}
 
 	@Override
