@@ -82,7 +82,7 @@ public class PTCRISync {
 	 * 
 	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
 	 */
-	public static Map<BigInteger, Integer> export(ORCIDClient orcidClient, List<Work> localWorks,
+	public static Map<BigInteger, PTCRISyncResult> export(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler) throws OrcidClientException {
 		return exportBase(orcidClient, localWorks, progressHandler, false);
 	}
@@ -103,7 +103,7 @@ public class PTCRISync {
 	 * 
 	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
 	 */
-	public static Map<BigInteger, Integer> exportForce(ORCIDClient orcidClient, List<Work> localWorks,
+	public static Map<BigInteger, PTCRISyncResult> exportForce(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler) throws OrcidClientException {
 		return exportBase(orcidClient, localWorks, progressHandler, true);
 	}
@@ -194,14 +194,15 @@ public class PTCRISync {
 	 * @throws OrcidClientException
 	 *             If the communication with ORCID fails.
 	 */
-	private static Map<BigInteger, Integer> exportBase(ORCIDClient orcidClient, List<Work> localWorks,
+	@SuppressWarnings("unused")
+	private static Map<BigInteger, PTCRISyncResult> exportBase(ORCIDClient orcidClient, List<Work> localWorks,
 			ProgressHandler progressHandler, boolean forced) throws OrcidClientException {
 
 		int progress = 0;
 		progressHandler.setProgress(progress);
 		progressHandler.setCurrentStatus("ORCID_SYNC_EXPORT_STARTED");
 
-		Map<BigInteger, Integer> result = new HashMap<BigInteger, Integer>();
+		Map<BigInteger, PTCRISyncResult> result = new HashMap<BigInteger, PTCRISyncResult>();
 
 		ORCIDHelper helper = new ORCIDHelper(orcidClient);
 		List<WorkSummary> orcidWorks = helper.getSourcedWorkSummaries();
@@ -217,7 +218,7 @@ public class PTCRISync {
 
 			if (!ORCIDHelper.testMinimalQuality(localWork).isEmpty()) {
 				no_quality.add(localWork);
-				result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.INVALID);
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.INVALID_RESULT);
 			}
 		}
 		localWorks.removeAll(no_quality);
@@ -246,7 +247,7 @@ public class PTCRISync {
 					recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks.get(counter), matchingWorks
 							.get(localWork)));
 				else
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.UPTODATE);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.UPTODATE_RESULT);
 				localWorks.remove(localWork);
 			}
 		}
@@ -266,9 +267,9 @@ public class PTCRISync {
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.UPDATEOK);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.fail(e));
 					// TODO: what else to do?
 				}
 			}
@@ -292,9 +293,9 @@ public class PTCRISync {
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter).getRemoteWork().getPutCode(), localWork);
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.UPDATEOK);
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
+					result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.fail(e));
 					// TODO: what else to do?
 				}
 			}
@@ -310,9 +311,9 @@ public class PTCRISync {
 			// local works that were not updated remaining
 			try {
 				BigInteger remotePutcode = helper.addWork(localWork);
-				result.put(ORCIDHelper.getWorkLocalKey(localWork), ORCIDHelper.ADDOK);
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.OK_ADD_RESULT);
 			} catch (OrcidClientException e) {
-				result.put(ORCIDHelper.getWorkLocalKey(localWork), e.getCode());
+				result.put(ORCIDHelper.getWorkLocalKey(localWork), PTCRISyncResult.fail(e));
 				// TODO: what else to do?
 			}
 		}
