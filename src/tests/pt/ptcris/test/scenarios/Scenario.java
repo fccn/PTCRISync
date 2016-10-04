@@ -18,7 +18,6 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
-import pt.ptcris.PTCRISyncException;
 import pt.ptcris.ORCIDHelper;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;
@@ -48,7 +47,7 @@ public abstract class Scenario {
 	}
 
 	@Test
-	public void test() throws PTCRISyncException, OrcidClientException, InterruptedException {
+	public void test() throws OrcidClientException, InterruptedException {
 		ProgressHandler handler = ScenariosHelper.handler();
 
 		handler.setCurrentStatus(this.getClass().getName()+" start");
