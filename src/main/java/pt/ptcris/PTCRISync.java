@@ -273,16 +273,16 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			// the remote work has spurious external identifiers
-			if (!recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
-				Work localWork = recordsToUpdate.get(counter).getLocalWork();
+			if (!recordsToUpdate.get(counter).eidsDiff.more.isEmpty()) {
+				Work localWork = recordsToUpdate.get(counter).preWork;
 				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
 				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(
-						recordsToUpdate.get(counter).getMatches().same);
+						recordsToUpdate.get(counter).eidsDiff.same);
 				weids.setWorkExternalIdentifier(ids);
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter)
-							.getRemoteWork().getPutCode(), localWork);
+							.posWork.getPutCode(), localWork);
 					result.put(ORCIDHelper.getWorkLocalKey(localWork),
 							PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {
@@ -301,18 +301,18 @@ public class PTCRISync {
 
 			// the remote work is missing external identifiers or not updated in
 			// the 1st phase
-			if (!recordsToUpdate.get(counter).getMatches().less.isEmpty()
-					|| recordsToUpdate.get(counter).getMatches().more.isEmpty()) {
-				Work localWork = recordsToUpdate.get(counter).getLocalWork();
+			if (!recordsToUpdate.get(counter).eidsDiff.less.isEmpty()
+					|| recordsToUpdate.get(counter).eidsDiff.more.isEmpty()) {
+				Work localWork = recordsToUpdate.get(counter).preWork;
 				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
 				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(
-						recordsToUpdate.get(counter).getMatches().same);
-				ids.addAll(recordsToUpdate.get(counter).getMatches().less);
+						recordsToUpdate.get(counter).eidsDiff.same);
+				ids.addAll(recordsToUpdate.get(counter).eidsDiff.less);
 				weids.setWorkExternalIdentifier(ids);
 				localWork.setExternalIdentifiers(weids);
 				try {
 					helper.updateWork(recordsToUpdate.get(counter)
-							.getRemoteWork().getPutCode(), localWork);
+							.posWork.getPutCode(), localWork);
 					result.put(ORCIDHelper.getWorkLocalKey(localWork),
 							PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {

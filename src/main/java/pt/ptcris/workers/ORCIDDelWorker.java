@@ -12,7 +12,6 @@ import pt.ptcris.ORCIDClient;
  * A worker thread that can be used to DELETE works from ORCID.
  *
  * @see ORCIDWorker
- *
  */
 public class ORCIDDelWorker extends ORCIDWorker {
 
@@ -34,12 +33,11 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the putcode is null
 	 */
-	public ORCIDDelWorker(BigInteger putCode, ORCIDClient client, Map<BigInteger, Object> cb,
-			Logger log) throws NullPointerException {
+	public ORCIDDelWorker(BigInteger putCode, ORCIDClient client, Map<BigInteger, Object> cb, Logger log) 
+			throws NullPointerException {
 		super(client, cb, log);
 		if (putCode == null)
-			throw new NullPointerException(
-					"DELETE: arguments must not be null.");
+			throw new NullPointerException("DELETE: arguments must not be null.");
 		this.putCode = putCode;
 	}
 

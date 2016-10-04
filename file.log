@@ -6,9 +6,9 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:09 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/717898], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/718028], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717898
+[addWork] 718028
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -41,16 +41,16 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:14 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/717899], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:30 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/718029], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717899
+[addWork] 718029
 [addWork]Meta-data 1
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:15 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/717900], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:30 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/718030], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717900
+[addWork] 718030
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -82,16 +82,16 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:19 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/717901], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:35 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/718031], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717901
+[addWork] 718031
 [addWork]Meta-data 1
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:20 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/717902], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:36 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/718032], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717902
+[addWork] 718032
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -123,9 +123,9 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717903], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:41 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718033], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717903
+[addWork] 718033
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -152,9 +152,9 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:29 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717904], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:45 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718034], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717904
+[addWork] 718034
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -184,16 +184,16 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:34 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717905], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:49 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718035], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717905
+[addWork] 718035
 [addWork]Meta-data 1
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:34 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717906], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:50 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718036], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717906
+[addWork] 718036
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -222,9 +222,9 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:39 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717907], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:55 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718037], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717907
+[addWork] 718037
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -251,18 +251,18 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:44 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717908], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:31:59 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718038], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717908
+[addWork] 718038
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [addWork]Meta-data 0
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:44 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717909], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:00 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718039], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717909
+[addWork] 718039
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -289,18 +289,18 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:49 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717910], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:04 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718040], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717910
+[addWork] 718040
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [addWork]Meta-data 0
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:49 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717911], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:05 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718041], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717911
+[addWork] 718041
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -327,19 +327,19 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:54 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717912], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:09 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718042], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717912
+[addWork] 718042
 [addWork]Meta-data 0
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:54 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717913], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:10 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718043], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717913
+[addWork] 718043
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
-[deleteWork] 717913
+[deleteWork] 718043
 [delete].[Response.Status] 204
 [delete].[Response.Reason] No Content
 [get].[Response.Status] 200
@@ -366,19 +366,19 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:01:59 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717914], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:15 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718044], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717914
+[addWork] 718044
 [addWork]Meta-data 0
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:00 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717915], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:15 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718045], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717915
+[addWork] 718045
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
-[updateWork] 717915
+[updateWork] 718045
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -407,18 +407,18 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:05 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717916], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:20 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718046], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717916
+[addWork] 718046
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [addWork]Meta-data 0
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:05 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/717917], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:20 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-5507-2082/work/718047], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717917
+[addWork] 718047
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -445,22 +445,22 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:10 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717918], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718048], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717918
+[addWork] 718048
 [addWork]Meta-data 1
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:10 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717919], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718049], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717919
+[addWork] 718049
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
-[deleteWork] 717919
+[deleteWork] 718049
 [delete].[Response.Status] 204
 [delete].[Response.Reason] No Content
-[updateWork] 717918
+[updateWork] 718048
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -490,21 +490,21 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:16 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717920], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:31 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718050], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717920
+[addWork] 718050
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
-[updateWork] 717920
+[updateWork] 718050
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
 [addWork]Meta-data 1
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:17 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717921], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:32 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718051], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717921
+[addWork] 718051
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -557,9 +557,9 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:27 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/717922], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:41 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-9007-3574/work/718052], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717922
+[addWork] 718052
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -589,22 +589,22 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:31 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717923], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:45 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718053], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717923
+[addWork] 718053
 [addWork]Meta-data 3
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:31 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717924], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:45 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718054], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717924
+[addWork] 718054
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
-[updateWork] 717924
+[updateWork] 718054
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
-[updateWork] 717924
+[updateWork] 718054
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -636,28 +636,28 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:37 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717925], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:51 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718055], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717925
+[addWork] 718055
 [addWork]Meta-data 3
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:37 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717926], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:51 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718056], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717926
+[addWork] 718056
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
-[updateWork] 717925
+[updateWork] 718055
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
-[updateWork] 717926
+[updateWork] 718056
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
-[updateWork] 717925
+[updateWork] 718055
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
-[updateWork] 717926
+[updateWork] 718056
 [put].[Response.Status] 200
 [put].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -689,9 +689,9 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:43 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717927], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:32:57 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718057], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717927
+[addWork] 718057
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
@@ -743,14 +743,14 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:02:52 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717928], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:06 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718058], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717928
+[addWork] 718058
 [addWork]Meta-data 3
 [post].[Response.Status] 409
 [post].[Response.Reason] Conflict
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=409, reason=Conflict}}
-[nmm] {Access-Control-Allow-Origin=[*], Transfer-Encoding=[chunked], Date=[Tue, 04 Oct 2016 17:02:52 GMT], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Transfer-Encoding=[chunked], Date=[Tue, 04 Oct 2016 17:33:06 GMT], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Conflict
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
@@ -802,130 +802,545 @@
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:00 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717929], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:15 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718059], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717929
+[addWork] 718059
 [addWork]Meta-data 1
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:00 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717930], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:15 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718060], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717930
+[addWork] 718060
 [addWork]Meta-data 2
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:01 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717931], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:16 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718061], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717931
+[addWork] 718061
 [addWork]Meta-data 3
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:01 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717932], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:16 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718062], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717932
+[addWork] 718062
 [addWork]Meta-data 4
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:01 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717933], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:16 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718063], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717933
+[addWork] 718063
 [addWork]Meta-data 5
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:02 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717934], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:16 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718064], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717934
+[addWork] 718064
 [addWork]Meta-data 6
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:02 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717935], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:17 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718065], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717935
+[addWork] 718065
 [addWork]Meta-data 7
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:02 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717936], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:17 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718066], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717936
+[addWork] 718066
 [addWork]Meta-data 8
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:02 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717937], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:17 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718067], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717937
+[addWork] 718067
 [addWork]Meta-data 9
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:03 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717938], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:18 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718068], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717938
+[addWork] 718068
 [addWork]Meta-data 0
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:03 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717939], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:18 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718069], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717939
+[addWork] 718069
 [addWork]Meta-data 1
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:03 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717940], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:18 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718070], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717940
+[addWork] 718070
 [addWork]Meta-data 2
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:03 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717941], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:19 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718071], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717941
+[addWork] 718071
 [addWork]Meta-data 3
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:04 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717942], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:19 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718072], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717942
+[addWork] 718072
 [addWork]Meta-data 4
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:04 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717943], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:19 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718073], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717943
+[addWork] 718073
 [addWork]Meta-data 5
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:04 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717944], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:20 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718074], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717944
+[addWork] 718074
 [addWork]Meta-data 6
 [post].[Response.Status] 201
 [post].[Response.Reason] Created
 [nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
-[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:03:04 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/717945], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:20 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718075], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
 [nmm] Created
-[addWork] 717945
+[addWork] 718075
 [addWork]Meta-data 7
-[nmm] Entity{entity=org.um.dsi.gavea.orcid.model.work.Work@295dd886[createdDate=<null>, lastModifiedDate=<null>, source=<null>, putCode=<null>, visibility=<null>, displayIndex=<null>, path=<null>, title=org.um.dsi.gavea.orcid.model.work.WorkTitle@50325aa1[title=Meta-data 7, subtitle=<null>, translatedTitle=<null>], journalTitle=<null>, shortDescription=<null>, citation=<null>, type=CONFERENCE_PAPER, publicationDate=org.um.dsi.gavea.orcid.model.common.FuzzyDate@19dc2929[year=org.um.dsi.gavea.orcid.model.common.FuzzyDate$Year@74056869[value=2017], month=<null>, day=<null>], externalIdentifiers=org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers@45125002[workExternalIdentifier={org.um.dsi.gavea.orcid.model.work.ExternalIdentifier@3542d6bb[externalIdentifierUrl=<null>, relationship=SELF, externalIdentifierType=DOI, externalIdentifierId=17]}], url=<null>, contributors=<null>, languageCode=<null>, country=<null>], variant=Variant[mediaType=application/xml, language=null, encoding=null], annotations=[]}
-[nmm] OutboundJaxrsResponse{status=500, reason=Internal Server Error, hasEntity=false, closed=false, buffered=false}
-[nmm] {}
-[nmm] Internal Server Error
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:20 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718076], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718076
+[addWork]Meta-data 8
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:20 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718077], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718077
+[addWork]Meta-data 9
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:21 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718078], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718078
+[addWork]Meta-data 0
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:21 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718079], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718079
+[addWork]Meta-data 1
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:21 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718080], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718080
+[addWork]Meta-data 2
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:21 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718081], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718081
+[addWork]Meta-data 3
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:22 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718082], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718082
+[addWork]Meta-data 4
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:22 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718083], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718083
+[addWork]Meta-data 5
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:22 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718084], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718084
+[addWork]Meta-data 6
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:23 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718085], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718085
+[addWork]Meta-data 7
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:23 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718086], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718086
+[addWork]Meta-data 8
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:23 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718087], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718087
+[addWork]Meta-data 9
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:23 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718088], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718088
+[addWork]Meta-data 0
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:24 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718089], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718089
+[addWork]Meta-data 1
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:24 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718090], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718090
+[addWork]Meta-data 2
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718091], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718091
+[addWork]Meta-data 3
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718092], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718092
+[addWork]Meta-data 4
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718093], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718093
+[addWork]Meta-data 5
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:25 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718094], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718094
+[addWork]Meta-data 6
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:26 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718095], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718095
+[addWork]Meta-data 7
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:26 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718096], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718096
+[addWork]Meta-data 8
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:26 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718097], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718097
+[addWork]Meta-data 9
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:26 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718098], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718098
+[addWork]Meta-data 0
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:27 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718099], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718099
+[addWork]Meta-data 1
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:27 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718100], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718100
+[addWork]Meta-data 2
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:27 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718101], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718101
+[addWork]Meta-data 3
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:28 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718102], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718102
+[addWork]Meta-data 4
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:28 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718103], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718103
+[addWork]Meta-data 5
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:28 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718104], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718104
+[addWork]Meta-data 6
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:28 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718105], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718105
+[addWork]Meta-data 7
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:29 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718106], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718106
+[addWork]Meta-data 8
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:29 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718107], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718107
+[addWork]Meta-data 9
+[post].[Response.Status] 201
+[post].[Response.Reason] Created
+[nmm] InboundJaxrsResponse{context=ClientResponse{method=POST, uri=https://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work, status=201, reason=Created}}
+[nmm] {Access-Control-Allow-Origin=[*], Date=[Tue, 04 Oct 2016 17:33:29 GMT], Content-Length=[0], Location=[http://api.sandbox.orcid.org/v2.0_rc1/0000-0002-4464-361X/work/718108], Connection=[keep-alive], Content-Type=[application/orcid+xml; qs=3;charset=UTF-8], Server=[nginx/1.4.6 (Ubuntu)]}
+[nmm] Created
+[addWork] 718108
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[deleteWork] 718089
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718090
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718091
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718092
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718093
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718094
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718095
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718096
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718097
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718098
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718099
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718100
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718101
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718102
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718103
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718104
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718105
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718106
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718107
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[deleteWork] 718108
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[getFullWork] 718059
+[getFullWork] 718060
+[getFullWork] 718061
+[getFullWork] 718062
+[getFullWork] 718063
+[getFullWork] 718064
+[getFullWork] 718065
+[getFullWork] 718066
+[getFullWork] 718067
+[getFullWork] 718068
+[getFullWork] 718069
+[getFullWork] 718070
+[getFullWork] 718071
+[getFullWork] 718072
+[getFullWork] 718073
+[getFullWork] 718074
+[getFullWork] 718075
+[getFullWork] 718076
+[getFullWork] 718077
+[getFullWork] 718078
+[getFullWork] 718079
+[getFullWork] 718080
+[getFullWork] 718081
+[getFullWork] 718082
+[getFullWork] 718083
+[getFullWork] 718084
+[getFullWork] 718085
+[getFullWork] 718086
+[getFullWork] 718087
+[getFullWork] 718088
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
 [get].[Response.Status] 200
 [get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[getFullWork] 659103
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[get].[Response.Status] 200
+[get].[Response.Reason] OK
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
+[delete].[Response.Status] 204
+[delete].[Response.Reason] No Content
 [delete].[Response.Status] 204
 [delete].[Response.Reason] No Content
 [delete].[Response.Status] 204

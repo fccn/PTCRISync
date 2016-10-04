@@ -9,7 +9,6 @@ import pt.ptcris.exceptions.InvalidWorkException;
  * particular work. Currently only the
  * {@link PTCRISync#export(ORCIDClient, java.util.List, pt.ptcris.handlers.ProgressHandler)
  * export} methods report these results.
- *
  */
 public final class PTCRISyncResult {
 
@@ -22,20 +21,17 @@ public final class PTCRISyncResult {
 	/**
 	 * Creates a successful "add" message.
 	 */
-	public static final PTCRISyncResult OK_ADD_RESULT = new PTCRISyncResult(
-			ADDOK);
+	public static final PTCRISyncResult OK_ADD_RESULT = new PTCRISyncResult(ADDOK);
 
 	/**
 	 * Creates a successful "update" message.
 	 */
-	public static final PTCRISyncResult OK_UPD_RESULT = new PTCRISyncResult(
-			UPDATEOK);
+	public static final PTCRISyncResult OK_UPD_RESULT = new PTCRISyncResult(UPDATEOK);
 
 	/**
 	 * Creates an "already up-to-date" message.
 	 */
-	public static final PTCRISyncResult UPTODATE_RESULT = new PTCRISyncResult(
-			UPTODATE);
+	public static final PTCRISyncResult UPTODATE_RESULT = new PTCRISyncResult(UPTODATE);
 
 	/**
 	 * Creates message reporting a failure at the ORCID API level.

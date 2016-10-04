@@ -16,7 +16,6 @@ import pt.ptcris.ORCIDHelper;
  * A worker thread that can be used to GET works from ORCID.
  *
  * @see ORCIDWorker
- *
  */
 public final class ORCIDGetWorker extends ORCIDWorker {
 
@@ -40,15 +39,13 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work's putcode is undefined
 	 */
-	public ORCIDGetWorker(WorkSummary work, ORCIDClient client,
-			Map<BigInteger, Object> cb, Logger log)
+	public ORCIDGetWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
 			throws InvalidParameterException, NullPointerException {
 		super(client, cb, log);
 		if (work == null)
 			throw new NullPointerException("GET: Work must not be null.");
 		if (work.getPutCode() == null)
-			throw new InvalidParameterException(
-					"GET: Work must have a putcode defined.");
+			throw new InvalidParameterException("GET: Work must have a putcode defined.");
 		this.work = work;
 	}
 

@@ -11,7 +11,6 @@ import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
  * Calculates and stores the symmetric difference between two sets of
  * {@link ExternalIdentifier external identifiers}. Useful to detect matching
  * works and potential updates.
- *
  */
 public final class ExternalIdsDiff {
 
@@ -41,8 +40,7 @@ public final class ExternalIdsDiff {
 	 * @throws NullPointerException
 	 *             if the identifiers are null
 	 */
-	public ExternalIdsDiff(WorkExternalIdentifiers eids1,
-			WorkExternalIdentifiers eids2) {
+	public ExternalIdsDiff(WorkExternalIdentifiers eids1,WorkExternalIdentifiers eids2) {
 		if (eids1 == null || eids2 == null
 				|| eids1.getWorkExternalIdentifier() == null
 				|| eids2.getWorkExternalIdentifier() == null)
@@ -65,19 +63,14 @@ public final class ExternalIdsDiff {
 	 * @param eids2
 	 *            another set of UIDs
 	 */
-	private void calculateDifference(WorkExternalIdentifiers eids1,
-			WorkExternalIdentifiers eids2) {
+	private void calculateDifference(WorkExternalIdentifiers eids1, WorkExternalIdentifiers eids2) {
 		less.addAll(eids1.getWorkExternalIdentifier());
 		more.addAll(eids2.getWorkExternalIdentifier());
 		for (final ExternalIdentifier eid2 : eids2.getWorkExternalIdentifier()) {
-			for (final ExternalIdentifier eid1 : eids1
-					.getWorkExternalIdentifier()) {
-				if (sameButNotBothPartOf(eid2.getRelationship(),
-						eid1.getRelationship())
-						&& eid1.getExternalIdentifierId().equals(
-								eid2.getExternalIdentifierId())
-						&& eid1.getExternalIdentifierType().equals(
-								eid2.getExternalIdentifierType())) {
+			for (final ExternalIdentifier eid1 : eids1.getWorkExternalIdentifier()) {
+				if (sameButNotBothPartOf(eid2.getRelationship(),eid1.getRelationship())
+						&& eid1.getExternalIdentifierId().equals(eid2.getExternalIdentifierId())
+						&& eid1.getExternalIdentifierType().equals(eid2.getExternalIdentifierType())) {
 					same.add(eid2);
 					less.remove(eid1);
 					more.remove(eid2);
@@ -96,8 +89,7 @@ public final class ExternalIdsDiff {
 	 *            another external identifier relationship type
 	 * @return whether external identifiers are the same but not part of
 	 */
-	private static boolean sameButNotBothPartOf(RelationshipType r1,
-			RelationshipType r2) {
+	private static boolean sameButNotBothPartOf(RelationshipType r1, RelationshipType r2) {
 		if (r1 == null && r2 == null)
 			return true;
 		if (r1 != null && r1.equals(r2) && !r1.equals(RelationshipType.PART_OF))

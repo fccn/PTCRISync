@@ -13,7 +13,6 @@ import pt.ptcris.ORCIDClient;
  * {@link ORCIDClient client} should be provided to establish the communication
  * with the Member API, including the user profile being managed and the Member
  * API id being user to source works. Communication is performed via callback.
- *
  */
 public abstract class ORCIDWorker extends Thread {
 
@@ -38,8 +37,7 @@ public abstract class ORCIDWorker extends Thread {
 	ORCIDWorker(ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
 			throws InvalidParameterException {
 		if (cb == null || client == null)
-			throw new NullPointerException(
-					"Client and callback must not be null.");
+			throw new NullPointerException("Client and callback must not be null.");
 		this.client = client;
 		this.cb = cb;
 		this._log = log;

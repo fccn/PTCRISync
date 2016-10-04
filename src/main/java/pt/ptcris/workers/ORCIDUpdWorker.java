@@ -14,7 +14,6 @@ import pt.ptcris.ORCIDClient;
  * A worker thread that can be used to UPDATE works from ORCID.
  *
  * @see ORCIDWorker
- *
  */
 public class ORCIDUpdWorker extends ORCIDWorker {
 
@@ -38,16 +37,13 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work is null
 	 */
-	public ORCIDUpdWorker(Work work, ORCIDClient client,
-			Map<BigInteger, Object> cb, Logger log)
+	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
 			throws NullPointerException, InvalidParameterException {
 		super(client, cb, log);
 		if (work == null)
-			throw new NullPointerException(
-					"UPDATE: arguments must not be null.");
+			throw new NullPointerException("UPDATE: arguments must not be null.");
 		if (work.getPutCode() == null)
-			throw new InvalidParameterException(
-					"UPDATE: Work must have a putcode defined.");
+			throw new InvalidParameterException("UPDATE: Work must have a putcode defined.");
 		this.work = work;
 	}
 

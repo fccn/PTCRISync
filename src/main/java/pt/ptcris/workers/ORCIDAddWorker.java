@@ -13,7 +13,6 @@ import pt.ptcris.ORCIDClient;
  * A worker thread that can be used to ADD works from ORCID.
  *
  * @see ORCIDWorker
- *
  */
 public class ORCIDAddWorker extends ORCIDWorker {
 
@@ -35,12 +34,10 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public ORCIDAddWorker(Work work, ORCIDClient client,
-			Map<BigInteger, Object> cb, Logger log) {
+	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log) {
 		super(client, cb, log);
 		if (work == null)
-			throw new NullPointerException(
-					"UPDATE: arguments must not be null.");
+			throw new NullPointerException("UPDATE: arguments must not be null.");
 		this.work = work;
 	}
 
