@@ -1,0 +1,19 @@
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%msg%n"/>
+        </Console>
+        <File name="MyFile" fileName="file.log" immediateFlush="true" append="false">
+            <PatternLayout pattern="%msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="JavaPhit.Log.File" level="DEBUG" includeLocation="true">
+            <AppenderRef ref="MyFile"/>
+        </Logger>
+        <Root level="DEBUG">
+            <AppenderRef ref="Console" level="info"></AppenderRef>
+            <AppenderRef ref="MyFile" level="debug" />
+        </Root>
+    </Loggers>
+</Configuration>

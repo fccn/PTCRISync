@@ -20,6 +20,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.UpdateRecord;
 import pt.ptcris.ORCIDHelper;
+import pt.ptcris.exceptions.InvalidWorkException;
 
 /**
  * <p>
@@ -220,7 +221,9 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 			Work localWork = localWorks.get(counter);
 
-			if (!ORCIDHelper.testMinimalQuality(localWork).isEmpty()) {
+			try {
+				ORCIDHelper.testMinimalQuality(localWork);
+			} catch (InvalidWorkException invalidWork) {
 				no_quality.add(localWork);
 				result.put(ORCIDHelper.getWorkLocalKey(localWork),
 						PTCRISyncResult.INVALID_RESULT);
@@ -241,7 +244,7 @@ public class PTCRISync {
 				try {
 					helper.deleteWork(orcidWorks.get(counter).getPutCode());
 				} catch (OrcidClientException e) {
-					// TODO: what to do?
+					result.put(ORCIDHelper.getWorkLocalKey(orcidWorks.get(counter)), PTCRISyncResult.fail(e));
 				}
 			}
 			// there is at least one local work matching a CRIS sourced remote

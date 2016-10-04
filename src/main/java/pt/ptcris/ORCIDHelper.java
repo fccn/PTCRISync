@@ -30,6 +30,7 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
+import pt.ptcris.exceptions.InvalidWorkException;
 import pt.ptcris.workers.ORCIDGetWorker;
 
 /**
@@ -38,7 +39,6 @@ import pt.ptcris.workers.ORCIDGetWorker;
  *
  */
 public class ORCIDHelper {
-
 
 	public static final String INVALID_EXTERNALIDENTIFIERS = "ExternalIdentifiers";
 	public static final String INVALID_WORKEXTERNALIDENTIFIERS = "WorkExternalIdentifiers";
@@ -410,7 +410,7 @@ public class ORCIDHelper {
 		return aux.more.isEmpty() && aux.less.isEmpty();
 	}
 
-	public static Set<String> testMinimalQuality(Work work) {
+	public static Set<String> testMinimalQuality(Work work) throws InvalidWorkException {
 		Set<String> res = new HashSet<String>();
 		if (work.getExternalIdentifiers() == null)
 			res.add(INVALID_EXTERNALIDENTIFIERS);
@@ -428,6 +428,9 @@ public class ORCIDHelper {
 		if (work.getType() == null)
 			res.add(INVALID_TYPE);
 		// TODO: contributors! but they are not in the summary...
+		if (!res.isEmpty()) {
+			throw new InvalidWorkException(res);
+		}
 		return res;
 	}
 

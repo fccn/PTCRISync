@@ -16,6 +16,7 @@ public final class PTCRISyncResult {
 		this(code, null);
 	}
 
+	public static final int CLIENTERROR = 500;
 	public static final int UPTODATE = 304;
 	public static final int UPDATEOK = 200;
 	public static final int ADDOK = 200;
@@ -28,7 +29,7 @@ public final class PTCRISyncResult {
 	public static final PTCRISyncResult UPTODATE_RESULT = new PTCRISyncResult(UPTODATE);
 
 	public static PTCRISyncResult fail(OrcidClientException exception) {
-		return new PTCRISyncResult(exception.getCode());
+		return new PTCRISyncResult(exception.getCode(), exception);
 	}
-
+	
 }
