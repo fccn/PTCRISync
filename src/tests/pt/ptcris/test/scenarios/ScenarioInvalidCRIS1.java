@@ -38,7 +38,7 @@ public class ScenarioInvalidCRIS1 extends Scenario {
 	@Override
 	int expectedExportCodes(BigInteger code) {
 		if (code.equals(BigInteger.valueOf(3)))
-			return PTCRISyncResult.CONFLICT;
+			return PTCRISyncResult.CLIENTERROR;
 		else
 			return PTCRISyncResult.ADDOK;
 	}

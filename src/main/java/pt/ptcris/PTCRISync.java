@@ -287,7 +287,6 @@ public class PTCRISync {
 				} catch (OrcidClientException e) {
 					result.put(ORCIDHelper.getWorkLocalKey(localWork),
 							PTCRISyncResult.fail(e));
-					// TODO: what else to do?
 				}
 			}
 		}
@@ -318,7 +317,6 @@ public class PTCRISync {
 				} catch (OrcidClientException e) {
 					result.put(ORCIDHelper.getWorkLocalKey(localWork),
 							PTCRISyncResult.fail(e));
-					// TODO: what else to do?
 				}
 			}
 		}
