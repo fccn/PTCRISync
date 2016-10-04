@@ -155,10 +155,10 @@ public class ORCIDHelper {
 	 * 
 	 * @see {@link ORCIDClient#getWork(BigInteger)}
 	 */
-	public void getFullWork(WorkSummary work, Map<BigInteger,Work> works) throws OrcidClientException {
+	public void getFullWork(WorkSummary work, Map<BigInteger,Object> works) throws OrcidClientException {
 		_log.debug("[getFullWork] " + work.getPutCode());
 		if (threaded) {
-			ORCIDGetWorker worker = new ORCIDGetWorker(client, works, work, _log);
+			ORCIDGetWorker worker = new ORCIDGetWorker(work, client, works, _log);
 			executor.execute(worker);
 		} else {
 			Work fullWork = client.getWork(work.getPutCode());
