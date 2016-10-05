@@ -10,4 +10,6 @@ Release Notes
   - Import invalid remote works
   - Import novel remote work counter
 
-* Built over the ORCID API 2.0rc2
+* Built over the ORCID API 2.0rc1
+
+* Based on the PTCRISync specification v0.5
