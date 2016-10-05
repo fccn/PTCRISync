@@ -6,3 +6,5 @@
 .classpath
 .project
 file.log
+
+*.class
