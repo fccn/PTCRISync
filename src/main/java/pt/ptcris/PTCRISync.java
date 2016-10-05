@@ -26,7 +26,7 @@ import pt.ptcris.utils.UpdateRecord;
 /**
  * <p>
  * An implementation of the PTCRISync synchronization service based on the
- * version 4.2 of the specification. This service allows CRIS services to
+ * version 5.0 of the specification. This service allows CRIS services to
  * maintain their repositories synchronized with ORCID. This requires the CRIS
  * service to have access to the ORCID Member API.
  * </p>
@@ -46,27 +46,27 @@ import pt.ptcris.utils.UpdateRecord;
  *
  * <p>
  * The implementation of the service assumes that the local CRIS communicates
- * the local productions following the ORCID schema, in particular encoding them
- * as ORCID {@link Work works}. This uniforms the API and simplifies the
- * synchronization process.
+ * the local productions following the established ORCID schema, according to
+ * the Member API 2.0rc1. This uniforms the API and simplifies the
+ * synchronization process. The current version focuses on synchronizing
+ * research productions, which must be encoded as ORCID {@link Work works}.
  * </p>
  *
  * <p>
  * The communication with ORCID is encapsulated in an ORCID {@link ORCIDClient
  * client} that contains information regarding the CRIS Member API and the ORCID
- * profile that is to be managed. Nonetheless, communication should ideally be
- * performed through the {@link ORCIDHelper helper}.
+ * profile that is to be managed. An {@link ORCIDHelper helper} provides utility
+ * methods for the synchronization of works.
  * </p>
  * 
- * TODO: The procedure does not currently consider the contributors (authors) of
- * a work when assessing the quality criteria nor when assessing whether an
- * ORCID work is up-to-date, as this would require the retrieval of the full
- * work (contributors are not contained in work summaries), and an additional
- * call to the ORCID API.
+ * <p>
+ * The procedures do not currently consider the contributors (authors) of works
+ * when assessing the quality criteria nor when assessing whether works are
+ * up-to-date, as this information is not available in ORCID summaries and would
+ * require additional calls to the ORCID API.
+ * </p>
  *
- * @see <a
- *      href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
- *
+ * @see <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
  */
 public final class PTCRISync {
 
