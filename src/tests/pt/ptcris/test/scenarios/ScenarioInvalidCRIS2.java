@@ -24,12 +24,13 @@ public class ScenarioInvalidCRIS2 extends Scenario {
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2), null, "0", "1"));
-		return works;
+		works.add(ScenariosHelper.work(BigInteger.valueOf(3), "3"));
+			return works;
 	}
 
 	@Override
 	int expectedExportCodes(BigInteger code) {
-		if (code.equals(BigInteger.valueOf(2)))
+		if (code.equals(BigInteger.valueOf(2)) || code.equals(BigInteger.valueOf(3)))
 			return PTCRISyncResult.INVALID;
 		else
 			return PTCRISyncResult.ADDOK;
