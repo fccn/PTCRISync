@@ -19,8 +19,8 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ExternalIdsDiff;
+import pt.ptcris.utils.ORCIDHelper;
 import pt.ptcris.utils.UpdateRecord;
-import pt.ptcris.ORCIDHelper;
 import pt.ptcris.exceptions.InvalidWorkException;
 
 /**
@@ -127,7 +127,7 @@ public class PTCRISync {
 	 * Finally, for local works without any matching ORCID work new ORCID works
 	 * are created. The matching is performed by detecting shared
 	 * {@link ExternalIdentifier external identifiers} (see
-	 * {@link ORCIDHelper#getExternalIdentifiersDiff(WorkSummary, Collection)}).
+	 * {@link ORCIDHelper#getExternalIdsDiff(WorkSummary, Collection)}).
 	 * </p>
 	 * 
 	 * <p>
@@ -223,10 +223,10 @@ public class PTCRISync {
 			Work localWork = localWorks.get(counter);
 
 			try {
-				ORCIDHelper.testMinimalQuality(localWork);
+				ORCIDHelper.tryMinimalQuality(localWork);
 			} catch (InvalidWorkException invalidWork) {
 				no_quality.add(localWork);
-				result.put(ORCIDHelper.getWorkLocalKey(localWork),
+				result.put(ORCIDHelper.getActivityLocalKey(localWork),
 						PTCRISyncResult.invalid(invalidWork));
 			}
 		}
@@ -238,14 +238,14 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
-					.getExternalIdentifiersDiff(orcidWorks.get(counter),
+					.getExternalIdsDiff(orcidWorks.get(counter),
 							localWorks);
 			// there is no local work matching a CRIS sourced remote work
 			if (matchingWorks.isEmpty()) {
 				try {
 					helper.deleteWork(orcidWorks.get(counter).getPutCode());
 				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getWorkLocalKey(orcidWorks.get(counter)), PTCRISyncResult.fail(e));
+					result.put(ORCIDHelper.getActivityLocalKey(orcidWorks.get(counter)), PTCRISyncResult.fail(e));
 				}
 			}
 			// there is at least one local work matching a CRIS sourced remote
@@ -259,7 +259,7 @@ public class PTCRISync {
 					recordsToUpdate.add(new UpdateRecord(localWork, orcidWorks
 							.get(counter), matchingWorks.get(localWork)));
 				else
-					result.put(ORCIDHelper.getWorkLocalKey(localWork),
+					result.put(ORCIDHelper.getActivityLocalKey(localWork),
 							PTCRISyncResult.UPTODATE_RESULT);
 				localWorks.remove(localWork);
 			}
@@ -283,10 +283,10 @@ public class PTCRISync {
 				try {
 					helper.updateWork(recordsToUpdate.get(counter)
 							.posWork.getPutCode(), localWork);
-					result.put(ORCIDHelper.getWorkLocalKey(localWork),
+					result.put(ORCIDHelper.getActivityLocalKey(localWork),
 							PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getWorkLocalKey(localWork),
+					result.put(ORCIDHelper.getActivityLocalKey(localWork),
 							PTCRISyncResult.fail(e));
 				}
 			}
@@ -313,10 +313,10 @@ public class PTCRISync {
 				try {
 					helper.updateWork(recordsToUpdate.get(counter)
 							.posWork.getPutCode(), localWork);
-					result.put(ORCIDHelper.getWorkLocalKey(localWork),
+					result.put(ORCIDHelper.getActivityLocalKey(localWork),
 							PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getWorkLocalKey(localWork),
+					result.put(ORCIDHelper.getActivityLocalKey(localWork),
 							PTCRISyncResult.fail(e));
 				}
 			}
@@ -332,10 +332,10 @@ public class PTCRISync {
 			// local works that were not updated remaining
 			try {
 				BigInteger remotePutcode = helper.addWork(localWork);
-				result.put(ORCIDHelper.getWorkLocalKey(localWork),
+				result.put(ORCIDHelper.getActivityLocalKey(localWork),
 						PTCRISyncResult.OK_ADD_RESULT);
 			} catch (OrcidClientException e) {
-				result.put(ORCIDHelper.getWorkLocalKey(localWork),
+				result.put(ORCIDHelper.getActivityLocalKey(localWork),
 						PTCRISyncResult.fail(e));
 				// TODO: what else to do?
 			}
@@ -425,7 +425,7 @@ public class PTCRISync {
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
 			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
-					.getExternalIdentifiersDiff(mergedOrcidWork, localWorks);
+					.getExternalIdsDiff(mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty()
 					&& ORCIDHelper.testMinimalQuality(mergedOrcidWork)
 							.isEmpty()) {
@@ -495,7 +495,7 @@ public class PTCRISync {
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
 			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
-					.getExternalIdentifiersDiff(mergedOrcidWork, localWorks);
+					.getExternalIdsDiff(mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty()
 					&& ORCIDHelper.testMinimalQuality(mergedOrcidWork)
 							.isEmpty()) {
@@ -579,7 +579,7 @@ public class PTCRISync {
 			progressHandler.setProgress(progress);
 
 			Map<Work, ExternalIdsDiff> matchingLocalWorks = ORCIDHelper
-					.getExternalIdentifiersDiff(orcidWorks.get(counter),
+					.getExternalIdsDiff(orcidWorks.get(counter),
 							localWorks);
 			if (!matchingLocalWorks.isEmpty()) {
 				for (Work mathingLocalWork : matchingLocalWorks.keySet()) {
@@ -590,7 +590,7 @@ public class PTCRISync {
 						weids.setWorkExternalIdentifier(new ArrayList<ExternalIdentifier>(
 								matchingLocalWorks.get(mathingLocalWork).more));
 						ORCIDHelper.setWorkLocalKey(workUpdate,
-								ORCIDHelper.getWorkLocalKey(mathingLocalWork));
+								ORCIDHelper.getActivityLocalKey(mathingLocalWork));
 						workUpdate.setExternalIdentifiers(weids);
 						workUpdate.setTitle(null);
 						workUpdate.setType(null);
@@ -660,7 +660,7 @@ public class PTCRISync {
 
 			WorkSummary mergedOrcidWork = mergedOrcidWorks.get(counter);
 			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper
-					.getExternalIdentifiersDiff(mergedOrcidWork, localWorks);
+					.getExternalIdsDiff(mergedOrcidWork, localWorks);
 			Set<String> invalids = ORCIDHelper
 					.testMinimalQuality(mergedOrcidWork);
 			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);

@@ -12,7 +12,6 @@ import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
  * 
  * Currently focuses on managing {@link org.um.dsi.gavea.orcid.model.work.Work
  * works}.
- *
  */
 public interface ORCIDClient {
 

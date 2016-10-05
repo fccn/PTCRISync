@@ -1,6 +1,8 @@
 package pt.ptcris.utils;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
@@ -37,14 +39,17 @@ public final class ExternalIdsDiff {
 	 *            the first set of external identifiers
 	 * @param eids2
 	 *            the second set of external identifiers
-	 * @throws NullPointerException
-	 *             if the identifiers are null
 	 */
-	public ExternalIdsDiff(WorkExternalIdentifiers eids1,WorkExternalIdentifiers eids2) {
-		if (eids1 == null || eids2 == null
-				|| eids1.getWorkExternalIdentifier() == null
-				|| eids2.getWorkExternalIdentifier() == null)
-			throw new NullPointerException("Null external identifiers.");
+	public ExternalIdsDiff(WorkExternalIdentifiers weids1, WorkExternalIdentifiers weids2) {
+		List<ExternalIdentifier> eids1 = new LinkedList<ExternalIdentifier>();
+		List<ExternalIdentifier> eids2 = new LinkedList<ExternalIdentifier>();
+
+		if (weids1 != null && weids1.getWorkExternalIdentifier() != null)
+			eids1.addAll(weids1.getWorkExternalIdentifier());
+
+		if (weids2 != null && weids2.getWorkExternalIdentifier() != null)
+			eids2.addAll(weids2.getWorkExternalIdentifier());
+		
 		calculateDifference(eids1, eids2);
 	}
 
@@ -63,11 +68,11 @@ public final class ExternalIdsDiff {
 	 * @param eids2
 	 *            another set of UIDs
 	 */
-	private void calculateDifference(WorkExternalIdentifiers eids1, WorkExternalIdentifiers eids2) {
-		less.addAll(eids1.getWorkExternalIdentifier());
-		more.addAll(eids2.getWorkExternalIdentifier());
-		for (final ExternalIdentifier eid2 : eids2.getWorkExternalIdentifier()) {
-			for (final ExternalIdentifier eid1 : eids1.getWorkExternalIdentifier()) {
+	private void calculateDifference(List<ExternalIdentifier> eids1, List<ExternalIdentifier> eids2) {
+		less.addAll(eids1);
+		more.addAll(eids2);
+		for (final ExternalIdentifier eid2 : eids2) {
+			for (final ExternalIdentifier eid1 : eids1) {
 				if (sameButNotBothPartOf(eid2.getRelationship(),eid1.getRelationship())
 						&& eid1.getExternalIdentifierId().equals(eid2.getExternalIdentifierId())
 						&& eid1.getExternalIdentifierType().equals(eid2.getExternalIdentifierType())) {

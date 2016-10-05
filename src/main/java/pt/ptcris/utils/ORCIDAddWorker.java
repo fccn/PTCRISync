@@ -1,4 +1,4 @@
-package pt.ptcris.workers;
+package pt.ptcris.utils;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -41,13 +41,17 @@ public class ORCIDAddWorker extends ORCIDWorker {
 		this.work = work;
 	}
 
+	/**
+	 * Adds a work to an ORCID profile.
+	 */
+	@Override
 	public void run() {
 		try {
-			BigInteger putCode = client.addWork(work);
-			work.setPutCode(putCode);
-			_log.debug("[addWork] " + work.getPutCode());
-		} catch (OrcidClientException e) {
-			callback(work.getPutCode(), e);
+			final BigInteger putCode = client.addWork(work);
+	
+			callback(putCode, work);
+		} catch (final OrcidClientException e) {
+			callback(BigInteger.valueOf(0), e);
 		}
 	}
 

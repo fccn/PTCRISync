@@ -1,4 +1,4 @@
-package pt.ptcris.workers;
+package pt.ptcris.utils;
 
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
@@ -47,10 +47,15 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 		this.work = work;
 	}
 
+	/**
+	 * Updates a work in an ORCID profile.
+	 */
 	@Override
 	public void run() {
 		try {
 			client.updateWork(work.getPutCode(), work);
+			
+			callback(work.getPutCode(), work);
 		} catch (final OrcidClientException e) {
 			callback(work.getPutCode(), e);
 		}

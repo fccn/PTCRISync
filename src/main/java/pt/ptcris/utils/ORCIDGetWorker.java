@@ -1,4 +1,4 @@
-package pt.ptcris.workers;
+package pt.ptcris.utils;
 
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
@@ -10,7 +10,6 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
-import pt.ptcris.ORCIDHelper;
 
 /**
  * A worker thread that can be used to GET works from ORCID.
@@ -25,6 +24,8 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * A threaded worker that can be launched in parallel to GET works with the
 	 * ORCID API. The provided {@link ORCIDClient client} defines the
 	 * communication channel.
+	 * 
+	 * @see {@link ORCIDHelper#getFullWork(WorkSummary)}
 	 *
 	 * @param work
 	 *            the summary specifying the full work to be retrieved
@@ -49,12 +50,15 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 		this.work = work;
 	}
 
+	/**
+	 * Retrieves a full work from an ORCID profile.
+	 */
 	@Override
 	public void run() {
 		try {
 			final Work fullWork = client.getWork(work.getPutCode());
-			fullWork.setExternalIdentifiers(work.getExternalIdentifiers());
-			ORCIDHelper.cleanWorkLocalKey(fullWork);
+			ORCIDHelper.finalizeGet(fullWork, work);
+
 			callback(work.getPutCode(), fullWork);
 		} catch (final OrcidClientException e) {
 			callback(work.getPutCode(), e);

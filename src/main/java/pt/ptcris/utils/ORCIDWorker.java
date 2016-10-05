@@ -1,4 +1,4 @@
-package pt.ptcris.workers;
+package pt.ptcris.utils;
 
 import java.math.BigInteger;
 import java.security.InvalidParameterException;

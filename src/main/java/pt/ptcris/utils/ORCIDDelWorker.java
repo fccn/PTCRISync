@@ -1,4 +1,4 @@
-package pt.ptcris.workers;
+package pt.ptcris.utils;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the putcode is null
 	 */
-	public ORCIDDelWorker(BigInteger putCode, ORCIDClient client, Map<BigInteger, Object> cb, Logger log) 
+	public ORCIDDelWorker(BigInteger putCode, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
 			throws NullPointerException {
 		super(client, cb, log);
 		if (putCode == null)
@@ -41,10 +41,16 @@ public class ORCIDDelWorker extends ORCIDWorker {
 		this.putCode = putCode;
 	}
 
+	/**
+	 * Removes a work from an ORCID profile.
+	 */
+	@Override
 	public void run() {
 		try {
 			client.deleteWork(putCode);
-		} catch (OrcidClientException e) {
+
+			callback(putCode, null);
+		} catch (final OrcidClientException e) {
 			callback(putCode,e);
 		}
 	}
