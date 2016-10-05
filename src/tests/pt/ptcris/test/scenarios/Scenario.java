@@ -18,10 +18,10 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
-import pt.ptcris.ORCIDHelper;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.handlers.ProgressHandler;
+import pt.ptcris.utils.ORCIDHelper;
 
 /* TODO: Scenarios with notifications in the pre-state (7 and 16) must 
  * be handled with caution, since modifications are not explicit in the 

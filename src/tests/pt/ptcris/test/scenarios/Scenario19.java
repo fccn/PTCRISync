@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
-import pt.ptcris.ORCIDHelper;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * Features: export updates with {less,same,more}

@@ -1,6 +1,6 @@
 package pt.ptcris.test.scenarios;
 
-import pt.ptcris.ORCIDHelper;
+import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * Features:

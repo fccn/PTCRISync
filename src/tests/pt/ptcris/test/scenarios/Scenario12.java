@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
-import pt.ptcris.ORCIDHelper;
+import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * Features: export add modification notifications with {same,more}

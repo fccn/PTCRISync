@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
-import pt.ptcris.ORCIDHelper;
+import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * Features: creation notifications at pre-state export updates with

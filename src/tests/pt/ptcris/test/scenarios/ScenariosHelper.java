@@ -16,8 +16,8 @@ import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkTitle;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
-import pt.ptcris.ORCIDHelper;
 import pt.ptcris.handlers.ProgressHandler;
+import pt.ptcris.utils.ORCIDHelper;
 
 public class ScenariosHelper {
 

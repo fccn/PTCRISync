@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
-import pt.ptcris.ORCIDHelper;
+import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * Features: export del export update {same,more} modification notifications
