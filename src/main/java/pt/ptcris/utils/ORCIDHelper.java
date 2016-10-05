@@ -34,6 +34,10 @@ import pt.ptcris.exceptions.InvalidWorkException;
 /**
  * An helper to simplify the use of the low-level ORCID
  * {@link pt.ptcris.ORCIDClient client}.
+ * 
+ * Provides support for asynchronous communication with ORCID
+ * although it is only active for GET requests due to resource
+ * limitations.
  */
 public class ORCIDHelper {
 
