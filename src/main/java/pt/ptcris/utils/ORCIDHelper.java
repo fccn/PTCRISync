@@ -217,7 +217,7 @@ public class ORCIDHelper {
 	 * 
 	 * @param work
 	 *            the new work to be added
-	 * @return the putcode assigned to the new work by ORCID
+	 * @return the put-code assigned to the new work by ORCID
 	 * @throws OrcidClientException
 	 *             if communication with the ORCID API fails
 	 * @throws NullPointerException
@@ -228,13 +228,13 @@ public class ORCIDHelper {
 		
 		_log.debug("[addWork]" + getWorkTitle(work));
 	
-		// remove any putCode otherwise ORCID will throw an error
+		// remove any put-code otherwise ORCID will throw an error
 		final Work clone = ORCIDHelper.clone(work);
 		clone.setPutCode(null);
 	
-		final BigInteger putCode = client.addWork(clone);
+		final BigInteger putcode = client.addWork(clone);
 	
-		return putCode;
+		return putcode;
 	}
 	
 	/**
@@ -242,8 +242,8 @@ public class ORCIDHelper {
 	 * 
 	 * @see {@link ORCIDClient#updateWork(BigInteger, Work)}
 	 * 
-	 * @param remotePutCode
-	 *            the putcode of the remote ORCID work that will be updated
+	 * @param remotePutcode
+	 *            the put-code of the remote ORCID work that will be updated
 	 * @param updatedWork
 	 *            the new state of the work that will be updated
 	 * @throws OrcidClientException
@@ -251,18 +251,18 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if either parameter is null
 	 */
-	public void updateWork(BigInteger remotePutCode, Work updatedWork)
+	public void updateWork(BigInteger remotePutcode, Work updatedWork)
 			throws OrcidClientException, NullPointerException {
-		if (remotePutCode == null || updatedWork == null) 
+		if (remotePutcode == null || updatedWork == null) 
 			throw new NullPointerException("Can't update null work.");
 
-		_log.debug("[updateWork] " + remotePutCode);
+		_log.debug("[updateWork] " + remotePutcode);
 
 		final Work clone = ORCIDHelper.clone(updatedWork);
-		// set the remote putcode
-		clone.setPutCode(remotePutCode);
+		// set the remote put-code
+		clone.setPutCode(remotePutcode);
 
-		client.updateWork(remotePutCode, clone);
+		client.updateWork(remotePutcode, clone);
 	}
 
 	/**
@@ -287,20 +287,20 @@ public class ORCIDHelper {
 	 * 
 	 * @see {@link ORCIDClient#deleteWork(BigInteger)}
 	 * 
-	 * @param putCode the remote putcode of the work to be deleted
+	 * @param putcode the remote put-code of the work to be deleted
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 * @throws NullPointerException
-	 *             if the putcode is null
+	 *             if the put-code is null
 	 */
-	public void deleteWork(BigInteger putCode) 
+	public void deleteWork(BigInteger putcode) 
 			throws OrcidClientException, NullPointerException {
-		if (putCode == null) 
+		if (putcode == null) 
 			throw new NullPointerException("Can't delete null work.");
 
-		_log.debug("[deleteWork] " + putCode);
+		_log.debug("[deleteWork] " + putcode);
 	
-		client.deleteWork(putCode);
+		client.deleteWork(putcode);
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class ORCIDHelper {
 	
 	/**
 	 * Retrieves the local key of an activity, currently assumed to be stored in
-	 * the putcode field.
+	 * the put-code field.
 	 *
 	 * @param act
 	 *            the activity from which to get the local key
@@ -342,7 +342,7 @@ public class ORCIDHelper {
 
 	/**
 	 * Retrieves the local key of an activity, currently assumed to be stored in
-	 * the putcode field.
+	 * the put-code field.
 	 *
 	 * @param act
 	 *            the activity to which to set the local key
@@ -358,7 +358,7 @@ public class ORCIDHelper {
 
 	/**
 	 * Clears the local key of an activity, currently assumed to be stored in
-	 * the putcode field.
+	 * the put-code field.
 	 *
 	 * @param act
 	 *            the activity to which to clear the local key

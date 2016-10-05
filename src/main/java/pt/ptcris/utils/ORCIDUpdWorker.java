@@ -33,7 +33,7 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	 * @param log
 	 *            a logger
 	 * @throws InvalidParameterException
-	 *             if the work's putcode is undefined
+	 *             if the work's put-code is undefined
 	 * @throws InvalidParameterException
 	 *             if the work is null
 	 */
@@ -43,7 +43,7 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 		if (work == null)
 			throw new NullPointerException("UPDATE: arguments must not be null.");
 		if (work.getPutCode() == null)
-			throw new InvalidParameterException("UPDATE: Work must have a putcode defined.");
+			throw new InvalidParameterException("UPDATE: Work must have a put-code defined.");
 		this.work = work;
 	}
 

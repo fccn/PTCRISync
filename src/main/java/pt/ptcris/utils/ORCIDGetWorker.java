@@ -38,7 +38,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the work is null
 	 * @throws InvalidParameterException
-	 *             if the work's putcode is undefined
+	 *             if the work's put-code is undefined
 	 */
 	public ORCIDGetWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
 			throws InvalidParameterException, NullPointerException {
@@ -46,7 +46,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 		if (work == null)
 			throw new NullPointerException("GET: Work must not be null.");
 		if (work.getPutCode() == null)
-			throw new InvalidParameterException("GET: Work must have a putcode defined.");
+			throw new InvalidParameterException("GET: Work must have a put-code defined.");
 		this.work = work;
 	}
 

@@ -47,9 +47,9 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	@Override
 	public void run() {
 		try {
-			final BigInteger putCode = client.addWork(work);
+			final BigInteger putcode = client.addWork(work);
 	
-			callback(putCode, work);
+			callback(putcode, work);
 		} catch (final OrcidClientException e) {
 			callback(BigInteger.valueOf(0), e);
 		}

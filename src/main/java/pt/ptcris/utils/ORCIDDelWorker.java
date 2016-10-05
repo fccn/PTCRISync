@@ -15,14 +15,14 @@ import pt.ptcris.ORCIDClient;
  */
 public class ORCIDDelWorker extends ORCIDWorker {
 
-	private final BigInteger putCode;
+	private final BigInteger putcode;
 
 	/**
 	 * A threaded worker that can be launched in parallel to DELETE works with
 	 * the ORCID API. The provided {@link ORCIDClient client} defines the
 	 * communication channel.
 	 *
-	 * @param putCode
+	 * @param putcode
 	 *            the put-code of the work that is to be deleted
 	 * @param client
 	 *            the ORCID communication client
@@ -31,14 +31,14 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 * @param log
 	 *            a logger
 	 * @throws NullPointerException
-	 *             if the putcode is null
+	 *             if the put-code is null
 	 */
-	public ORCIDDelWorker(BigInteger putCode, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
 			throws NullPointerException {
 		super(client, cb, log);
-		if (putCode == null)
+		if (putcode == null)
 			throw new NullPointerException("DELETE: arguments must not be null.");
-		this.putCode = putCode;
+		this.putcode = putcode;
 	}
 
 	/**
@@ -47,11 +47,11 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	@Override
 	public void run() {
 		try {
-			client.deleteWork(putCode);
+			client.deleteWork(putcode);
 
-			callback(putCode, null);
+			callback(putcode, null);
 		} catch (final OrcidClientException e) {
-			callback(putCode,e);
+			callback(putcode,e);
 		}
 	}
 
