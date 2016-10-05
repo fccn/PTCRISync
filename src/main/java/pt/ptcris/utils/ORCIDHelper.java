@@ -152,13 +152,11 @@ public class ORCIDHelper {
 	 *            the work summary representing a merged group
 	 * @param cb
 	 *            the callback object
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID API fails
 	 * @throws NullPointerException
 	 *             if the merged work is null
 	 */
 	public void getFullWork(WorkSummary mergedWork, Map<BigInteger, Object> cb)
-			throws OrcidClientException, NullPointerException {
+			throws NullPointerException {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 		
 		_log.debug("[getFullWork] " + mergedWork.getPutCode());
@@ -166,10 +164,15 @@ public class ORCIDHelper {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
 		} else {
-			final Work fullWork = client.getWork(mergedWork.getPutCode());
-			finalizeGet(fullWork, mergedWork);
-
-			cb.put(mergedWork.getPutCode(), fullWork);
+			Work fullWork;
+			try {
+				fullWork = client.getWork(mergedWork.getPutCode());
+				finalizeGet(fullWork, mergedWork);
+				
+				cb.put(mergedWork.getPutCode(), fullWork);
+			} catch (OrcidClientException e) {
+				cb.put(mergedWork.getPutCode(), e);
+			}
 		}
 	}
 
