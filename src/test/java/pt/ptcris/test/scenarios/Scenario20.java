@@ -1,6 +1,7 @@
 package pt.ptcris.test.scenarios;
 
-import pt.ptcris.test.scenarios.ScenarioOrcidClient.Profile;
+import pt.ptcris.test.TestClients;
+import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
@@ -12,12 +13,12 @@ public class Scenario20 extends Scenario {
 
 	@Override
 	ORCIDHelper clientSource() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(Profile.EMPTYWORKS));
+		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.EMPTYWORKS));
 	}
 
 	@Override
 	ORCIDHelper clientFixture() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(Profile.EMPTYWORKS));
+		return new ORCIDHelper(TestClients.getExternalClient(Profile.EMPTYWORKS));
 	}
 
 }

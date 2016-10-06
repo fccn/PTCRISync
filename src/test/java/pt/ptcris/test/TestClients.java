@@ -1,4 +1,4 @@
-package pt.ptcris.test.scenarios;
+package pt.ptcris.test;
 
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
 
@@ -11,7 +11,7 @@ import pt.ptcris.ORCIDClientImpl;
  * access tokens for two different Member API clients, that can represent the
  * PTCRISync service and an external source.
  */
-public class ScenarioOrcidClient {
+public final class TestClients {
 
 	/**
 	 * The user profiles registered in the sandbox.
@@ -57,10 +57,10 @@ public class ScenarioOrcidClient {
 	 *            the ORCID user profile
 	 * @return the client for the PTCRISync source to manage the user profile
 	 */
-	public static ORCIDClient getClientWork(Profile profile) {
+	public static ORCIDClient getPTCRISClient(Profile profile) {
 		ORCIDClientImpl orcidClient = new ORCIDClientImpl(
 				orcid_login_uri, orcid_api_uri, ptcris_client_id, ptcris_client_secret, orcid_redirect_uri,
-				ScenarioOrcidClient.getAccessTokenWork(profile.value));
+				TestClients.getPTCRISAccessToken(profile.value));
 		return orcidClient;
 	}
 
@@ -73,28 +73,11 @@ public class ScenarioOrcidClient {
 	 *            the ORCID user profile
 	 * @return the client for the external source to manage the user profile
 	 */
-	public static ORCIDClient getClientWorkFixture(Profile profile) {
+	public static ORCIDClient getExternalClient(Profile profile) {
 		ORCIDClientImpl orcidClient = new ORCIDClientImpl(
 				orcid_login_uri, orcid_api_uri, external_client_id, external_client_secret, orcid_redirect_uri,
-				ScenarioOrcidClient.getAccessTokenWorkFixture(profile.value));
+				TestClients.getExternalAccessToken(profile.value));
 		return orcidClient;
-	}
-
-	/**
-	 * Retrieves the access token to a given user profile for the PTCRISync
-	 * Member API client id.
-	 * 
-	 * @param i
-	 *            the user profile
-	 * @return the access token for PTCRISync to manage the user profile
-	 */
-	private static OrcidAccessToken getAccessTokenWorkFixture(int i) {
-		OrcidAccessToken orcidToken = new OrcidAccessToken();
-
-		orcidToken.setAccess_token(external_profile_secrets[i]);
-		orcidToken.setOrcid(profiles[i]);
-
-		return orcidToken;
 	}
 
 	/**
@@ -106,12 +89,29 @@ public class ScenarioOrcidClient {
 	 * @return the access token for the external source to manage the user
 	 *         profile
 	 */
-	private static OrcidAccessToken getAccessTokenWork(int i) {
+	private static OrcidAccessToken getPTCRISAccessToken(int i) {
 		OrcidAccessToken orcidToken = new OrcidAccessToken();
 
 		orcidToken.setAccess_token(ptcris_profile_secrets[i]);
 		orcidToken.setOrcid(profiles[i]);
 
+		return orcidToken;
+	}
+
+	/**
+	 * Retrieves the access token to a given user profile for the PTCRISync
+	 * Member API client id.
+	 * 
+	 * @param i
+	 *            the user profile
+	 * @return the access token for PTCRISync to manage the user profile
+	 */
+	private static OrcidAccessToken getExternalAccessToken(int i) {
+		OrcidAccessToken orcidToken = new OrcidAccessToken();
+	
+		orcidToken.setAccess_token(external_profile_secrets[i]);
+		orcidToken.setOrcid(profiles[i]);
+	
 		return orcidToken;
 	}
 

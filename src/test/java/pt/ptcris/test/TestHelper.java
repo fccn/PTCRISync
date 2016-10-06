@@ -1,4 +1,4 @@
-package pt.ptcris.test.scenarios;
+package pt.ptcris.test;
 
 import java.math.BigInteger;
 import java.util.logging.ConsoleHandler;
@@ -19,11 +19,11 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ORCIDHelper;
 
-public class ScenariosHelper {
+public class TestHelper {
 
 	private static Tester progressHandler;
 
-	static Work work(BigInteger key, String meta) {
+	public static Work work(BigInteger key, String meta) {
 		Work work = new Work();
 
 		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
@@ -48,7 +48,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static Work workDOI(BigInteger key, String meta, String doi) {
+	public static Work workDOI(BigInteger key, String meta, String doi) {
 		Work work = work(key, meta);
 
 		ExternalIdentifier e1 = new ExternalIdentifier();
@@ -61,7 +61,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static Work workHANDLE(BigInteger key, String meta, String handle) {
+	public static Work workHANDLE(BigInteger key, String meta, String handle) {
 		Work work = work(key, meta);
 
 		ExternalIdentifier e1 = new ExternalIdentifier();
@@ -74,7 +74,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static Work workDOIEID(BigInteger key, String meta, String doi, String eid) {
+	public static Work workDOIEID(BigInteger key, String meta, String doi, String eid) {
 		Work work = workDOI(key, meta, doi);
 
 		ExternalIdentifier e = new ExternalIdentifier();
@@ -87,7 +87,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static Work workDOIHANDLE(BigInteger key, String meta, String doi, String handle) {
+	public static Work workDOIHANDLE(BigInteger key, String meta, String doi, String handle) {
 		Work work = workDOI(key, meta, doi);
 
 		ExternalIdentifier e = new ExternalIdentifier();
@@ -100,7 +100,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static Work workEIDHANDLE(BigInteger key, String meta, String eid, String handle) {
+	public static Work workEIDHANDLE(BigInteger key, String meta, String eid, String handle) {
 		Work work = workHANDLE(key, meta, handle);
 
 		ExternalIdentifier e = new ExternalIdentifier();
@@ -113,7 +113,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static Work workDOIEIDHANDLE(BigInteger key, String meta, String doi, String eid, String handle) {
+	public static Work workDOIEIDHANDLE(BigInteger key, String meta, String doi, String eid, String handle) {
 		Work work = workDOIEID(key, meta, doi, eid);
 
 		ExternalIdentifier e2 = new ExternalIdentifier();
@@ -126,7 +126,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static Work workDOIDOIEIDHANDLE(BigInteger key, String meta, String doi1, String doi2, String eid, String handle) {
+	public static Work workDOIDOIEIDHANDLE(BigInteger key, String meta, String doi1, String doi2, String eid, String handle) {
 		Work work = workDOIEIDHANDLE(key, meta, doi1, eid, handle);
 
 		ExternalIdentifier e1 = new ExternalIdentifier();
@@ -139,7 +139,7 @@ public class ScenariosHelper {
 		return work;
 	}
 
-	static ProgressHandler handler() {
+	public static ProgressHandler handler() {
 		if (progressHandler == null) {
 			ConsoleHandler handler = new ConsoleHandler();
 			handler.setFormatter(new SimpleFormatter());
@@ -151,7 +151,7 @@ public class ScenariosHelper {
 		return progressHandler;
 	}
 
-	static void cleanUp(ORCIDHelper helper) throws Exception {
+	public static void cleanUp(ORCIDHelper helper) throws Exception {
 		helper.deleteAllSourcedWorks();
 	}
 

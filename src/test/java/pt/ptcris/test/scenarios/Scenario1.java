@@ -8,7 +8,9 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
-import pt.ptcris.test.scenarios.ScenarioOrcidClient.Profile;
+import pt.ptcris.test.TestHelper;
+import pt.ptcris.test.TestClients;
+import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
@@ -26,21 +28,21 @@ public class Scenario1 extends Scenario {
 	@Override
 	List<Work> setupORCIDFixtureWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEID(null, "0", "0", "0"));
+		works.add(TestHelper.workDOIEID(null, "0", "0", "0"));
 		return works;
 	}
 
 	@Override
 	List<Work> expectedImportedLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(null, "1", "0", "0", "1"));
+		works.add(TestHelper.workDOIEIDHANDLE(null, "1", "0", "0", "1"));
 		return works;
 	}
 	
 	@Override
 	List<Work> expectedImportedInvalidWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.work(null, "0"));
+		works.add(TestHelper.work(null, "0"));
 		return works;
 	}
 
@@ -53,12 +55,12 @@ public class Scenario1 extends Scenario {
 	
 	@Override
 	ORCIDHelper clientSource() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(Profile.ONEVALIDWORKS));
+		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	@Override
 	ORCIDHelper clientFixture() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(Profile.ONEVALIDWORKS));
+		return new ORCIDHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 
 }

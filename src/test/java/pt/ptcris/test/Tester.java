@@ -1,4 +1,4 @@
-package pt.ptcris.test.scenarios;
+package pt.ptcris.test;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

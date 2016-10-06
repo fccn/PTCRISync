@@ -9,7 +9,9 @@ import java.util.Set;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.PTCRISyncResult;
-import pt.ptcris.test.scenarios.ScenarioOrcidClient.Profile;
+import pt.ptcris.test.TestHelper;
+import pt.ptcris.test.TestClients;
+import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 public class ScenarioInvalidCRIS2 extends Scenario {
@@ -17,15 +19,15 @@ public class ScenarioInvalidCRIS2 extends Scenario {
 	@Override
 	List<Work> setupLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workHANDLE(BigInteger.valueOf(1), "1", "1"));
+		works.add(TestHelper.workHANDLE(BigInteger.valueOf(1), "1", "1"));
 		return works;
 	}
 
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIHANDLE(BigInteger.valueOf(2), null, "0", "1"));
-		works.add(ScenariosHelper.work(BigInteger.valueOf(3), "3"));
+		works.add(TestHelper.workDOIHANDLE(BigInteger.valueOf(2), null, "0", "1"));
+		works.add(TestHelper.work(BigInteger.valueOf(3), "3"));
 			return works;
 	}
 
@@ -40,7 +42,7 @@ public class ScenarioInvalidCRIS2 extends Scenario {
 	@Override
 	List<Work> expectedImportedInvalidWorks() {
 		List<Work> works = new ArrayList<Work>();
-		Work work = ScenariosHelper.workDOI(null, "1", "I2");
+		Work work = TestHelper.workDOI(null, "1", "I2");
 		work.setPublicationDate(null);
 		works.add(work);
 		return works;
@@ -55,12 +57,12 @@ public class ScenarioInvalidCRIS2 extends Scenario {
 
 	@Override
 	ORCIDHelper clientSource() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(Profile.ZEROVALIDWORKS));
+		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	@Override
 	ORCIDHelper clientFixture() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(Profile.ZEROVALIDWORKS));
+		return new ORCIDHelper(TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 
 }

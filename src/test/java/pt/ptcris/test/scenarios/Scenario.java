@@ -21,6 +21,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.handlers.ProgressHandler;
+import pt.ptcris.test.TestHelper;
 import pt.ptcris.utils.ORCIDHelper;
 
 /* TODO: Scenarios with notifications in the pre-state (7 and 16) must 
@@ -35,8 +36,8 @@ public abstract class Scenario {
 	public void setUpClass() throws Exception {
 		helper = clientSource();
 		helperFixture = clientFixture();
-		ScenariosHelper.cleanUp(helper);
-		ScenariosHelper.cleanUp(helperFixture);
+		TestHelper.cleanUp(helper);
+		TestHelper.cleanUp(helperFixture);
 		for (Work work : setupORCIDFixtureWorks())
 			helperFixture.addWork(work);
 		for (Work work : setupORCIDWorks())
@@ -48,7 +49,7 @@ public abstract class Scenario {
 
 	@Test
 	public void test() throws OrcidClientException, InterruptedException {
-		ProgressHandler handler = ScenariosHelper.handler();
+		ProgressHandler handler = TestHelper.handler();
 
 		handler.setCurrentStatus(this.getClass().getName()+" start");
 		long startTime = System.currentTimeMillis();
@@ -86,8 +87,8 @@ public abstract class Scenario {
 
 	@After
 	public void tearDownClass() throws Exception {
-		ScenariosHelper.cleanUp(helper);
-		ScenariosHelper.cleanUp(helperFixture);
+		TestHelper.cleanUp(helper);
+		TestHelper.cleanUp(helperFixture);
 	}
 
 	List<Work> setupORCIDWorks() {

@@ -9,7 +9,9 @@ import java.util.Set;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.PTCRISyncResult;
-import pt.ptcris.test.scenarios.ScenarioOrcidClient.Profile;
+import pt.ptcris.test.TestHelper;
+import pt.ptcris.test.TestClients;
+import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
@@ -20,21 +22,21 @@ public class Scenario19 extends Scenario {
 	@Override
 	List<Work> setupORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
+		works.add(TestHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
 		return works;
 	}
 
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(BigInteger.valueOf(0), "1", "1", "0", "0"));
+		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(0), "1", "1", "0", "0"));
 		return works;
 	}
 
 	@Override
 	List<Work> expectedSourcedORCIDWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(ScenariosHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
+		works.add(TestHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
 		return works;
 	}
 
@@ -49,7 +51,7 @@ public class Scenario19 extends Scenario {
 	@Override
 	List<Work> expectedImportedInvalidWorks() {
 		List<Work> works = new ArrayList<Work>();
-		Work work = ScenariosHelper.workDOI(null, "1", "I2");
+		Work work = TestHelper.workDOI(null, "1", "I2");
 		work.setPublicationDate(null);
 		works.add(work);
 		return works;
@@ -64,12 +66,12 @@ public class Scenario19 extends Scenario {
 
 	@Override
 	ORCIDHelper clientSource() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(Profile.ZEROVALIDWORKS));
+		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	@Override
 	ORCIDHelper clientFixture() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(Profile.ZEROVALIDWORKS));
+		return new ORCIDHelper(TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 
 }
