@@ -18,6 +18,7 @@ import pt.ptcris.utils.ORCIDHelper;
 
 public class Scenario12 extends Scenario {
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> setupORCIDExternalWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -25,6 +26,7 @@ public class Scenario12 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> setupLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -32,6 +34,7 @@ public class Scenario12 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -39,6 +42,7 @@ public class Scenario12 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedORCIDCRISWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -46,6 +50,7 @@ public class Scenario12 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -53,11 +58,13 @@ public class Scenario12 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
 		return new ORCIDHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));

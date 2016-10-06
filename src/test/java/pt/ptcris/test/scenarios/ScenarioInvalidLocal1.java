@@ -16,6 +16,7 @@ import pt.ptcris.utils.ORCIDHelper;
 
 public class ScenarioInvalidLocal1 extends Scenario {
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -24,6 +25,7 @@ public class ScenarioInvalidLocal1 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedORCIDCRISWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -31,6 +33,7 @@ public class ScenarioInvalidLocal1 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -38,6 +41,7 @@ public class ScenarioInvalidLocal1 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	int expectedExportCodes(BigInteger code) {
 		if (code.equals(BigInteger.valueOf(3)))
@@ -46,6 +50,7 @@ public class ScenarioInvalidLocal1 extends Scenario {
 			return PTCRISyncResult.ADDOK;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedImportedInvalidWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -55,6 +60,7 @@ public class ScenarioInvalidLocal1 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	Set<String> expectedInvalidCodes(BigInteger putCode) {
 		Set<String> res = new HashSet<String>();
@@ -62,14 +68,18 @@ public class ScenarioInvalidLocal1 extends Scenario {
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDHelper(TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
+		return new ORCIDHelper(
+				TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDHelper(TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
+		return new ORCIDHelper(
+				TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 
 }

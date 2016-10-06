@@ -12,11 +12,11 @@ import pt.ptcris.exceptions.InvalidWorkException;
  */
 public final class PTCRISyncResult {
 
-	public static final int CLIENTERROR = 500;
-	public static final int UPTODATE = 304;
-	public static final int UPDATEOK = 200;
-	public static final int ADDOK = 200;
-	public static final int INVALID = -11;
+	public static final int ADDOK = -10;
+	public static final int UPDATEOK = -10;
+	public static final int UPTODATE = -20;
+	public static final int INVALID = -30;
+	public static final int CLIENTERROR = -40;
 
 	/**
 	 * Creates a successful "add" message.

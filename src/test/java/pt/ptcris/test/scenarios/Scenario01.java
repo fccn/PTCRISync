@@ -25,6 +25,7 @@ import pt.ptcris.utils.ORCIDHelper;
 
 public class Scenario01 extends Scenario {
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> setupORCIDExternalWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -32,6 +33,7 @@ public class Scenario01 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -39,6 +41,7 @@ public class Scenario01 extends Scenario {
 		return works;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedImportedInvalidWorks() {
 		List<Work> works = new ArrayList<Work>();
@@ -46,6 +49,7 @@ public class Scenario01 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	Set<String> expectedInvalidCodes(BigInteger putCode) {
 		Set<String> res = new HashSet<String>();
@@ -53,11 +57,13 @@ public class Scenario01 extends Scenario {
 		return res;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
 		return new ORCIDHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
