@@ -22,25 +22,25 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;
-import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.test.TestClients.Profile;
 
 /**
  * A class that exemplifies the use of the various PTCRISync synchronization
  * procedures.
  */
-public class PTCRISExample implements ProgressHandler {
+public class PTCRISExample {
 	
-	private static Logger logger = Logger.getLogger(PTCRISExample.class.getName());
-
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws OrcidClientException, InterruptedException {
 		// log the results to the console
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setFormatter(new SimpleFormatter());
 		handler.setLevel(Level.ALL);
-		logger.setLevel(Level.ALL);
-		logger.addHandler(handler);
+		Logger.getLogger(Tester.class.getName()).setLevel(Level.ALL);
+		Logger.getLogger(Tester.class.getName()).addHandler(handler);
+		Tester progressHandler = new Tester();
+		
+		progressHandler.setCurrentStatus(PTCRISExample.class.getName()+" start");
 
 		// use one of the user profiles from the sandbox
 		Profile profile = Profile.ONEVALIDWORKS;
@@ -55,8 +55,8 @@ public class PTCRISExample implements ProgressHandler {
 		for (Work work : fixtureWorks)
 			externalClient.addWork(work);
 
-		// get a PTRCRISync client for the user profile
-		ORCIDClient ptcrisClient = TestClients.getPTCRISClient(profile);
+		// get a local CRIS client for the user profile
+		ORCIDClient crisClient = TestClients.getCRISClient(profile);
 		
 		// the complete list of local works
 		List<Work> localWorks = new LinkedList<Work>();
@@ -69,40 +69,20 @@ public class PTCRISExample implements ProgressHandler {
 		exportWorks.add(work1());
 		exportWorks.add(work2());
 
-		PTCRISExample progressHandler = new PTCRISExample();
-
 		// export the local works that are to by synchronized
-		Map<BigInteger, PTCRISyncResult> exportResult = PTCRISync.export(ptcrisClient, localWorks, progressHandler);
+		Map<BigInteger, PTCRISyncResult> exportResult = PTCRISync.export(crisClient, localWorks, progressHandler);
 		// import new valid works found in the user profile
-		List<Work> worksToImport = PTCRISync.importWorks(ptcrisClient, localWorks, progressHandler);
+		List<Work> worksToImport = PTCRISync.importWorks(crisClient, localWorks, progressHandler);
 		// import work updates found in the user profile
-		List<Work> updatesToImport = PTCRISync.importUpdates(ptcrisClient, localWorks, progressHandler);
+		List<Work> updatesToImport = PTCRISync.importUpdates(crisClient, localWorks, progressHandler);
 
 		// count the new works found in the user profile
-		int worksToImportCount = PTCRISync.importCounter(ptcrisClient, localWorks, progressHandler);
+		int worksToImportCount = PTCRISync.importCounter(crisClient, localWorks, progressHandler);
 		// import new invalid works found in the user profile
-		Map<Work, Set<String>> worksToImportInvalid = PTCRISync.importInvalid(ptcrisClient, localWorks, progressHandler);
+		Map<Work, Set<String>> worksToImportInvalid = PTCRISync.importInvalid(crisClient, localWorks, progressHandler);
 
-	}
+		progressHandler.setCurrentStatus(PTCRISExample.class.getName()+" end");
 
-	@Override
-	public void setProgress(int progress) {
-		logger.fine("Current progress: " + progress + "%");
-	}
-
-	@Override
-	public void setCurrentStatus(String message) {
-		logger.fine("Task: " + message);
-	}
-
-	@Override
-	public void sendError(String message) {
-		logger.log(Level.SEVERE, "ERROR: " + message);
-	}
-
-	@Override
-	public void done() {
-		logger.fine("Done.");
 	}
 
 	private static Work work0() {

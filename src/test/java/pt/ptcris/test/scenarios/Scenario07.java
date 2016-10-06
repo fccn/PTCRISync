@@ -12,11 +12,10 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features: export add modification notifications with {same,more}
+ * Features: modification notifications at the pre-state
  * 
  */
-
-public class Scenario12 extends Scenario {
+public class Scenario07 extends Scenario {
 
 	@Override
 	List<Work> setupORCIDExternalWorks() {
@@ -29,27 +28,7 @@ public class Scenario12 extends Scenario {
 	List<Work> setupLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOI(BigInteger.valueOf(1), "1", "1"));
-		return works;
-	}
-
-	@Override
-	List<Work> exportLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "1", "0", "1"));
-		return works;
-	}
-
-	@Override
-	List<Work> expectedORCIDCRISWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "1", "0", "1"));
-		return works;
-	}
-
-	@Override
-	List<Work> expectedImportedWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(1), null, "0", "0", "1"));
+		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "0", "1"));
 		return works;
 	}
 

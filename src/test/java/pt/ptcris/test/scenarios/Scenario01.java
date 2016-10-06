@@ -15,47 +15,51 @@ import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * Features:
+ * creation notification
  * 
+ * TODO: this scenario does not exactly represent the one
+ * from the specification as this would require that the 
+ * fixture work was set as the preferred, which is impossible
+ * programmatically.
  */
 
-public class Scenario3 extends Scenario {
+public class Scenario01 extends Scenario {
 
 	@Override
-	List<Work> setupORCIDFixtureWorks() {
+	List<Work> setupORCIDExternalWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOIEID(null, "0", "0", "0"));
-		works.add(TestHelper.workDOIHANDLE(null, "1", "1", "1"));
 		return works;
 	}
 
 	@Override
-	List<Work> setupLocalWorks() {
+	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "1", "0", "1"));
+		works.add(TestHelper.workDOIEIDHANDLE(null, "1", "0", "0", "1"));
 		return works;
 	}
-
+	
 	@Override
 	List<Work> expectedImportedInvalidWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.work(null, "0"));
 		return works;
 	}
-	
+
 	@Override
 	Set<String> expectedInvalidCodes(BigInteger putCode) {
 		Set<String> res = new HashSet<String>();
 		res.add(ORCIDHelper.INVALID_WORKEXTERNALIDENTIFIERS);
 		return res;
 	}
-
+	
 	@Override
-	ORCIDHelper clientSource() {
-		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.ONEVALIDWORKS));
+	ORCIDHelper crisClient() {
+		return new ORCIDHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() {
+	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 

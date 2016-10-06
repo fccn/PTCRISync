@@ -30,18 +30,18 @@ import pt.ptcris.utils.ORCIDHelper;
 
 public abstract class Scenario {
 	private List<Work> localWorks, exportWorks;
-	private static ORCIDHelper helperFixture, helper;
+	private static ORCIDHelper externalClient, crisClient;
 
 	@Before
 	public void setUpClass() throws Exception {
-		helper = clientSource();
-		helperFixture = clientFixture();
-		TestHelper.cleanUp(helper);
-		TestHelper.cleanUp(helperFixture);
-		for (Work work : setupORCIDFixtureWorks())
-			helperFixture.addWork(work);
-		for (Work work : setupORCIDWorks())
-			helper.addWork(work);
+		crisClient = crisClient();
+		externalClient = externalClient();
+		TestHelper.cleanUp(crisClient);
+		TestHelper.cleanUp(externalClient);
+		for (Work work : setupORCIDExternalWorks())
+			externalClient.addWork(work);
+		for (Work work : setupORCIDCRISWorks())
+			crisClient.addWork(work);
 		this.localWorks = setupLocalWorks();
 		this.exportWorks = exportLocalWorks();
 		this.localWorks.addAll(this.exportWorks);
@@ -51,25 +51,26 @@ public abstract class Scenario {
 	public void test() throws OrcidClientException, InterruptedException {
 		ProgressHandler handler = TestHelper.handler();
 
-		handler.setCurrentStatus(this.getClass().getName()+" start");
+		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
-		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.export(helper.client, exportWorks, handler);
+		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.export(crisClient.client, exportWorks, handler);
 
-		List<Work> worksToImport = PTCRISync.importWorks(helper.client, localWorks, handler);
-		List<Work> worksToUpdate = PTCRISync.importUpdates(helper.client, localWorks, handler);
-		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalid(helper.client, localWorks, handler);
-		int worksToImportCounter = PTCRISync.importCounter(helper.client, localWorks, handler);
+		List<Work> worksToImport = PTCRISync.importWorks(crisClient.client, localWorks, handler);
+		List<Work> worksToUpdate = PTCRISync.importUpdates(crisClient.client, localWorks, handler);
+		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalid(
+				crisClient.client, localWorks, handler);
+		int worksToImportCounter = PTCRISync.importCounter(crisClient.client, localWorks, handler);
 		long time = System.currentTimeMillis() - startTime;
-		handler.setCurrentStatus(this.getClass().getName()+": "+time+"ms");
+		handler.setCurrentStatus(this.getClass().getName() + ": " + time + "ms");
 
 		List<Work> allImports = new ArrayList<Work>(worksToImport);
 		allImports.addAll(worksToUpdate);
 		localWorks.addAll(allImports);
 
-		List<Work> expectedLocal = expectedImportedLocalWorks();
+		List<Work> expectedLocal = expectedImportedWorks();
 		List<Work> expectedInvalid = expectedImportedInvalidWorks();
-		List<Work> expectedORCID = expectedSourcedORCIDWorks();
-		List<WorkSummary> sourcedORCID = helper.getSourcedWorkSummaries();
+		List<Work> expectedORCID = expectedORCIDCRISWorks();
+		List<WorkSummary> sourcedORCID = crisClient.getSourcedWorkSummaries();
 
 		assertEquals(worksToImport.size(), worksToImportCounter);
 
@@ -79,7 +80,7 @@ public abstract class Scenario {
 		assertEquals(expectedInvalid.size(), worksToInvalid.size());
 		assertTrue(correctInvalids(worksToInvalid));
 		assertTrue(correctImports(expectedInvalid, worksToInvalid.keySet()));
-		
+
 		assertEquals(expectedORCID.size(), sourcedORCID.size());
 		assertTrue(correctCodes(codes));
 		assertTrue(correctExport(expectedORCID, sourcedORCID));
@@ -87,77 +88,146 @@ public abstract class Scenario {
 
 	@After
 	public void tearDownClass() throws Exception {
-		TestHelper.cleanUp(helper);
-		TestHelper.cleanUp(helperFixture);
+		TestHelper.cleanUp(crisClient);
+		TestHelper.cleanUp(externalClient);
 	}
 
-	List<Work> setupORCIDWorks() {
+	/**
+	 * Defines the CRIS-sourced ORCID works for the fixture of the scenario,
+	 * i.e., the works that initially exist in the user profile added by the
+	 * CRIS.
+	 * 
+	 * @return the set of CRIS works for the fixture
+	 */
+	List<Work> setupORCIDCRISWorks() {
 		return new ArrayList<Work>();
 	}
 
-	List<Work> setupORCIDFixtureWorks() {
+	/**
+	 * Defines the non CRIS-sourced ORCID works for the fixture of the scenario,
+	 * i.e., the works that initially exist in the user profile added by other
+	 * external sources.
+	 * 
+	 * @return the external works for the fixture
+	 */
+	List<Work> setupORCIDExternalWorks() {
 		return new ArrayList<Work>();
 	}
 
+	/**
+	 * Defines the local CRIS works that are not to be exported. The import
+	 * tests will additionally consider those set to be
+	 * {@link #exportLocalWorks() exported}.
+	 * 
+	 * @return the local works that is not to be exported
+	 */
 	List<Work> setupLocalWorks() {
 		return new ArrayList<Work>();
 	}
 
-	List<Work> expectedSourcedORCIDWorks() {
-		return new ArrayList<Work>();
-	}
-
-	List<Work> expectedImportedLocalWorks() {
-		return new ArrayList<Work>();
-	}
-	
-	List<Work> expectedImportedInvalidWorks() {
-		return new ArrayList<Work>();
-	}
-
+	/**
+	 * Defines the local CRIS works that are to be exported. The import tests
+	 * will additionally consider those not set to be {@link #setupLocalWorks()
+	 * exported}.
+	 * 
+	 * @return the local works that is to be exported
+	 */
 	List<Work> exportLocalWorks() {
 		return new ArrayList<Work>();
 	}
 
-	int expectedExportCodes(BigInteger putCode) {
+	/**
+	 * The CRIS-source works that are expected to be in ORCID after the
+	 * {@link PTCRISync#export(pt.ptcris.ORCIDClient, List, ProgressHandler)
+	 * export} synchronization procedure.
+	 * 
+	 * @return the expected CRIS-source works
+	 */
+	List<Work> expectedORCIDCRISWorks() {
+		return new ArrayList<Work>();
+	}
+
+	/**
+	 * The expected outcome for each of the works that were to be exported for
+	 * the
+	 * {@link PTCRISync#export(pt.ptcris.ORCIDClient, List, ProgressHandler)
+	 * export} synchronization procedure.
+	 * 
+	 * @param putcode
+	 *            the put-code of a work provided by {#link
+	 *            {@link #exportLocalWorks()}
+	 * @return the expected CRIS-source works
+	 */
+	int expectedExportCodes(BigInteger putcode) {
 		return PTCRISyncResult.ADDOK;
 	}
 
-	Set<String> expectedInvalidCodes(BigInteger putCode) {
+	/**
+	 * The new works that are expected to be detected in ORCID by the
+	 * {@link PTCRISync#importWorks(pt.ptcris.ORCIDClient, List, ProgressHandler)
+	 * import} synchronization procedure.
+	 * 
+	 * @return the expected CRIS-source works
+	 */
+	List<Work> expectedImportedWorks() {
+		return new ArrayList<Work>();
+	}
+
+	/**
+	 * The new invalid works that are expected to be detected in ORCID by the
+	 * {@link PTCRISync#importInvalid(pt.ptcris.ORCIDClient, List, ProgressHandler)
+	 * import invalid} synchronization procedure.
+	 * 
+	 * @return the expected CRIS-source works
+	 */
+	List<Work> expectedImportedInvalidWorks() {
+		return new ArrayList<Work>();
+	}
+
+	/**
+	 * The expected invalidity reasons for the new invalid works detected in
+	 * ORCID by the
+	 * {@link PTCRISync#importInvalid(pt.ptcris.ORCIDClient, List, ProgressHandler)
+	 * import invalid} synchronization procedure.
+	 * 
+	 * @param putcode
+	 *            the put-code of a work returned by {#link
+	 *            {@link #expectedImportedInvalidWorks()}
+	 * @return the expected reasons for invalidity
+	 */
+	Set<String> expectedInvalidCodes(BigInteger putcode) {
 		return new HashSet<String>();
 	}
 
-	abstract ORCIDHelper clientFixture();
+	/**
+	 * Sets the client to use as the CRIS source.
+	 * 
+	 * @return the CRIS source client
+	 */
+	abstract ORCIDHelper crisClient();
 
-	abstract ORCIDHelper clientSource();
+	/**
+	 * Sets the client to use as an external ORCID source.
+	 * 
+	 * @return the external source client
+	 */
+	abstract ORCIDHelper externalClient();
 
-	static boolean correctImports(Collection<Work> works1, Collection<Work> works2) {
-		Set<Work> ws1 = new HashSet<Work>(works1);
-		Set<Work> ws2 = new HashSet<Work>(works2);
+	/**
+	 * Tests whether the effectively exported works are the ones expected.
+	 * 
+	 * @param exported
+	 *            the effectively exported works
+	 * @param expected
+	 *            the expected works
+	 * @return whether the exported works were the expected
+	 */
+	private static boolean correctExport(Collection<Work> exported, Collection<WorkSummary> expected) {
+		Set<Work> ws1 = new HashSet<Work>(exported);
+		Set<WorkSummary> ws2 = new HashSet<WorkSummary>(expected);
 
-		for (Work work1 : works1) {
-			Iterator<Work> it = ws2.iterator();
-			boolean found = false;
-			while (it.hasNext() && !found) {
-				Work work2 = it.next();
-				if (ORCIDHelper.isUpToDate(work1, work2)
-						&& ((work1.getPutCode() == null && work2.getPutCode() == null) || (work1.getPutCode()
-								.equals(work2.getPutCode())))) {
-					ws1.remove(work1);
-					ws2.remove(work2);
-					found = true;
-				}
-			}
-		}
-		return ws1.isEmpty() && ws2.isEmpty();
-	}
-
-	static boolean correctExport(Collection<Work> works1, Collection<WorkSummary> works2) {
-		Set<Work> ws1 = new HashSet<Work>(works1);
-		Set<WorkSummary> ws2 = new HashSet<WorkSummary>(works2);
-
-		for (Work work1 : works1) {
-			Iterator<WorkSummary> it = works2.iterator();
+		for (Work work1 : exported) {
+			Iterator<WorkSummary> it = expected.iterator();
 			boolean found = false;
 			while (it.hasNext() && !found) {
 				WorkSummary work2 = it.next();
@@ -171,6 +241,14 @@ public abstract class Scenario {
 		return ws1.isEmpty() && ws2.isEmpty();
 	}
 
+	/**
+	 * Tests whether the effectively export outcomes are the ones
+	 * expected according to {@link #expectedExportCodes(BigInteger)}.
+	 * 
+	 * @param reasons
+	 *            the effectively export outcome
+	 * @return whether the export outcome was the expected
+	 */
 	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
 		for (BigInteger id : results.keySet())
 			if (!(results.get(id).code == expectedExportCodes(id)))
@@ -178,6 +256,45 @@ public abstract class Scenario {
 		return true;
 	}
 
+	/**
+	 * Tests whether the effectively imported works are the ones expected.
+	 * 
+	 * @param imported
+	 *            the effectively imported works
+	 * @param expected
+	 *            the expected works
+	 * @return whether the imported works were the expected
+	 */
+	private static boolean correctImports(Collection<Work> imported, Collection<Work> expected) {
+		Set<Work> ws1 = new HashSet<Work>(imported);
+		Set<Work> ws2 = new HashSet<Work>(expected);
+
+		for (Work work1 : imported) {
+			BigInteger localKey1 = ORCIDHelper.getActivityLocalKey(work1);
+			Iterator<Work> it = ws2.iterator();
+			boolean found = false;
+			while (it.hasNext() && !found) {
+				Work work2 = it.next();
+				BigInteger localKey2 = ORCIDHelper.getActivityLocalKey(work2);
+				if (ORCIDHelper.isUpToDate(work1, work2)
+						&& ((localKey1 == null && localKey2 == null) || (localKey1.equals(localKey2)))) {
+					ws1.remove(work1);
+					ws2.remove(work2);
+					found = true;
+				}
+			}
+		}
+		return ws1.isEmpty() && ws2.isEmpty();
+	}
+
+	/**
+	 * Tests whether the effectively imported invalidity reasons are the ones
+	 * expected according to {@link #expectedInvalidCodes(BigInteger)}.
+	 * 
+	 * @param reasons
+	 *            the effectively imported reasons for invalidity
+	 * @return whether the invalidity reasons were the expected
+	 */
 	private boolean correctInvalids(Map<Work, Set<String>> codes) {
 		for (Work work : codes.keySet())
 			if (!codes.get(work).equals(expectedInvalidCodes(work.getPutCode())))

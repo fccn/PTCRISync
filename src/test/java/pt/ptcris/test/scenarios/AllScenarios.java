@@ -3,17 +3,23 @@ package pt.ptcris.test.scenarios;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+/**
+ * Run every scenarios defined in version 0.5 of the PTCRISync specification,
+ * as well as additional ones dealing with technical issues.
+ * 
+ * @see {@link Scenario}
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    Scenario1.class,
-    Scenario2.class,
-    Scenario3.class,
-    Scenario4.class,
-    Scenario5.class,
-    Scenario6.class,
-    Scenario7.class,
-    Scenario8.class,
-    Scenario9.class,
+    Scenario01.class,
+    Scenario02.class,
+    Scenario03.class,
+    Scenario04.class,
+    Scenario05.class,
+    Scenario06.class,
+    Scenario07.class,
+    Scenario08.class,
+    Scenario09.class,
     Scenario10.class,
     Scenario11.class,
     Scenario12.class,
@@ -25,8 +31,8 @@ import org.junit.runners.Suite;
     Scenario18.class,
     Scenario19.class,
     Scenario20.class,
-    ScenarioInvalidCRIS1.class,
-    ScenarioInvalidCRIS2.class,
+    ScenarioInvalidLocal1.class,
+    ScenarioInvalidLocal2.class,
     ScenarioPerformance.class
 })
 

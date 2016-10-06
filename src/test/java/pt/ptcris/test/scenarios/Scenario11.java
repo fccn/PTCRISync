@@ -20,14 +20,14 @@ import pt.ptcris.utils.ORCIDHelper;
 public class Scenario11 extends Scenario {
 
 	@Override
-	List<Work> setupORCIDWorks() {
+	List<Work> setupORCIDCRISWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "0", "1"));
 		return works;
 	}
 
 	@Override
-	List<Work> setupORCIDFixtureWorks() {
+	List<Work> setupORCIDExternalWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOIEID(BigInteger.valueOf(2), "0", "0", "0"));
 		return works;
@@ -48,19 +48,19 @@ public class Scenario11 extends Scenario {
 	}
 
 	@Override
-	List<Work> expectedSourcedORCIDWorks() {
+	List<Work> expectedORCIDCRISWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2), "3", "0", "0", "1"));
 		return works;
 	}
 
 	@Override
-	ORCIDHelper clientSource() {
-		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.TWOVALIDWORKS));
+	ORCIDHelper crisClient() {
+		return new ORCIDHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() {
+	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
 

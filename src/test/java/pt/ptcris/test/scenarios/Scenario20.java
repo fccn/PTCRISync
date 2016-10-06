@@ -12,12 +12,12 @@ import pt.ptcris.utils.ORCIDHelper;
 public class Scenario20 extends Scenario {
 
 	@Override
-	ORCIDHelper clientSource() {
-		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.EMPTYWORKS));
+	ORCIDHelper crisClient() {
+		return new ORCIDHelper(TestClients.getCRISClient(Profile.EMPTYWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() {
+	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.EMPTYWORKS));
 	}
 

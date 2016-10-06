@@ -14,27 +14,34 @@ import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
-public class ScenarioInvalidCRIS2 extends Scenario {
-
-	@Override
-	List<Work> setupLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workHANDLE(BigInteger.valueOf(1), "1", "1"));
-		return works;
-	}
+public class ScenarioInvalidLocal1 extends Scenario {
 
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIHANDLE(BigInteger.valueOf(2), null, "0", "1"));
-		works.add(TestHelper.work(BigInteger.valueOf(3), "3"));
-			return works;
+		works.add(TestHelper.workDOIHANDLE(BigInteger.valueOf(2), "3", "0", "1"));
+		works.add(TestHelper.workDOIHANDLE(BigInteger.valueOf(3), "3", "1", "1"));
+		return works;
+	}
+
+	@Override
+	List<Work> expectedORCIDCRISWorks() {
+		List<Work> works = new ArrayList<Work>();
+		works.add(TestHelper.workDOIHANDLE(BigInteger.valueOf(2), "3", "0", "1"));
+		return works;
+	}
+
+	@Override
+	List<Work> expectedImportedWorks() {
+		List<Work> works = new ArrayList<Work>();
+		works.add(TestHelper.workDOI(BigInteger.valueOf(3), null, "0"));
+		return works;
 	}
 
 	@Override
 	int expectedExportCodes(BigInteger code) {
-		if (code.equals(BigInteger.valueOf(2)) || code.equals(BigInteger.valueOf(3)))
-			return PTCRISyncResult.INVALID;
+		if (code.equals(BigInteger.valueOf(3)))
+			return PTCRISyncResult.CLIENTERROR;
 		else
 			return PTCRISyncResult.ADDOK;
 	}
@@ -56,12 +63,12 @@ public class ScenarioInvalidCRIS2 extends Scenario {
 	}
 
 	@Override
-	ORCIDHelper clientSource() {
-		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.ZEROVALIDWORKS));
+	ORCIDHelper crisClient() {
+		return new ORCIDHelper(TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() {
+	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 

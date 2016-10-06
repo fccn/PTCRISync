@@ -27,7 +27,7 @@ public class Scenario15 extends Scenario {
 	}
 
 	@Override
-	List<Work> expectedImportedLocalWorks() {
+	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workHANDLE(BigInteger.valueOf(1), null, "1"));
 		return works;
@@ -48,12 +48,12 @@ public class Scenario15 extends Scenario {
 	}
 
 	@Override
-	ORCIDHelper clientSource() {
-		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.ONEVALIDWORKS));
+	ORCIDHelper crisClient() {
+		return new ORCIDHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() {
+	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 

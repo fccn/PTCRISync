@@ -16,10 +16,11 @@ import pt.ptcris.utils.ORCIDHelper;
  * export add
  * 
  */
-public class Scenario8 extends Scenario {
+
+public class Scenario09 extends Scenario {
 
 	@Override
-	List<Work> setupORCIDFixtureWorks() {
+	List<Work> setupORCIDExternalWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOIEID(BigInteger.valueOf(2), "0", "0", "0"));
 		return works;
@@ -35,24 +36,24 @@ public class Scenario8 extends Scenario {
 	@Override
 	List<Work> exportLocalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"0", "0", "0", "1"));
+		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"0","0","0", "1"));
 		return works;
 	}
-
+	
 	@Override
-	List<Work> expectedSourcedORCIDWorks() {
+	List<Work> expectedORCIDCRISWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"0", "0", "0", "1"));
+		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"0","0","0", "1"));
 		return works;
 	}
 
 	@Override
-	ORCIDHelper clientSource() {
-		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.TWOVALIDWORKS));
+	ORCIDHelper crisClient() {
+		return new ORCIDHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() {
+	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
 

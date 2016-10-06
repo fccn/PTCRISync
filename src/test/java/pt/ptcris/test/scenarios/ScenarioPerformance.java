@@ -16,7 +16,7 @@ import pt.ptcris.utils.ORCIDHelper;
 public class ScenarioPerformance extends Scenario {
 
 	@Override
-	List<Work> setupORCIDWorks() {
+	List<Work> setupORCIDCRISWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOI(null, "0", "20"));
 		works.add(TestHelper.workDOI(null, "1", "21"));
@@ -42,7 +42,7 @@ public class ScenarioPerformance extends Scenario {
 	}
 
 	@Override
-	List<Work> setupORCIDFixtureWorks() {
+	List<Work> setupORCIDExternalWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOI(null, "0", "0"));
 		works.add(TestHelper.workDOI(null, "1", "1"));
@@ -78,7 +78,7 @@ public class ScenarioPerformance extends Scenario {
 	}
 
 	@Override
-	List<Work> expectedImportedLocalWorks() {
+	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
 		works.add(TestHelper.workDOI(null, "0", "0"));
 		works.add(TestHelper.workDOI(null, "1", "1"));
@@ -130,12 +130,12 @@ public class ScenarioPerformance extends Scenario {
 	}
 
 	@Override
-	ORCIDHelper clientSource() {
-		return new ORCIDHelper(TestClients.getPTCRISClient(Profile.ZEROVALIDWORKS));
+	ORCIDHelper crisClient() {
+		return new ORCIDHelper(TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	@Override
-	ORCIDHelper clientFixture() {
+	ORCIDHelper externalClient() {
 		return new ORCIDHelper(TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 
