@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
+import pt.ptcris.test.scenarios.ScenarioOrcidClient.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
@@ -52,12 +53,12 @@ public class Scenario1 extends Scenario {
 	
 	@Override
 	ORCIDHelper clientSource() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(ScenarioOrcidClient.ONEVALIDWORKS));
+		return new ORCIDHelper(ScenarioOrcidClient.getClientWork(Profile.ONEVALIDWORKS));
 	}
 
 	@Override
 	ORCIDHelper clientFixture() {
-		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(ScenarioOrcidClient.ONEVALIDWORKS));
+		return new ORCIDHelper(ScenarioOrcidClient.getClientWorkFixture(Profile.ONEVALIDWORKS));
 	}
 
 }

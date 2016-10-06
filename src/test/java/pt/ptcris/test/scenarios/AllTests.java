@@ -30,5 +30,4 @@ import org.junit.runners.Suite;
     ScenarioPerformance.class
 })
 
-public class AllTests {
-}
+public class AllTests {}

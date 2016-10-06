@@ -14,6 +14,7 @@ import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.test.scenarios.ScenarioOrcidClient;
+import pt.ptcris.test.scenarios.ScenarioOrcidClient.Profile;
 
 public class MainTester implements ProgressHandler {
 	private static Logger logger = Logger.getLogger(MainTester.class.getName());
@@ -28,7 +29,7 @@ public class MainTester implements ProgressHandler {
 		List<Work> works = new LinkedList<Work>();
 		MainTester progressHandler = new MainTester();
 
-		ORCIDClient client = ScenarioOrcidClient.getClientWork(1);
+		ORCIDClient client = ScenarioOrcidClient.getClientWork(Profile.ONEVALIDWORKS);
 		
 		PTCRISync.export(client, works, progressHandler);
 		PTCRISync.importWorks(client, works, progressHandler);
