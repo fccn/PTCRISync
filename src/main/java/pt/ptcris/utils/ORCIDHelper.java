@@ -17,15 +17,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
-import org.um.dsi.gavea.orcid.model.activities.Identifier;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
-import org.um.dsi.gavea.orcid.model.common.ActivitySummary;
 import org.um.dsi.gavea.orcid.model.common.ClientId;
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
+import org.um.dsi.gavea.orcid.model.common.ExternalId;
+import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifierType;
 import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
@@ -213,7 +211,7 @@ public class ORCIDHelper {
 	 *            the original summary
 	 */
 	static void finalizeGet(Work fullWork, WorkSummary sumWork) {
-		fullWork.setExternalIdentifiers(sumWork.getExternalIdentifiers());
+		fullWork.setExternalIds(sumWork.getExternalIds());
 		cleanWorkLocalKey(fullWork);
 	}
 
@@ -340,7 +338,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
-	public static BigInteger getActivityLocalKey(ActivitySummary act) throws NullPointerException {
+	public static BigInteger getActivityLocalKey(ElementSummary act) throws NullPointerException {
 		if (act == null)
 			throw new NullPointerException("Can't get local key.");
 
@@ -356,7 +354,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
-	public static void setWorkLocalKey(ActivitySummary act, BigInteger key) throws NullPointerException {
+	public static void setWorkLocalKey(ElementSummary act, BigInteger key) throws NullPointerException {
 		if (act == null)
 			throw new NullPointerException("Can't set local key.");
 
@@ -372,7 +370,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
-	private static void cleanWorkLocalKey(ActivitySummary act) throws NullPointerException {
+	private static void cleanWorkLocalKey(ElementSummary act) throws NullPointerException {
 		if (act == null)
 			throw new NullPointerException("Can't clear local key.");
 
@@ -400,7 +398,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(match.getExternalIdentifiers(), work.getExternalIdentifiers());
+					new ExternalIdsDiff(match.getExternalIds(), work.getExternalIds());
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -424,8 +422,8 @@ public class ORCIDHelper {
 	 */
 	public static boolean hasNewIDs(Work preWork, WorkSummary posWork) {
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIdentifiers(),
-				posWork.getExternalIdentifiers());
+				preWork.getExternalIds(),
+				posWork.getExternalIds());
 
 		return diff.more.isEmpty();
 	}
@@ -482,8 +480,8 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 		
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIdentifiers(),
-				posWork.getExternalIdentifiers());
+				preWork.getExternalIds(),
+				posWork.getExternalIds());
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
@@ -504,8 +502,8 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIdentifiers(),
-				posWork.getExternalIdentifiers());
+				preWork.getExternalIds(),
+				posWork.getExternalIds());
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
@@ -598,10 +596,10 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null work.");
 		
 		final Set<String> res = new HashSet<String>();
-		if (work.getExternalIdentifiers() == null)
+		if (work.getExternalIds() == null)
 			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else if (work.getExternalIdentifiers().getWorkExternalIdentifier() == null
-				|| work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty())
+		else if (work.getExternalIds().getExternalId() == null
+				|| work.getExternalIds().getExternalId().isEmpty())
 			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
@@ -638,10 +636,10 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null work.");
 	
 		final Set<String> res = new HashSet<String>();
-		if (work.getExternalIdentifiers() == null)
+		if (work.getExternalIds() == null)
 			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else if (work.getExternalIdentifiers().getWorkExternalIdentifier() == null
-				|| work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty())
+		else if (work.getExternalIds().getExternalId() == null
+				|| work.getExternalIds().getExternalId().isEmpty())
 			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
@@ -728,16 +726,15 @@ public class ORCIDHelper {
 		final WorkSummary preferred = group.getWorkSummary().get(0);
 		final WorkSummary dummy = clone(preferred);
 
-		final List<ExternalIdentifier> eids = new ArrayList<ExternalIdentifier>();
-		for (Identifier id : group.getIdentifiers().getIdentifier()) {
-			final ExternalIdentifier eid = new ExternalIdentifier();
-			eid.setRelationship(RelationshipType.SELF);
-			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id
-					.getExternalIdentifierType().toLowerCase()));
-			eid.setExternalIdentifierId(id.getExternalIdentifierId());
+		final List<ExternalId> eids = new ArrayList<ExternalId>();
+		for (ExternalId id : group.getExternalIds().getExternalId()) {
+			final ExternalId eid = new ExternalId();
+			eid.setExternalIdRelationship(RelationshipType.SELF);
+			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
+			eid.setExternalIdValue(id.getExternalIdValue());
 			eids.add(eid);
 		}
-		dummy.setExternalIdentifiers(new WorkExternalIdentifiers(eids));
+		dummy.setExternalIds(new ExternalIds(eids));
 
 		return dummy;
 	}
@@ -808,7 +805,7 @@ public class ORCIDHelper {
 	 *            the target summary
 	 * @throws NullPointerException if either argument is null
 	 */
-	private static void copy(ActivitySummary from, ActivitySummary to) 
+	private static void copy(ElementSummary from, ElementSummary to) 
 			throws NullPointerException {
 		if (from == null || to == null) 
 			throw new NullPointerException("Can't copy null works.");
@@ -837,7 +834,7 @@ public class ORCIDHelper {
 		dummy.setPublicationDate(work.getPublicationDate());
 		dummy.setTitle(work.getTitle());
 		dummy.setType(work.getType());
-		dummy.setExternalIdentifiers(work.getExternalIdentifiers());
+		dummy.setExternalIds(work.getExternalIds());
 		return dummy;
 	}
 
@@ -856,7 +853,7 @@ public class ORCIDHelper {
 		dummy.setPublicationDate(work.getPublicationDate());
 		dummy.setTitle(work.getTitle());
 		dummy.setType(work.getType());
-		dummy.setExternalIdentifiers(work.getExternalIdentifiers());
+		dummy.setExternalIds(work.getExternalIds());
 		dummy.setContributors(work.getContributors());
 
 		dummy.setCitation(work.getCitation());

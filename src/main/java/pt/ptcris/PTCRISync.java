@@ -12,9 +12,9 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
+import org.um.dsi.gavea.orcid.model.common.ExternalId;
+import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.exceptions.InvalidWorkException;
@@ -264,10 +264,10 @@ public final class PTCRISync {
 			// the remote work has spurious external identifiers
 			if (!update.eidsDiff.more.isEmpty()) {
 				Work localWork = update.preWork;
-				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
-				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(update.eidsDiff.same);
-				weids.setWorkExternalIdentifier(ids);
-				localWork.setExternalIdentifiers(weids);
+				ExternalIds weids = new ExternalIds();
+				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
+				weids.setExternalId(ids);
+				localWork.setExternalIds(weids);
 				try {
 					helper.updateWork(update.posWork.getPutCode(), localWork);
 					result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.OK_UPD_RESULT);
@@ -287,11 +287,11 @@ public final class PTCRISync {
 			UpdateRecord update = toUpdate.get(c);
 			if (!update.eidsDiff.less.isEmpty() || update.eidsDiff.more.isEmpty()) {
 				Work localWork = update.preWork;
-				WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
-				List<ExternalIdentifier> ids = new ArrayList<ExternalIdentifier>(update.eidsDiff.same);
+				ExternalIds weids = new ExternalIds();
+				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				ids.addAll(update.eidsDiff.less);
-				weids.setWorkExternalIdentifier(ids);
-				localWork.setExternalIdentifiers(weids);
+				weids.setExternalId(ids);
+				localWork.setExternalIds(weids);
 				try {
 					helper.updateWork(update.posWork.getPutCode(), localWork);
 					result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.OK_UPD_RESULT);
@@ -658,11 +658,11 @@ public final class PTCRISync {
 				for (Work mathingLocalWork : matchingLocalWorks.keySet()) {
 					if (!ORCIDHelper.hasNewIDs(mathingLocalWork, orcidWork)) {
 						Work workUpdate = ORCIDHelper.clone(mathingLocalWork);
-						WorkExternalIdentifiers weids = new WorkExternalIdentifiers();
-						List<ExternalIdentifier> neids = new ArrayList<ExternalIdentifier>(matchingLocalWorks.get(mathingLocalWork).more);
-						weids.setWorkExternalIdentifier(neids);
+						ExternalIds weids = new ExternalIds();
+						List<ExternalId> neids = new ArrayList<ExternalId>(matchingLocalWorks.get(mathingLocalWork).more);
+						weids.setExternalId(neids);
 						ORCIDHelper.setWorkLocalKey(workUpdate, ORCIDHelper.getActivityLocalKey(mathingLocalWork));
-						workUpdate.setExternalIdentifiers(weids);
+						workUpdate.setExternalIds(weids);
 						workUpdate.setTitle(null);
 						workUpdate.setType(null);
 						workUpdate.setPublicationDate(null);

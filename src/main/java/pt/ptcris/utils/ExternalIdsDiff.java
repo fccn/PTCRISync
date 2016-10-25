@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.um.dsi.gavea.orcid.model.common.ExternalId;
+import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
-import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 
 /**
  * Calculates and stores the symmetric difference between two sets of
@@ -19,17 +19,17 @@ public final class ExternalIdsDiff {
 	/**
 	 * External identifiers removed from the first set.
 	 */
-	public final Set<ExternalIdentifier> less = new HashSet<ExternalIdentifier>();
+	public final Set<ExternalId> less = new HashSet<ExternalId>();
 
 	/**
 	 * External identifiers preserved in both sets.
 	 */
-	public final Set<ExternalIdentifier> same = new HashSet<ExternalIdentifier>();
+	public final Set<ExternalId> same = new HashSet<ExternalId>();
 
 	/**
 	 * External identifiers inserted in the second set.
 	 */
-	public final Set<ExternalIdentifier> more = new HashSet<ExternalIdentifier>();
+	public final Set<ExternalId> more = new HashSet<ExternalId>();
 
 	/**
 	 * Calculates and stores the symmetric difference between two sets of
@@ -40,15 +40,15 @@ public final class ExternalIdsDiff {
 	 * @param eids2
 	 *            the second set of external identifiers
 	 */
-	public ExternalIdsDiff(WorkExternalIdentifiers weids1, WorkExternalIdentifiers weids2) {
-		List<ExternalIdentifier> eids1 = new LinkedList<ExternalIdentifier>();
-		List<ExternalIdentifier> eids2 = new LinkedList<ExternalIdentifier>();
+	public ExternalIdsDiff(ExternalIds weids1, ExternalIds weids2) {
+		List<ExternalId> eids1 = new LinkedList<ExternalId>();
+		List<ExternalId> eids2 = new LinkedList<ExternalId>();
 
-		if (weids1 != null && weids1.getWorkExternalIdentifier() != null)
-			eids1.addAll(weids1.getWorkExternalIdentifier());
+		if (weids1 != null && weids1.getExternalId() != null)
+			eids1.addAll(weids1.getExternalId());
 
-		if (weids2 != null && weids2.getWorkExternalIdentifier() != null)
-			eids2.addAll(weids2.getWorkExternalIdentifier());
+		if (weids2 != null && weids2.getExternalId() != null)
+			eids2.addAll(weids2.getExternalId());
 		
 		calculateDifference(eids1, eids2);
 	}
@@ -68,14 +68,14 @@ public final class ExternalIdsDiff {
 	 * @param eids2
 	 *            another set of UIDs
 	 */
-	private void calculateDifference(List<ExternalIdentifier> eids1, List<ExternalIdentifier> eids2) {
+	private void calculateDifference(List<ExternalId> eids1, List<ExternalId> eids2) {
 		less.addAll(eids1);
 		more.addAll(eids2);
-		for (final ExternalIdentifier eid2 : eids2) {
-			for (final ExternalIdentifier eid1 : eids1) {
-				if (sameButNotBothPartOf(eid2.getRelationship(),eid1.getRelationship())
-						&& eid1.getExternalIdentifierId().equals(eid2.getExternalIdentifierId())
-						&& eid1.getExternalIdentifierType().equals(eid2.getExternalIdentifierType())) {
+		for (final ExternalId eid2 : eids2) {
+			for (final ExternalId eid1 : eids1) {
+				if (sameButNotBothPartOf(eid2.getExternalIdRelationship(),eid1.getExternalIdRelationship())
+						&& eid1.getExternalIdValue().equals(eid2.getExternalIdValue())
+						&& eid1.getExternalIdType().equals(eid2.getExternalIdType())) {
 					same.add(eid2);
 					less.remove(eid1);
 					more.remove(eid2);
