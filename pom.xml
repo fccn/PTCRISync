@@ -7,7 +7,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<orcid-api-client.version>2.0-rc2</orcid-api-client.version>
+		<orcid-api-client.version>2.0-rc1</orcid-api-client.version>
         <log4j.version>2.4</log4j.version>
 		<junit.version>4.12</junit.version>
 	</properties>
