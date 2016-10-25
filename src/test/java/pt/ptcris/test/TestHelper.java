@@ -53,7 +53,7 @@ public class TestHelper {
 		ExternalId e1 = new ExternalId();
 		e1.setExternalIdRelationship(RelationshipType.SELF);
 		e1.setExternalIdValue(doi);
-		e1.setExternalIdType("DOI");
+		e1.setExternalIdType("doi");
 
 		work.getExternalIds().getExternalId().add(e1);
 
@@ -66,7 +66,7 @@ public class TestHelper {
 		ExternalId e1 = new ExternalId();
 		e1.setExternalIdRelationship(RelationshipType.SELF);
 		e1.setExternalIdValue(handle);
-		e1.setExternalIdType("HANDLE");
+		e1.setExternalIdType("handle");
 
 		work.getExternalIds().getExternalId().add(e1);
 
@@ -79,10 +79,9 @@ public class TestHelper {
 		ExternalId e = new ExternalId();
 		e.setExternalIdRelationship(RelationshipType.SELF);
 		e.setExternalIdValue(eid);
-		e.setExternalIdType("EID");
-
+		e.setExternalIdType("eid");
+		
 		work.getExternalIds().getExternalId().add(e);
-
 		return work;
 	}
 
@@ -92,8 +91,8 @@ public class TestHelper {
 		ExternalId e = new ExternalId();
 		e.setExternalIdRelationship(RelationshipType.SELF);
 		e.setExternalIdValue(handle);
-		e.setExternalIdType("HANDLE");
-
+		e.setExternalIdType("handle");
+		
 		work.getExternalIds().getExternalId().add(e);
 
 		return work;
@@ -105,7 +104,7 @@ public class TestHelper {
 		ExternalId e = new ExternalId();
 		e.setExternalIdRelationship(RelationshipType.SELF);
 		e.setExternalIdValue(eid);
-		e.setExternalIdType("EID");
+		e.setExternalIdType("eid");
 
 		work.getExternalIds().getExternalId().add(e);
 
@@ -118,7 +117,7 @@ public class TestHelper {
 		ExternalId e2 = new ExternalId();
 		e2.setExternalIdRelationship(RelationshipType.SELF);
 		e2.setExternalIdValue(handle);
-		e2.setExternalIdType("HANDLE");
+		e2.setExternalIdType("handle");
 
 		work.getExternalIds().getExternalId().add(e2);
 
@@ -131,7 +130,7 @@ public class TestHelper {
 		ExternalId e1 = new ExternalId();
 		e1.setExternalIdRelationship(RelationshipType.SELF);
 		e1.setExternalIdValue(doi2);
-		e1.setExternalIdType("DOI");
+		e1.setExternalIdType("doi");
 
 		work.getExternalIds().getExternalId().add(e1);
 
