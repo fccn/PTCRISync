@@ -1,15 +1,4 @@
 PTCRISync
 =============
 
-## Release Notes
-### PTCRISync 1.0 (October, 2016)
-
-* Support for the synchronization of research productions (works)
-* Support for the following synchronization procedures:
-  - Export local works
-  - Import novel remote works
-  - Import remote work updates
-  - Import invalid remote works
-  - Import novel remote work counter
-* Built over the ORCID API 2.0rc1
-* Based on the PTCRISync specification v0.5
+This repository contains the source code for [PTCRISync](www.ptcris.pt), synchronization framework for a national CRIS ecosystems based on ORCID. Check out the [wiki](https://github.com/haslab/PTCRISync/wiki) for resources on how to start using PTCRISync.
