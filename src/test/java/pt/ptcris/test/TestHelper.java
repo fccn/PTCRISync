@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate.Year;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
@@ -151,7 +152,7 @@ public class TestHelper {
 		return progressHandler;
 	}
 
-	public static void cleanUp(ORCIDHelper helper) throws Exception {
+	public static void cleanUp(ORCIDHelper helper) throws OrcidClientException {
 		helper.deleteAllSourcedWorks();
 	}
 
