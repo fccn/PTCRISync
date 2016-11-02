@@ -25,6 +25,7 @@ import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
+import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.exceptions.InvalidWorkException;
@@ -40,11 +41,25 @@ import pt.ptcris.exceptions.InvalidWorkException;
 public class ORCIDHelper {
 
 	public static final String INVALID_EXTERNALIDENTIFIERS = "ExternalIdentifiers";
-	public static final String INVALID_WORKEXTERNALIDENTIFIERS = "WorkExternalIdentifiers";
 	public static final String INVALID_TITLE = "Title";
 	public static final String INVALID_PUBLICATIONDATE = "PublicationDate";
 	public static final String INVALID_YEAR = "Year";
 	public static final String INVALID_TYPE = "Type";
+	
+	public enum EIdType {
+		OTHER_ID("other-id"), AGR("agr"), ARXIV("arxiv"), ASIN("asin"), 
+		BIBCODE("bibcode"), CBA("cba"), CIT("cit"), CTX("ctx"), DOI("doi"),
+		EID("eid"), ETHOS("ethos"), HANDLE("handle"), HIR("hir"), ISBN("isbn"), 
+		ISSN("issn"), JFM("jfm"), JSTOR("jstor"), LCCN("lccn"), MR("mr"), 
+		OCLC("oclc"), OL("ol"), OSTI("osti"), PAT("pat"), PMC("pmc"), PMID("pmid"), 
+		RFC("rfc"), SOURCE_WORK_ID("source-work-id"), SSRN("ssrn"), URI("uri"), 
+		URN("urn"), WOSUID("wosuid"), ZBL("zbl");
+		
+		String value;
+		private EIdType(String value) {
+			this.value = value;
+		}
+	}
 
 	/**
 	 * Whether to multi-thread the "get" of full works.
@@ -600,21 +615,36 @@ public class ORCIDHelper {
 			res.add(INVALID_EXTERNALIDENTIFIERS);
 		else if (work.getExternalIds().getExternalId() == null
 				|| work.getExternalIds().getExternalId().isEmpty())
-			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
+			res.add(INVALID_EXTERNALIDENTIFIERS);
+		else
+			for (ExternalId eid : work.getExternalIds().getExternalId())
+				if (!validEIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
 		else if (work.getTitle().getTitle() == null)
 			res.add(INVALID_TITLE);
-		if (work.getPublicationDate() == null)
-			res.add(INVALID_PUBLICATIONDATE);
-		else if (work.getPublicationDate().getYear() == null)
-			res.add(INVALID_YEAR);
 		if (work.getType() == null)
 			res.add(INVALID_TYPE);
+		if (work.getType() == null || 
+				(work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
+			if (work.getPublicationDate() == null)
+				res.add(INVALID_PUBLICATIONDATE);
+			else if (work.getPublicationDate().getYear() == null)
+				res.add(INVALID_YEAR);
+		}
 		
 		return res;
 	}
 	
+	private static boolean validEIdType(String eid) {
+		try {
+			EIdType.valueOf(eid.replace('-', '_').toUpperCase()); 
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	/**
 	 * Tests whether a work has minimal quality to be synchronized, by
 	 * inspecting its meta-data, returns the detected invalid fields.
@@ -640,17 +670,23 @@ public class ORCIDHelper {
 			res.add(INVALID_EXTERNALIDENTIFIERS);
 		else if (work.getExternalIds().getExternalId() == null
 				|| work.getExternalIds().getExternalId().isEmpty())
-			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
+			res.add(INVALID_EXTERNALIDENTIFIERS);
+		else
+			for (ExternalId eid : work.getExternalIds().getExternalId())
+				if (!validEIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
 		else if (work.getTitle().getTitle() == null)
 			res.add(INVALID_TITLE);
-		if (work.getPublicationDate() == null)
-			res.add(INVALID_PUBLICATIONDATE);
-		else if (work.getPublicationDate().getYear() == null)
-			res.add(INVALID_YEAR);
 		if (work.getType() == null)
 			res.add(INVALID_TYPE);
+		if (work.getType() == null || 
+				(work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
+			if (work.getPublicationDate() == null)
+				res.add(INVALID_PUBLICATIONDATE);
+			else if (work.getPublicationDate().getYear() == null)
+				res.add(INVALID_YEAR);
+		}
 	
 		return res;
 	}
