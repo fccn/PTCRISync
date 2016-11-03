@@ -48,14 +48,15 @@ public class ORCIDHelper {
 	
 	public enum EIdType {
 		OTHER_ID("other-id"), AGR("agr"), ARXIV("arxiv"), ASIN("asin"), 
-		BIBCODE("bibcode"), CBA("cba"), CIT("cit"), CTX("ctx"), DOI("doi"),
-		EID("eid"), ETHOS("ethos"), HANDLE("handle"), HIR("hir"), ISBN("isbn"), 
-		ISSN("issn"), JFM("jfm"), JSTOR("jstor"), LCCN("lccn"), MR("mr"), 
-		OCLC("oclc"), OL("ol"), OSTI("osti"), PAT("pat"), PMC("pmc"), PMID("pmid"), 
-		RFC("rfc"), SOURCE_WORK_ID("source-work-id"), SSRN("ssrn"), URI("uri"), 
-		URN("urn"), WOSUID("wosuid"), ZBL("zbl");
-		
+				BIBCODE("bibcode"), CBA("cba"), CIT("cit"), CTX("ctx"), DOI("doi"), 
+				EID("eid"), ETHOS("ethos"), HANDLE("handle"), HIR("hir"), ISBN("isbn"), 
+				ISSN("issn"), JFM("jfm"), JSTOR("jstor"), LCCN("lccn"), MR("mr"), 
+				OCLC("oclc"), OL("ol"), OSTI("osti"), PAT("pat"), PMC("pmc"), 
+				PMID("pmid"), RFC("rfc"), SOURCE_WORK_ID("source-work-id"), 
+				SSRN("ssrn"), URI("uri"), URN("urn"), WOSUID("wosuid"), ZBL("zbl");
+
 		String value;
+
 		private EIdType(String value) {
 			this.value = value;
 		}
@@ -339,8 +340,6 @@ public class ORCIDHelper {
 		executor = Executors.newFixedThreadPool(100);
 		return timeout;
 	}
-
-	
 	
 	
 	/**
@@ -596,6 +595,8 @@ public class ORCIDHelper {
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
 	 * (year), work type. All these meta-data is available in work summaries.
+	 * The publication date is not necessary for data sets and  research
+	 * techniques.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -635,15 +636,6 @@ public class ORCIDHelper {
 		
 		return res;
 	}
-	
-	private static boolean validEIdType(String eid) {
-		try {
-			EIdType.valueOf(eid.replace('-', '_').toUpperCase()); 
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
 
 	/**
 	 * Tests whether a work has minimal quality to be synchronized, by
@@ -651,6 +643,8 @@ public class ORCIDHelper {
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
 	 * (year), work type. All these meta-data is available in work summaries.
+	 * The publication date is not necessary for data sets and  research
+	 * techniques.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -739,6 +733,24 @@ public class ORCIDHelper {
 		}
 	}
 
+	/**
+	 * Test whether a give external identifiers type is valid. Elements of the
+	 * enum {@link EIdType} take the shape of upper-case valid EId types, with
+	 * slashes replaced by underscores.
+	 * 
+	 * @param eid
+	 *            a potential EId type
+	 * @return whether the string is a valid EId type
+	 */
+	private static boolean validEIdType(String eid) {
+		try {
+			EIdType.valueOf(eid.replace('-', '_').toUpperCase());
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
 	/**
 	 * Merges a work group into a single work summary. Simply selects the
 	 * meta-data from the first work of the group (i.e., the preferred one) and

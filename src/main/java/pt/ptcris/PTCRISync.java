@@ -47,7 +47,7 @@ import pt.ptcris.utils.UpdateRecord;
  * <p>
  * The implementation of the service assumes that the local CRIS communicates
  * the local productions following the established ORCID schema, according to
- * the Member API 2.0rc1. This uniforms the API and simplifies the
+ * the Member API 2.0rc2. This uniforms the API and simplifies the
  * synchronization process. The current version focuses on synchronizing
  * research productions, which must be encoded as ORCID {@link Work works}.
  * </p>
