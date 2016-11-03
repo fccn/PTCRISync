@@ -27,6 +27,7 @@ import org.um.dsi.gavea.orcid.model.work.ExternalIdentifierType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
+import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.exceptions.InvalidWorkException;
@@ -607,13 +608,15 @@ public class ORCIDHelper {
 			res.add(INVALID_TITLE);
 		else if (work.getTitle().getTitle() == null)
 			res.add(INVALID_TITLE);
-		if (work.getPublicationDate() == null)
-			res.add(INVALID_PUBLICATIONDATE);
-		else if (work.getPublicationDate().getYear() == null)
-			res.add(INVALID_YEAR);
 		if (work.getType() == null)
 			res.add(INVALID_TYPE);
-		
+		if (work.getType() == null
+				|| (work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
+			if (work.getPublicationDate() == null)
+				res.add(INVALID_PUBLICATIONDATE);
+			else if (work.getPublicationDate().getYear() == null)
+				res.add(INVALID_YEAR);
+		}
 		return res;
 	}
 	
@@ -647,13 +650,15 @@ public class ORCIDHelper {
 			res.add(INVALID_TITLE);
 		else if (work.getTitle().getTitle() == null)
 			res.add(INVALID_TITLE);
-		if (work.getPublicationDate() == null)
-			res.add(INVALID_PUBLICATIONDATE);
-		else if (work.getPublicationDate().getYear() == null)
-			res.add(INVALID_YEAR);
 		if (work.getType() == null)
 			res.add(INVALID_TYPE);
-	
+		if (work.getType() == null
+				|| (work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
+			if (work.getPublicationDate() == null)
+				res.add(INVALID_PUBLICATIONDATE);
+			else if (work.getPublicationDate().getYear() == null)
+				res.add(INVALID_YEAR);
+		}
 		return res;
 	}
 
