@@ -59,6 +59,31 @@ public class TestHelper {
 
 		return work;
 	}
+	
+	public static Work workUnk(BigInteger key, String meta, String doi) {
+		Work work = work(key, meta);
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(doi);
+		e1.setExternalIdType("ukn");
+
+		work.getExternalIds().getExternalId().add(e1);
+
+		return work;
+	}
+	
+	public static Work workDOIUnk(BigInteger key, String meta, String doi, String eid) {
+		Work work = workDOI(key, meta, doi);
+
+		ExternalId e = new ExternalId();
+		e.setExternalIdRelationship(RelationshipType.SELF);
+		e.setExternalIdValue(eid);
+		e.setExternalIdType("wosuid-");
+		
+		work.getExternalIds().getExternalId().add(e);
+		return work;
+	}
 
 	public static Work workHANDLE(BigInteger key, String meta, String handle) {
 		Work work = work(key, meta);
