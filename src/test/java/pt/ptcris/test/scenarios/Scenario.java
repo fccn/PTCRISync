@@ -26,7 +26,10 @@ import pt.ptcris.utils.ORCIDHelper;
 
 /* TODO: Scenarios with notifications in the pre-state (7 and 16) must 
  * be handled with caution, since modifications are not explicit in the 
- * current version of the system. */
+ * current version of the system. 
+ * 
+ * TODO: Scenarios that deal with promotion/demotion of preferred (10)
+ */
 
 public abstract class Scenario {
 	private List<Work> localWorks, exportWorks;

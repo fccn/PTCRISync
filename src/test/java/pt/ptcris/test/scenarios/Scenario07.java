@@ -12,8 +12,21 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features: modification notifications at the pre-state
+ * Scenario 7 of the PTCRISync specification v0.4.3, tests import.
  * 
+ * Features: 
+ * modification notifications at the pre-state
+ * 
+ * TODO: this scenario does not exactly represent the one from the specification
+ * since notifications are not passed to the procedures, thus notifications at
+ * pre-state cannot be represented.
+ * 
+ * TODO: this scenario does not exactly represent the one from the specification
+ * as this would require that the fixture work was set as the preferred, which
+ * is impossible programmatically. This does not affect the scenario and one of
+ * the user-sourced is selected instead.
+ * 
+ * @see Scenario
  */
 public class Scenario07 extends Scenario {
 

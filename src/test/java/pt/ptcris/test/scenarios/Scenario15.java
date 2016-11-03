@@ -14,8 +14,12 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features: modification notifications with {same,more,less}
+ * Scenario 15 of the PTCRISync specification v0.4.3, tests import.
  * 
+ * Features: 
+ * modification notifications with {same,more,less}
+ * 
+ * @see Scenario
  */
 public class Scenario15 extends Scenario {
 

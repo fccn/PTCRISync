@@ -14,8 +14,13 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features: creation notifications at pre-state export updates with
- * {less,same,more}
+ * Scenario 17 of the PTCRISync specification v0.4.3, tests export and import.
+ * 
+ * Features: 
+ * creation notifications at pre-state 
+ * export updates with {less,same,more}
+ * 
+ * @see Scenario
  */
 public class Scenario17 extends Scenario {
 

@@ -12,10 +12,15 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features: export add modification notifications with {same,more}
+ * Scenario 12 of the PTCRISync specification v0.4.3, tests export and import.
  * 
+ * Features: 
+ * export breaks import
+ * export add 
+ * modification notifications with {same,more}
+ * 
+ * @see Scenario
  */
-
 public class Scenario12 extends Scenario {
 
 	/** {@inheritDoc} */

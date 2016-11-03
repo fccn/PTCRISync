@@ -5,9 +5,12 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
+ * Scenario 20 of the PTCRISync specification v0.4.3, tests export.
+ * 
  * Features: empty profile
+ * 
+ * @see Scenario
  */
-
 public class Scenario20 extends Scenario {
 
 	/** {@inheritDoc} */
