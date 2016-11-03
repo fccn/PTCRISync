@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-### PTCRISync 1.0 (October, 2016)
+### PTCRISync 1.0 (November, 2016)
 
 * Support for the synchronization of research productions (works)
 * Support for the following synchronization procedures:
