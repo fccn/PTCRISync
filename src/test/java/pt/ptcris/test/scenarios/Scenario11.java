@@ -12,11 +12,18 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
+ * Scenario 11 of the PTCRISync specification v0.4.3, tests export.
+ * 
  * Features:
  * export update with {same}
  * 
+ * TODO: this scenario does not exactly represent the one from the specification
+ * as this would require that the fixture work was set as the preferred, which
+ * is impossible programmatically. This affects the scenario since its goal
+ * is to depict the promotion of a work to preferred.
+ * 
+ * @see Scenario
  */
-
 public class Scenario11 extends Scenario {
 
 	/** {@inheritDoc} */

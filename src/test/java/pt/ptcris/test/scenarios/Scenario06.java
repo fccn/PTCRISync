@@ -12,10 +12,18 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features: modification notifications with {same,more}
+ * Scenario 6 of the PTCRISync specification v0.4.3, tests import.
  * 
+ * Features: 
+ * modification notifications with {same,more}
+ * 
+ * TODO: this scenario does not exactly represent the one from the specification
+ * as this would require that the fixture work was set as the preferred, which
+ * is impossible programmatically. This does not affect the scenario and one of
+ * the user-sourced is selected instead.
+ * 
+ * @see Scenario
  */
-
 public class Scenario06 extends Scenario {
 
 	/** {@inheritDoc} */

@@ -14,15 +14,18 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features:
+ * Scenario 1 of the PTCRISync specification v0.4.3, tests import.
+ * 
+ * Features: 
  * creation notification
  * 
- * TODO: this scenario does not exactly represent the one
- * from the specification as this would require that the 
- * fixture work was set as the preferred, which is impossible
- * programmatically.
+ * TODO: this scenario does not exactly represent the one from the specification
+ * as this would require that the fixture work was set as the preferred, which
+ * is impossible programmatically. This does not affect the scenario and one of
+ * the user-sourced is selected instead.
+ * 
+ * @see Scenario
  */
-
 public class Scenario01 extends Scenario {
 
 	/** {@inheritDoc} */
@@ -53,7 +56,7 @@ public class Scenario01 extends Scenario {
 	@Override
 	Set<String> expectedInvalidCodes(BigInteger putCode) {
 		Set<String> res = new HashSet<String>();
-		res.add(ORCIDHelper.INVALID_WORKEXTERNALIDENTIFIERS);
+		res.add(ORCIDHelper.INVALID_EXTERNALIDENTIFIERS);
 		return res;
 	}
 	

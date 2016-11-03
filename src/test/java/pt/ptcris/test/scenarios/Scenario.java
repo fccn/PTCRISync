@@ -21,41 +21,31 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.handlers.ProgressHandler;
-import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * A PTCRISync scenario, as defined by the PTCRISync specification report. Each
- * scenario consists of a pre-state for the local CRIS and the ORCID user
- * profile, and the expected post-state after executing the synchronization
- * procedures.
- *
- * The fixture of the scenarios may involve works sourced by the local CRIS, by
- * other external services or by the user. The external sources may be simulated
- * with an additional Member API client id defined in {@link TestClients}; the
- * user sourced works, however, cannot be managed remotely, so
- * {@link TestClients} also provides a set of different user profiles, each with
- * a different fixture.
- *
- * Since modification notifications are not explicit in the current version of
- * the system, scenarios with notifications in the pre-state (7 and 16) must be
- * handled with caution.
+ * Represents a scenario as defined in the PTCRISync specification. Each
+ * scenario consists of a pre-state for the CRIS and ORCID profiles, an update
+ * on either profile and the result of running the import and/or export
+ * procedures to restore consistency.
+ * 
+ * TODO: Scenarios with notifications in the pre-state (7 and 16) must be
+ * handled with caution, since modifications are not explicit in the current
+ * version of the system.
+ * 
+ * TODO: Scenarios that consider the promotion/demotion of preferred works (10
+ * and 11) are not to be tested programmatically as they cannot be selected this
+ * way.
+ * 
+ * @see <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
  */
-
 public abstract class Scenario {
 	private List<Work> localWorks, exportWorks;
 	private static ORCIDHelper externalClient, crisClient;
 
-	/**
-	 * Sets up the scenario by adding to the ORCID user profile the works
-	 * defined as the fixture.
-	 * 
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID service failed
-	 */
 	@Before
-	public void setUpClass() throws OrcidClientException {
+	public void setUpClass() throws Exception {
 		crisClient = crisClient();
 		externalClient = externalClient();
 		TestHelper.cleanUp(crisClient);
@@ -69,45 +59,35 @@ public abstract class Scenario {
 		this.localWorks.addAll(this.exportWorks);
 	}
 
-	/**
-	 * Runs the PTCRISync synchronization procedures for the scenario and
-	 * asserts their correctness.
-	 * 
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID service failed
-	 * @throws InterruptedException
-	 *             if the asynchronous ORCID workers were interrupted
-	 */
 	@Test
 	public void test() throws OrcidClientException, InterruptedException {
 		ProgressHandler handler = TestHelper.handler();
+
 		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
-		
-		// run every PTCRISync procedure
 		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.export(crisClient.client, exportWorks, handler);
 
 		List<Work> worksToImport = PTCRISync.importWorks(crisClient.client, localWorks, handler);
 		List<Work> worksToUpdate = PTCRISync.importUpdates(crisClient.client, localWorks, handler);
-		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalid(crisClient.client, localWorks, handler);
+		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalid(
+				crisClient.client, localWorks, handler);
 		int worksToImportCounter = PTCRISync.importCounter(crisClient.client, localWorks, handler);
 		long time = System.currentTimeMillis() - startTime;
 		handler.setCurrentStatus(this.getClass().getName() + ": " + time + "ms");
 
 		List<Work> allImports = new ArrayList<Work>(worksToImport);
 		allImports.addAll(worksToUpdate);
+		localWorks.addAll(allImports);
 
-		// retrieve the expected results
-		List<Work> expectedImported = expectedImportedWorks();
+		List<Work> expectedLocal = expectedImportedWorks();
 		List<Work> expectedInvalid = expectedImportedInvalidWorks();
 		List<Work> expectedORCID = expectedORCIDCRISWorks();
 		List<WorkSummary> sourcedORCID = crisClient.getSourcedWorkSummaries();
 
-		// assert the correction of the procedures
 		assertEquals(worksToImport.size(), worksToImportCounter);
 
-		assertEquals(expectedImported.size(), allImports.size());
-		assertTrue(correctImports(expectedImported, allImports));
+		assertEquals(expectedLocal.size(), allImports.size());
+		assertTrue(correctImports(expectedLocal, allImports));
 
 		assertEquals(expectedInvalid.size(), worksToInvalid.size());
 		assertTrue(correctInvalids(worksToInvalid));
@@ -118,15 +98,8 @@ public abstract class Scenario {
 		assertTrue(correctExport(expectedORCID, sourcedORCID));
 	}
 
-	/**
-	 * Tears down the scenario by removing every work from the ORCID user
-	 * profile.
-	 * 
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID service failed
-	 */
 	@After
-	public void tearDownClass() throws OrcidClientException {
+	public void tearDownClass() throws Exception {
 		TestHelper.cleanUp(crisClient);
 		TestHelper.cleanUp(externalClient);
 	}

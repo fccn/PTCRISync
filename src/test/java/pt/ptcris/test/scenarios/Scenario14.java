@@ -14,8 +14,14 @@ import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
- * Features: export add export update {same,less}
+ * Scenario 14 of the PTCRISync specification v0.4.3, tests export.
  * 
+ * Features: 
+ * export fixes import
+ * export add 
+ * export update {same,less}
+ * 
+ * @see Scenario
  */
 public class Scenario14 extends Scenario {
 
