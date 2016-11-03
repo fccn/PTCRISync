@@ -24,13 +24,22 @@ import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.utils.ORCIDHelper;
 
-/* TODO: Scenarios with notifications in the pre-state (7 and 16) must 
- * be handled with caution, since modifications are not explicit in the 
- * current version of the system. 
+/**
+ * Represents a scenario as defined in the PTCRISync specification. Each
+ * scenario consists of a pre-state for the CRIS and ORCID profiles, an update
+ * on either profile and the result of running the import and/or export
+ * procedures to restore consistency.
  * 
- * TODO: Scenarios that deal with promotion/demotion of preferred (10)
+ * TODO: Scenarios with notifications in the pre-state (7 and 16) must be
+ * handled with caution, since modifications are not explicit in the current
+ * version of the system.
+ * 
+ * TODO: Scenarios that consider the promotion/demotion of preferred works (10
+ * and 11) are not to be tested programmatically as they cannot be selected this
+ * way.
+ * 
+ * @see <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
  */
-
 public abstract class Scenario {
 	private List<Work> localWorks, exportWorks;
 	private static ORCIDHelper externalClient, crisClient;

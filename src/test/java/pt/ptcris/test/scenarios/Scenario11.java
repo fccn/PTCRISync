@@ -18,9 +18,9 @@ import pt.ptcris.utils.ORCIDHelper;
  * export update with {same}
  * 
  * TODO: this scenario does not exactly represent the one from the specification
- * as this would require that the CRIS-sourced work was set as the preferred, which
- * is impossible programmatically. This does not affect the scenario and one of
- * the user-sourced is selected instead.
+ * as this would require that the fixture work was set as the preferred, which
+ * is impossible programmatically. This affects the scenario since its goal
+ * is to depict the promotion of a work to preferred.
  * 
  * @see Scenario
  */
