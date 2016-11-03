@@ -56,7 +56,7 @@ public class Scenario03 extends Scenario {
 	@Override
 	Set<String> expectedInvalidCodes(BigInteger putCode) {
 		Set<String> res = new HashSet<String>();
-		res.add(ORCIDHelper.INVALID_EXTERNALIDENTIFIERS);
+		res.add(ORCIDHelper.INVALID_WORKEXTERNALIDENTIFIERS);
 		return res;
 	}
 

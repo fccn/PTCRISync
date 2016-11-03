@@ -11,10 +11,11 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.common.ExternalId;
-import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
+import org.um.dsi.gavea.orcid.model.work.ExternalIdentifierType;
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkTitle;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
@@ -90,16 +91,16 @@ public class PTCRISExample {
 		title.setTitle("Yet Another Work Updated Once");
 		work.setTitle(title);
 
-		ExternalId e = new ExternalId();
-		e.setExternalIdRelationship(RelationshipType.SELF);
-		e.setExternalIdValue("3000");
-		e.setExternalIdType("DOI");
+		ExternalIdentifier e = new ExternalIdentifier();
+		e.setRelationship(RelationshipType.SELF);
+		e.setExternalIdentifierId("3000");
+		e.setExternalIdentifierType(ExternalIdentifierType.DOI);
 
-		ExternalIds uids = new ExternalIds();
+		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
 
-		uids.getExternalId().add(e);
+		uids.getWorkExternalIdentifier().add(e);
 
-		work.setExternalIds(uids);
+		work.setExternalIdentifiers(uids);
 
 		work.setType(WorkType.CONFERENCE_PAPER);
 
@@ -112,22 +113,22 @@ public class PTCRISExample {
 		title.setTitle("A Work Updated Once");
 		work.setTitle(title);
 
-		ExternalId e = new ExternalId();
-		e.setExternalIdRelationship(RelationshipType.SELF);
-		e.setExternalIdValue("4000");
-		e.setExternalIdType("EID");
+		ExternalIdentifier e = new ExternalIdentifier();
+		e.setRelationship(RelationshipType.SELF);
+		e.setExternalIdentifierId("4000");
+		e.setExternalIdentifierType(ExternalIdentifierType.EID);
 
-		ExternalId e1 = new ExternalId();
-		e1.setExternalIdRelationship(RelationshipType.SELF);
-		e1.setExternalIdValue("00001");
-		e1.setExternalIdType("DOI");
+		ExternalIdentifier e1 = new ExternalIdentifier();
+		e1.setRelationship(RelationshipType.SELF);
+		e1.setExternalIdentifierId("00001");
+		e1.setExternalIdentifierType(ExternalIdentifierType.DOI);
 
-		ExternalIds uids = new ExternalIds();
+		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
 
-		uids.getExternalId().add(e);
-		uids.getExternalId().add(e1);
+		uids.getWorkExternalIdentifier().add(e);
+		uids.getWorkExternalIdentifier().add(e1);
 
-		work.setExternalIds(uids);
+		work.setExternalIdentifiers(uids);
 
 		work.setType(WorkType.CONFERENCE_PAPER);
 
@@ -140,18 +141,18 @@ public class PTCRISExample {
 		title.setTitle("Another Work Updated Twice");
 		work.setTitle(title);
 
-		ExternalId e = new ExternalId();
-		e.setExternalIdRelationship(RelationshipType.SELF);
+		ExternalIdentifier e = new ExternalIdentifier();
+		e.setRelationship(RelationshipType.SELF);
 		// avoids conflicts
-		e.setExternalIdValue(String.valueOf(System.currentTimeMillis())); 
+		e.setExternalIdentifierId(String.valueOf(System.currentTimeMillis())); 
 		
-		e.setExternalIdType("DOI");
+		e.setExternalIdentifierType(ExternalIdentifierType.DOI);
 
-		ExternalIds uids = new ExternalIds();
+		WorkExternalIdentifiers uids = new WorkExternalIdentifiers();
 
-		uids.getExternalId().add(e);
+		uids.getWorkExternalIdentifier().add(e);
 
-		work.setExternalIds(uids);
+		work.setExternalIdentifiers(uids);
 
 		work.setType(WorkType.JOURNAL_ARTICLE);
 
