@@ -62,11 +62,6 @@ public class ORCIDHelper {
 		}
 	}
 
-	/**
-	 * Whether to multi-thread the "get" of full works.
-	 */
-	private final boolean threaded = true;
-
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
 	/**
@@ -75,7 +70,7 @@ public class ORCIDHelper {
 	 */
 	public final ORCIDClient client;
 
-	private ExecutorService executor = Executors.newFixedThreadPool(10);
+	private ExecutorService executor;
 
 	/**
 	 * Initializes the helper with a given ORCID client.
@@ -87,6 +82,7 @@ public class ORCIDHelper {
 	 */
 	public ORCIDHelper(ORCIDClient orcidClient) {
 		this.client = orcidClient;
+		if (client.threads() > 1) executor = Executors.newFixedThreadPool(client.threads());
 	}
 
 	/**
@@ -174,7 +170,7 @@ public class ORCIDHelper {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 		
 		_log.debug("[getFullWork] " + mergedWork.getPutCode());
-		if (threaded) {
+		if (client.threads() > 1) {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
 		} else {
@@ -333,7 +329,7 @@ public class ORCIDHelper {
 	 *             if the process was interrupted
 	 */
 	public boolean waitWorkers() throws InterruptedException {
-		if (!threaded) return true;
+		if (client.threads() <= 1) return true;
 		
 		executor.shutdown();
 		final boolean timeout = executor.awaitTermination(100, TimeUnit.SECONDS);
