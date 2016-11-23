@@ -43,12 +43,32 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 *            the number of ORCID worker threads
 	 */
 	public ORCIDClientImpl(String loginUri, String apiUri, String clientId, String clientSecret, String redirectUri,
-			OrcidAccessToken orcidToken) {
+			OrcidAccessToken orcidToken, int threads) {
 		this.orcidToken = orcidToken;
 		this.clientId = clientId;
-		// TODO: allow to be defined by the caller
-		this.threads = Runtime.getRuntime().availableProcessors() + 2;
+		this.threads = threads;
 		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId, clientSecret, redirectUri);
+	}
+	
+	/**
+	 * Instantiates an ORCID client to communicate with the ORCID API.
+	 *
+	 * @param loginUri
+	 *            the login URI of the ORCID service
+	 * @param apiUri
+	 *            the URI of the ORCID API
+	 * @param clientId
+	 *            the id of the ORCID Member API client
+	 * @param clientSecret
+	 *            the secret of the ORCID Member API client
+	 * @param redirectUri
+	 *            the redirect URI for requesting the access token
+	 * @param orcidToken
+	 *            the access token to the user ORCID profile
+	 */
+	public ORCIDClientImpl(String loginUri, String apiUri, String clientId, String clientSecret, String redirectUri,
+			OrcidAccessToken orcidToken) {
+		this(loginUri, apiUri, clientId, clientSecret, redirectUri, orcidToken, Runtime.getRuntime().availableProcessors() + 2);
 	}
 
 	/**
