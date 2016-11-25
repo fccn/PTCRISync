@@ -55,7 +55,7 @@ public class ORCIDHelper {
 				PMID("pmid"), RFC("rfc"), SOURCE_WORK_ID("source-work-id"), 
 				SSRN("ssrn"), URI("uri"), URN("urn"), WOSUID("wosuid"), ZBL("zbl");
 
-		String value;
+		public final String value;
 
 		private EIdType(String value) {
 			this.value = value;
