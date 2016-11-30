@@ -106,7 +106,6 @@ public class TestHelper {
 		return work;
 	}
 	
-
 	public static Work workHANDLE(BigInteger key, String meta, String handle) {
 		Work work = work(key, meta);
 

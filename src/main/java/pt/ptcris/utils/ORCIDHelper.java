@@ -629,7 +629,6 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
-		
 		return res;
 	}
 
@@ -677,7 +676,6 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
-	
 		return res;
 	}
 
