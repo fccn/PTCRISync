@@ -17,15 +17,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
-import org.um.dsi.gavea.orcid.model.activities.Identifier;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
-import org.um.dsi.gavea.orcid.model.common.ActivitySummary;
 import org.um.dsi.gavea.orcid.model.common.ClientId;
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
+import org.um.dsi.gavea.orcid.model.common.ExternalId;
+import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifier;
-import org.um.dsi.gavea.orcid.model.work.ExternalIdentifierType;
 import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkExternalIdentifiers;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
@@ -43,16 +41,26 @@ import pt.ptcris.exceptions.InvalidWorkException;
 public class ORCIDHelper {
 
 	public static final String INVALID_EXTERNALIDENTIFIERS = "ExternalIdentifiers";
-	public static final String INVALID_WORKEXTERNALIDENTIFIERS = "WorkExternalIdentifiers";
 	public static final String INVALID_TITLE = "Title";
 	public static final String INVALID_PUBLICATIONDATE = "PublicationDate";
 	public static final String INVALID_YEAR = "Year";
 	public static final String INVALID_TYPE = "Type";
+	
+	public enum EIdType {
+		OTHER_ID("other-id"), AGR("agr"), ARXIV("arxiv"), ASIN("asin"), 
+				BIBCODE("bibcode"), CBA("cba"), CIT("cit"), CTX("ctx"), DOI("doi"), 
+				EID("eid"), ETHOS("ethos"), HANDLE("handle"), HIR("hir"), ISBN("isbn"), 
+				ISSN("issn"), JFM("jfm"), JSTOR("jstor"), LCCN("lccn"), MR("mr"), 
+				OCLC("oclc"), OL("ol"), OSTI("osti"), PAT("pat"), PMC("pmc"), 
+				PMID("pmid"), RFC("rfc"), SOURCE_WORK_ID("source-work-id"), 
+				SSRN("ssrn"), URI("uri"), URN("urn"), WOSUID("wosuid"), ZBL("zbl");
 
-	/**
-	 * Whether to multi-thread the "get" of full works.
-	 */
-	private final boolean threaded = true;
+		public final String value;
+
+		private EIdType(String value) {
+			this.value = value;
+		}
+	}
 
 	private static final Logger _log = LogManager.getLogger(ORCIDHelper.class);
 
@@ -62,7 +70,7 @@ public class ORCIDHelper {
 	 */
 	public final ORCIDClient client;
 
-	private ExecutorService executor = Executors.newFixedThreadPool(10);
+	private ExecutorService executor;
 
 	/**
 	 * Initializes the helper with a given ORCID client.
@@ -74,6 +82,7 @@ public class ORCIDHelper {
 	 */
 	public ORCIDHelper(ORCIDClient orcidClient) {
 		this.client = orcidClient;
+		if (client.threads() > 1) executor = Executors.newFixedThreadPool(client.threads());
 	}
 
 	/**
@@ -161,7 +170,7 @@ public class ORCIDHelper {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 		
 		_log.debug("[getFullWork] " + mergedWork.getPutCode());
-		if (threaded) {
+		if (client.threads() > 1) {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
 		} else {
@@ -214,7 +223,7 @@ public class ORCIDHelper {
 	 *            the original summary
 	 */
 	static void finalizeGet(Work fullWork, WorkSummary sumWork) {
-		fullWork.setExternalIdentifiers(sumWork.getExternalIdentifiers());
+		fullWork.setExternalIds(sumWork.getExternalIds());
 		cleanWorkLocalKey(fullWork);
 	}
 
@@ -320,15 +329,13 @@ public class ORCIDHelper {
 	 *             if the process was interrupted
 	 */
 	public boolean waitWorkers() throws InterruptedException {
-		if (!threaded) return true;
+		if (client.threads() <= 1) return true;
 		
 		executor.shutdown();
 		final boolean timeout = executor.awaitTermination(100, TimeUnit.SECONDS);
 		executor = Executors.newFixedThreadPool(100);
 		return timeout;
 	}
-
-	
 	
 	
 	/**
@@ -341,7 +348,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
-	public static BigInteger getActivityLocalKey(ActivitySummary act) throws NullPointerException {
+	public static BigInteger getActivityLocalKey(ElementSummary act) throws NullPointerException {
 		if (act == null)
 			throw new NullPointerException("Can't get local key.");
 
@@ -357,7 +364,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
-	public static void setWorkLocalKey(ActivitySummary act, BigInteger key) throws NullPointerException {
+	public static void setWorkLocalKey(ElementSummary act, BigInteger key) throws NullPointerException {
 		if (act == null)
 			throw new NullPointerException("Can't set local key.");
 
@@ -373,7 +380,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
-	private static void cleanWorkLocalKey(ActivitySummary act) throws NullPointerException {
+	private static void cleanWorkLocalKey(ElementSummary act) throws NullPointerException {
 		if (act == null)
 			throw new NullPointerException("Can't clear local key.");
 
@@ -401,7 +408,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(match.getExternalIdentifiers(), work.getExternalIdentifiers());
+					new ExternalIdsDiff(match.getExternalIds(), work.getExternalIds());
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -425,8 +432,8 @@ public class ORCIDHelper {
 	 */
 	public static boolean hasNewIDs(Work preWork, WorkSummary posWork) {
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIdentifiers(),
-				posWork.getExternalIdentifiers());
+				preWork.getExternalIds(),
+				posWork.getExternalIds());
 
 		return diff.more.isEmpty();
 	}
@@ -483,8 +490,8 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 		
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIdentifiers(),
-				posWork.getExternalIdentifiers());
+				preWork.getExternalIds(),
+				posWork.getExternalIds());
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
@@ -505,8 +512,8 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIdentifiers(),
-				posWork.getExternalIdentifiers());
+				preWork.getExternalIds(),
+				posWork.getExternalIds());
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
@@ -584,6 +591,8 @@ public class ORCIDHelper {
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
 	 * (year), work type. All these meta-data is available in work summaries.
+	 * The publication date is not necessary for data sets and  research
+	 * techniques.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -599,19 +608,22 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null work.");
 		
 		final Set<String> res = new HashSet<String>();
-		if (work.getExternalIdentifiers() == null)
+		if (work.getExternalIds() == null)
 			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else if (work.getExternalIdentifiers().getWorkExternalIdentifier() == null
-				|| work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty())
-			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
+		else if (work.getExternalIds().getExternalId() == null
+				|| work.getExternalIds().getExternalId().isEmpty())
+			res.add(INVALID_EXTERNALIDENTIFIERS);
+		else
+			for (ExternalId eid : work.getExternalIds().getExternalId())
+				if (!validEIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
 		else if (work.getTitle().getTitle() == null)
 			res.add(INVALID_TITLE);
 		if (work.getType() == null)
 			res.add(INVALID_TYPE);
-		if (work.getType() == null
-				|| (work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
+		if (work.getType() == null || 
+				(work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
 			if (work.getPublicationDate() == null)
 				res.add(INVALID_PUBLICATIONDATE);
 			else if (work.getPublicationDate().getYear() == null)
@@ -619,13 +631,15 @@ public class ORCIDHelper {
 		}
 		return res;
 	}
-	
+
 	/**
 	 * Tests whether a work has minimal quality to be synchronized, by
 	 * inspecting its meta-data, returns the detected invalid fields.
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
 	 * (year), work type. All these meta-data is available in work summaries.
+	 * The publication date is not necessary for data sets and  research
+	 * techniques.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -641,19 +655,22 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null work.");
 	
 		final Set<String> res = new HashSet<String>();
-		if (work.getExternalIdentifiers() == null)
+		if (work.getExternalIds() == null)
 			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else if (work.getExternalIdentifiers().getWorkExternalIdentifier() == null
-				|| work.getExternalIdentifiers().getWorkExternalIdentifier().isEmpty())
-			res.add(INVALID_WORKEXTERNALIDENTIFIERS);
+		else if (work.getExternalIds().getExternalId() == null
+				|| work.getExternalIds().getExternalId().isEmpty())
+			res.add(INVALID_EXTERNALIDENTIFIERS);
+		else
+			for (ExternalId eid : work.getExternalIds().getExternalId())
+				if (!validEIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
 		else if (work.getTitle().getTitle() == null)
 			res.add(INVALID_TITLE);
 		if (work.getType() == null)
 			res.add(INVALID_TYPE);
-		if (work.getType() == null
-				|| (work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
+		if (work.getType() == null || 
+				(work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
 			if (work.getPublicationDate() == null)
 				res.add(INVALID_PUBLICATIONDATE);
 			else if (work.getPublicationDate().getYear() == null)
@@ -711,6 +728,24 @@ public class ORCIDHelper {
 	}
 
 	/**
+	 * Test whether a give external identifiers type is valid. Elements of the
+	 * enum {@link EIdType} take the shape of upper-case valid EId types, with
+	 * slashes replaced by underscores.
+	 * 
+	 * @param eid
+	 *            a potential EId type
+	 * @return whether the string is a valid EId type
+	 */
+	private static boolean validEIdType(String eid) {
+		try {
+			EIdType.valueOf(eid.replace('-', '_').toUpperCase());
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	/**
 	 * Merges a work group into a single work summary. Simply selects the
 	 * meta-data from the first work of the group (i.e., the preferred one) and
 	 * assigns it any extra external identifiers from the remainder works.
@@ -733,16 +768,15 @@ public class ORCIDHelper {
 		final WorkSummary preferred = group.getWorkSummary().get(0);
 		final WorkSummary dummy = clone(preferred);
 
-		final List<ExternalIdentifier> eids = new ArrayList<ExternalIdentifier>();
-		for (Identifier id : group.getIdentifiers().getIdentifier()) {
-			final ExternalIdentifier eid = new ExternalIdentifier();
-			eid.setRelationship(RelationshipType.SELF);
-			eid.setExternalIdentifierType(ExternalIdentifierType.fromValue(id
-					.getExternalIdentifierType().toLowerCase()));
-			eid.setExternalIdentifierId(id.getExternalIdentifierId());
+		final List<ExternalId> eids = new ArrayList<ExternalId>();
+		for (ExternalId id : group.getExternalIds().getExternalId()) {
+			final ExternalId eid = new ExternalId();
+			eid.setExternalIdRelationship(RelationshipType.SELF);
+			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
+			eid.setExternalIdValue(id.getExternalIdValue());
 			eids.add(eid);
 		}
-		dummy.setExternalIdentifiers(new WorkExternalIdentifiers(eids));
+		dummy.setExternalIds(new ExternalIds(eids));
 
 		return dummy;
 	}
@@ -813,7 +847,7 @@ public class ORCIDHelper {
 	 *            the target summary
 	 * @throws NullPointerException if either argument is null
 	 */
-	private static void copy(ActivitySummary from, ActivitySummary to) 
+	private static void copy(ElementSummary from, ElementSummary to) 
 			throws NullPointerException {
 		if (from == null || to == null) 
 			throw new NullPointerException("Can't copy null works.");
@@ -842,7 +876,7 @@ public class ORCIDHelper {
 		dummy.setPublicationDate(work.getPublicationDate());
 		dummy.setTitle(work.getTitle());
 		dummy.setType(work.getType());
-		dummy.setExternalIdentifiers(work.getExternalIdentifiers());
+		dummy.setExternalIds(work.getExternalIds());
 		return dummy;
 	}
 
@@ -861,7 +895,7 @@ public class ORCIDHelper {
 		dummy.setPublicationDate(work.getPublicationDate());
 		dummy.setTitle(work.getTitle());
 		dummy.setType(work.getType());
-		dummy.setExternalIdentifiers(work.getExternalIdentifiers());
+		dummy.setExternalIds(work.getExternalIds());
 		dummy.setContributors(work.getContributors());
 
 		dummy.setCitation(work.getCitation());

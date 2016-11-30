@@ -77,4 +77,12 @@ public interface ORCIDClient {
 	 */
 	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException;
 
+	/**
+	 * The number of worker threads that will be used to communicate with the
+	 * ORCID API.
+	 * 
+	 * @return the number of ORCID worker threads
+	 */
+	public int threads();
+
 }

@@ -12,7 +12,7 @@ import pt.ptcris.exceptions.InvalidWorkException;
  */
 public final class PTCRISyncResult {
 
-	public static final int ADDOK = -10;
+	public static final int ADDOK = -5;
 	public static final int UPDATEOK = -10;
 	public static final int UPTODATE = -20;
 	public static final int INVALID = -30;
