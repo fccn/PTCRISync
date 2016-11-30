@@ -17,6 +17,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDHelper.EIdType;
 
 public class TestHelper {
 
@@ -84,6 +85,27 @@ public class TestHelper {
 		work.getExternalIds().getExternalId().add(e);
 		return work;
 	}
+	
+	public static Work workOtherOtherDOI(BigInteger key, String meta, String doi, String eid, String eid2) {
+		Work work = workDOI(key, meta, doi);
+
+		ExternalId e = new ExternalId();
+		e.setExternalIdRelationship(RelationshipType.SELF);
+		e.setExternalIdValue(eid);
+		e.setExternalIdType(EIdType.OTHER_ID.value);
+		
+		work.getExternalIds().getExternalId().add(e);
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(eid2);
+		e1.setExternalIdType(EIdType.OTHER_ID.value);
+		
+		work.getExternalIds().getExternalId().add(e1);
+
+		return work;
+	}
+	
 
 	public static Work workHANDLE(BigInteger key, String meta, String handle) {
 		Work work = work(key, meta);
