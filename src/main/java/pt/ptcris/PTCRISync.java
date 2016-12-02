@@ -83,7 +83,23 @@ public final class PTCRISync {
 	 * </p>
 	 *
 	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
-	 */
+	 * 
+	 * @param client
+	 *            the ORCID client defining the CRIS Member API and user the
+	 *            profile to be managed
+	 * @param localWorks
+	 *            the list of local productions to be exported that should be
+	 *            kept synchronized in the ORCID user profile
+	 * @param handler
+	 *            the progress handler responsible for receiving progress
+	 *            updates
+	 * @return the result of the synchronization of each of the provided local
+	 *          works.
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails when getting the
+	 *             activities summary
+	 * @throws NullPointerException
+	 *             if any of the arguments is null	 */
 	public static Map<BigInteger, PTCRISyncResult> export(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
 		return exportBase(client, localWorks, handler, false);
@@ -102,6 +118,23 @@ public final class PTCRISync {
 	 * </p>
 	 *
 	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
+	 * 
+	 * @param client
+	 *            the ORCID client defining the CRIS Member API and user the
+	 *            profile to be managed
+	 * @param localWorks
+	 *            the list of local productions to be exported that should be
+	 *            kept synchronized in the ORCID user profile
+	 * @param handler
+	 *            the progress handler responsible for receiving progress
+	 *            updates
+	 * @return the result of the synchronization of each of the provided local
+	 *          works.
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails when getting the
+	 *             activities summary
+	 * @throws NullPointerException
+	 *             if any of the arguments is null
 	 */
 	public static Map<BigInteger, PTCRISyncResult> exportForce(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
@@ -328,7 +361,7 @@ public final class PTCRISync {
 	 * CRIS productions. Creates creation notifications for each work group at
 	 * ORCID (merged into as a single work by the {@link ORCIDHelper helper})
 	 * without matching local productions (i.e., those without shared
-	 * {@link ExternalIdentifier external identifiers}). To import updates for
+	 * {@link ExternalId external identifiers}). To import updates for
 	 * works with shared external identifiers
 	 * {@link #importUpdates(ORCIDClient, List, ProgressHandler)} should be used
 	 * instead.
@@ -355,7 +388,7 @@ public final class PTCRISync {
 	 * ORCID works without minimal quality are ignored by this procedure.
 	 * Currently, the quality criteria forces the existence of external
 	 * identifiers, the title, publication year and publication type (see
-	 * {@link ORCIDHelper#hasMinimalQuality(Work)}). Works that do not match the
+	 * {@link ORCIDHelper#testMinimalQuality(Work)}). Works that do not match the
 	 * criteria can be imported with
 	 * {@link #importInvalid(ORCIDClient, List, ProgressHandler)}. Note that
 	 * currently group merging simply collects the meta-data (other than the
@@ -579,7 +612,7 @@ public final class PTCRISync {
 	 * Discovers updates to existing local CRIS productions in an ORCID profile.
 	 * For each work group at ORCID (merged into as a single work by the
 	 * {@link ORCIDHelper helper}), finds matching local productions (i.e.,
-	 * those with shared {@link ExternalIdentifier external identifiers}) and
+	 * those with shared {@link ExternalId external identifiers}) and
 	 * creates update notifications if not already up to date. To import works
 	 * without shared external identifiers,
 	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)} should be used

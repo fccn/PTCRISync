@@ -11,7 +11,7 @@ import org.um.dsi.gavea.orcid.model.common.RelationshipType;
 
 /**
  * Calculates and stores the symmetric difference between two sets of
- * {@link ExternalIdentifier external identifiers}. Useful to detect matching
+ * {@link ExternalId external identifiers}. Useful to detect matching
  * works and potential updates.
  */
 public final class ExternalIdsDiff {
@@ -35,9 +35,9 @@ public final class ExternalIdsDiff {
 	 * Calculates and stores the symmetric difference between two sets of
 	 * external identifiers.
 	 *
-	 * @param eids1
+	 * @param weids1
 	 *            the first set of external identifiers
-	 * @param eids2
+	 * @param weids2
 	 *            the second set of external identifiers
 	 */
 	public ExternalIdsDiff(ExternalIds weids1, ExternalIds weids2) {

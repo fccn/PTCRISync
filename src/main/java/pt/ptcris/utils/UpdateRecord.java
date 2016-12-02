@@ -1,12 +1,13 @@
 package pt.ptcris.utils;
 
+import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 /**
  * An helper class that stores to versions of the same {@link Work work}, as
  * well as the {@link ExternalIdsDiff difference} between their
- * {@link org.um.dsi.gavea.orcid.model.work.ExternalIdentifier external
+ * {@link ExternalId external
  * identifiers}.
  */
 public final class UpdateRecord {
@@ -18,7 +19,7 @@ public final class UpdateRecord {
 	/**
 	 * Constructs an object containing two versions of a work and the difference
 	 * between their
-	 * {@link org.um.dsi.gavea.orcid.model.work.ExternalIdentifier external
+	 * {@link ExternalId external
 	 * identifiers}. The updated version is assumed to be only a summary, since
 	 * the contained information is sufficient for the synchronization procedures.
 	 * 

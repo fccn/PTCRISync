@@ -77,8 +77,6 @@ public class ORCIDHelper {
 	 *
 	 * @param orcidClient
 	 *            the ORCID client
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 */
 	public ORCIDHelper(ORCIDClient orcidClient) {
 		this.client = orcidClient;
@@ -156,7 +154,7 @@ public class ORCIDHelper {
 	 * work is a single work. It also clears the put-code, since at this level
 	 * they represent the local identifier.
 	 *
-	 * @see {@link ORCIDClient#getWork(BigInteger)}
+	 * @see ORCIDClient#getWork(BigInteger)
 	 * 
 	 * @param mergedWork
 	 *            the work summary representing a merged group
@@ -193,7 +191,7 @@ public class ORCIDHelper {
 	 * work is a single work. It also clears the put-code, since at this level
 	 * they represent the local identifier.
 	 *
-	 * @see {@link ORCIDClient#getWork(BigInteger)}
+	 * @see ORCIDClient#getWork(BigInteger)
 	 * 
 	 * @param mergedWork
 	 *            the work summary representing a merged group
@@ -201,6 +199,7 @@ public class ORCIDHelper {
 	 *             if communication with the ORCID API fails
 	 * @throws NullPointerException
 	 *             if the merged work is null
+	 * @return the full work retrieved from ORCID
 	 */
 	public Work getFullWork(WorkSummary mergedWork) 
 			throws OrcidClientException, NullPointerException {
@@ -216,7 +215,8 @@ public class ORCIDHelper {
 	/**
 	 * Finalizes a get by updating the meta-data.
 	 * 
-	 * @see {@link #getFullWork(WorkSummary)}
+	 * @see #getFullWork(WorkSummary)
+	 * 
 	 * @param fullWork
 	 *            the newly retrieved work
 	 * @param sumWork
@@ -230,7 +230,7 @@ public class ORCIDHelper {
 	/**
 	 * Synchronously adds a work to an ORCID profile.
 	 *
-	 * @see {@link ORCIDClient#addWork(Work)}
+	 * @see ORCIDClient#addWork(Work)
 	 * 
 	 * @param work
 	 *            the new work to be added
@@ -257,7 +257,7 @@ public class ORCIDHelper {
 	/**
 	 * Synchronously updates a work in an ORCID profile.
 	 * 
-	 * @see {@link ORCIDClient#updateWork(BigInteger, Work)}
+	 * @see ORCIDClient#updateWork(BigInteger, Work)
 	 * 
 	 * @param remotePutcode
 	 *            the put-code of the remote ORCID work that will be updated
@@ -302,7 +302,7 @@ public class ORCIDHelper {
 	/**
 	 * Synchronously deletes a work in an ORCID profile.
 	 * 
-	 * @see {@link ORCIDClient#deleteWork(BigInteger)}
+	 * @see ORCIDClient#deleteWork(BigInteger)
 	 * 
 	 * @param putcode the remote put-code of the work to be deleted
 	 * @throws OrcidClientException
@@ -361,6 +361,8 @@ public class ORCIDHelper {
 	 *
 	 * @param act
 	 *            the activity to which to set the local key
+	 * @param key
+	 *            the local key
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
@@ -388,7 +390,7 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Calculates the symmetric difference of {@link ExternalIdentifier external
+	 * Calculates the symmetric difference of {@link ExternalId external
 	 * identifiers} between a work and a set of works. Works that do not match
 	 * (i.e., no identifier is common) are ignored.
 	 *
@@ -417,7 +419,7 @@ public class ORCIDHelper {
 
 	/**
 	 * Checks whether a work is already up to date regarding another one, i.e.,
-	 * whether a work has the same {@link ExternalIdentifier external
+	 * whether a work has the same {@link ExternalId external
 	 * identifiers} as another one.
 	 *
 	 * This test is expected to be used by the import algorithms, where only new
@@ -440,7 +442,7 @@ public class ORCIDHelper {
 
 	/**
 	 * Checks whether a work is already up to date regarding another one,
-	 * considering the {@link ExternalIdentifier external identifiers} and
+	 * considering the {@link ExternalId external identifiers} and
 	 * additional meta-data.
 	 *
 	 * This test is expected to be used by the export algorithms, where the
@@ -459,7 +461,7 @@ public class ORCIDHelper {
 
 	/**
 	 * Checks whether a work is already up to date regarding another one,
-	 * considering the {@link ExternalIdentifier external identifiers} and
+	 * considering the {@link ExternalId external identifiers} and
 	 * additional meta-data.
 	 *
 	 * @param preWork

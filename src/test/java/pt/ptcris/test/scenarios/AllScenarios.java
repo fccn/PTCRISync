@@ -7,7 +7,7 @@ import org.junit.runners.Suite;
  * Run every scenarios defined in version 0.5 of the PTCRISync specification,
  * as well as additional ones dealing with technical issues.
  * 
- * @see {@link Scenario}
+ * @see Scenario
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

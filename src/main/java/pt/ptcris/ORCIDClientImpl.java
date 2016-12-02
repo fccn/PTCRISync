@@ -15,7 +15,7 @@ import org.um.dsi.gavea.orcid.model.work.Work;
  * Besides the tokens to use the ORCID Member API, it also store the tokens
  * to access a particular ORCID user profile.
  * 
- * @see {@link ORCIDClient}
+ * @see ORCIDClient
  */
 public class ORCIDClientImpl implements ORCIDClient {
 

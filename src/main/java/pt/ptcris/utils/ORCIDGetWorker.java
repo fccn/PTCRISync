@@ -25,7 +25,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * ORCID API. The provided {@link ORCIDClient client} defines the
 	 * communication channel.
 	 * 
-	 * @see {@link ORCIDHelper#getFullWork(WorkSummary)}
+	 * @see ORCIDHelper#getFullWork(WorkSummary)
 	 *
 	 * @param work
 	 *            the summary specifying the full work to be retrieved
