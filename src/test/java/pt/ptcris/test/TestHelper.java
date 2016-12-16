@@ -165,7 +165,13 @@ public class TestHelper {
 		e2.setExternalIdValue(handle);
 		e2.setExternalIdType("handle");
 
+		ExternalId e3 = new ExternalId();
+		e3.setExternalIdRelationship(RelationshipType.PART_OF);
+		e3.setExternalIdValue("11111");
+		e3.setExternalIdType("isbn");
+		
 		work.getExternalIds().getExternalId().add(e2);
+		work.getExternalIds().getExternalId().add(e3);
 
 		return work;
 	}

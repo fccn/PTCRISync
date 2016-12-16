@@ -271,17 +271,17 @@ public abstract class Scenario {
 	/**
 	 * Tests whether the effectively imported works are the ones expected.
 	 * 
-	 * @param imported
-	 *            the effectively imported works
 	 * @param expected
+	 *            the effectively imported works
+	 * @param imported
 	 *            the expected works
 	 * @return whether the imported works were the expected
 	 */
-	private static boolean correctImports(Collection<Work> imported, Collection<Work> expected) {
-		Set<Work> ws1 = new HashSet<Work>(imported);
-		Set<Work> ws2 = new HashSet<Work>(expected);
+	private static boolean correctImports(Collection<Work> expected, Collection<Work> imported) {
+		Set<Work> ws1 = new HashSet<Work>(expected);
+		Set<Work> ws2 = new HashSet<Work>(imported);
 
-		for (Work work1 : imported) {
+		for (Work work1 : expected) {
 			BigInteger localKey1 = ORCIDHelper.getActivityLocalKey(work1);
 			Iterator<Work> it = ws2.iterator();
 			boolean found = false;
