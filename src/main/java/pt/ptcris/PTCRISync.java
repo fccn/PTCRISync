@@ -112,7 +112,7 @@ public final class PTCRISync {
 	 * </p>
 	 *
 	 * <p>
-	 * The caller of this method should guarantee that the input local works
+	 * The caller of this method should guarantee that the input local productions
 	 * have been effectively updated, otherwise there will be unnecessary calls
 	 * to the ORCID API.
 	 * </p>
@@ -150,10 +150,10 @@ public final class PTCRISync {
 	 *
 	 * <p>
 	 * The procedure detects every CRIS sourced work in the ORCID profile that
-	 * matches any local work that is being exported; if there is no matching
-	 * local work, the ORCID work is deleted from the profile. Otherwise it will
-	 * be updated with the meta-data of one of the matching local works.
-	 * Finally, for local works without any matching ORCID work new ORCID works
+	 * matches any local production that is being exported; if there is no matching
+	 * local production, the ORCID work is deleted from the profile. Otherwise it will
+	 * be updated with the meta-data of one of the matching local productions.
+	 * Finally, for local productions without any matching ORCID work new ORCID works
 	 * are created. The matching is performed by detecting shared
 	 * {@link ExternalIdentifier external identifiers} (see
 	 * {@link ORCIDHelper#getExternalIdsDiff(WorkSummary, Collection)}).
@@ -173,7 +173,7 @@ public final class PTCRISync {
 	 * </p>
 	 *
 	 * <p>
-	 * The procedure expects the CRIS service to provide the local works in the
+	 * The procedure expects the CRIS service to provide the local production in the
 	 * ORCID schema, in particular encoding productions as {@link Work works}.
 	 * Thus, the meta-data of the CRIS sourced works in the ORCID profile is
 	 * exactly that of the provided local productions that are to be exported.
@@ -184,14 +184,14 @@ public final class PTCRISync {
 	 * </p>
 	 *
 	 * <p>
-	 * The provided local works must pass a quality criteria to be kept
+	 * The provided local productions must pass a quality criteria to be kept
 	 * synchronized in ORCID. Currently, this forces the existence of external
 	 * identifiers, the title, publication year and publication type (see
 	 * {@link ORCIDHelper#hasMinimalQuality(Work)}).
 	 * </p>
 	 *
 	 * <p>
-	 * The procedure reports the status for each of the input local works,
+	 * The procedure reports the status for each of the input local productions,
 	 * identifying them by the provided local put-code, including the ORCID
 	 * error if the process failed. See {@link PTCRISyncResult} for the codes.
 	 * </p>
@@ -381,7 +381,7 @@ public final class PTCRISync {
 	 * null for these creation notifications (and not the put-code of the remote
 	 * ORCID works that gave origin to it). Since only the external identifiers
 	 * of the local productions are used to search for matches, the remainder
-	 * meta-data of the input local works could be left null.
+	 * meta-data of the input local productions could be left null.
 	 * </p>
 	 *
 	 * <p>
@@ -537,7 +537,7 @@ public final class PTCRISync {
 	 *
 	 * <p>
 	 * This procedure performs a GET call to the API to obtain the summaries and
-	 * an additional GET call for each work identified as valid. The procedure
+	 * an additional GET call for each work identified as invalid. The procedure
 	 * only fails if the initial GET fails. Asynchronous workers are used for
 	 * getting the full works.
 	 * </p>
@@ -626,7 +626,8 @@ public final class PTCRISync {
 	 * only the introduction of newly found external identifiers is considered
 	 * (i.e., those that were already present in the local productions that is
 	 * being updated are removed from the returned updates). Thus, the remainder
-	 * fields are returned null.
+	 * fields are returned null. Since only external identifiers are considered
+	 * the quality criteria is not enforced on the remote ORCID works.
 	 * </p>
 	 *
 	 * <p>
@@ -639,7 +640,7 @@ public final class PTCRISync {
 	 * <p>
 	 * The put-code attribute is used as a local key of each CRIS productions.
 	 * This means that the returned works representing the updates have the
-	 * put-code of the local work that is to be updated (and not the put-code of
+	 * put-code of the local production that is to be updated (and not the put-code of
 	 * the ORCID works that gave origin to it).
 	 * </p>
 	 *
@@ -658,7 +659,7 @@ public final class PTCRISync {
 	 *            the progress handler responsible for receiving progress
 	 *            updates
 	 * @return the list of updates found in the ORCID profile, pointing to the
-	 *         respective local work
+	 *         respective local production
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
