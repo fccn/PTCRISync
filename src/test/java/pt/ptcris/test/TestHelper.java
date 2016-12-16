@@ -169,9 +169,9 @@ public class TestHelper {
 		e3.setExternalIdRelationship(RelationshipType.PART_OF);
 		e3.setExternalIdValue("11111");
 		e3.setExternalIdType("isbn");
-		
-		work.getExternalIds().getExternalId().add(e2);
 		work.getExternalIds().getExternalId().add(e3);
+
+		work.getExternalIds().getExternalId().add(e2);
 
 		return work;
 	}
