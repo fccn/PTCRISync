@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
@@ -69,6 +70,13 @@ public class Scenario14 extends Scenario {
 		return res;
 	}
 
+	/** {@inheritDoc} */
+	int expectedExportCodes(BigInteger putcode) {
+		if (putcode == BigInteger.valueOf(2))
+			return PTCRISyncResult.UPDATEOK;
+		else return PTCRISyncResult.ADDOK;
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {

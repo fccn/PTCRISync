@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
@@ -66,6 +67,11 @@ public class Scenario11 extends Scenario {
 		return works;
 	}
 
+	/** {@inheritDoc} */
+	int expectedExportCodes(BigInteger putcode) {
+		return PTCRISyncResult.UPDATEOK;
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {

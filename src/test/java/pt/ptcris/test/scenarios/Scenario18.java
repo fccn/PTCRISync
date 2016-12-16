@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
@@ -67,6 +68,11 @@ public class Scenario18 extends Scenario {
 		Set<String> res = new HashSet<String>();
 		res.add(ORCIDHelper.INVALID_PUBLICATIONDATE);
 		return res;
+	}
+	
+	/** {@inheritDoc} */
+	int expectedExportCodes(BigInteger putcode) {
+		return PTCRISyncResult.UPDATEOK;
 	}
 
 	/** {@inheritDoc} */
