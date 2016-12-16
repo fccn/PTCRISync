@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -577,6 +578,7 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
+		res &= testPartOfIDs(preWork.getExternalIds().getExternalId(),posWork.getExternalIds().getExternalId());
 		res &= getWorkTitle(preWork).equals(getWorkTitle(posWork));
 		res &= (getPubYear(preWork) == null && getPubYear(posWork) == null)
 				|| (getPubYear(preWork) != null && getPubYear(posWork) != null 
@@ -585,6 +587,25 @@ public class ORCIDHelper {
 				|| (preWork.getType() != null && posWork.getType() != null && preWork
 						.getType().equals(posWork.getType()));
 		return res;
+	}
+	
+	private static boolean testPartOfIDs(List<ExternalId> eids1, List<ExternalId> eids2) {
+		for (final ExternalId eid2 : eids2) {
+			if (eid2.getExternalIdRelationship() == RelationshipType.SELF) {}
+			else {
+				boolean found = false;
+				Iterator<ExternalId> it = eids1.iterator();
+				while (!found && it.hasNext()) {
+					ExternalId eid1 = it.next();
+					if (eid2.getExternalIdRelationship() == eid1.getExternalIdRelationship()
+						&& eid1.getExternalIdValue().equals(eid2.getExternalIdValue())
+						&& eid1.getExternalIdType().equals(eid2.getExternalIdType())) 
+					found = true;
+				}
+				if (!found) return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -770,7 +791,7 @@ public class ORCIDHelper {
 		final WorkSummary preferred = group.getWorkSummary().get(0);
 		final WorkSummary dummy = clone(preferred);
 
-		final List<ExternalId> eids = new ArrayList<ExternalId>();
+		final List<ExternalId> eids = dummy.getExternalIds().getExternalId();
 		for (ExternalId id : group.getExternalIds().getExternalId()) {
 			final ExternalId eid = new ExternalId();
 			eid.setExternalIdRelationship(RelationshipType.SELF);
