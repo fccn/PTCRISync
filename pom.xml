@@ -10,6 +10,7 @@
 		<orcid-api-client.version>2.0-rc2</orcid-api-client.version>
         <log4j.version>2.4</log4j.version>
 		<junit.version>4.12</junit.version>
+		<java.version>1.7</java.version>
 	</properties>
 
 	<dependencies>
@@ -40,18 +41,18 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.3</version>
+				<version>3.0.0</version>
         		<configuration>
-          			<source>1.7</source>
-          			<target>1.7</target>
+          			<source>${java.version}</source>
+          			<target>${java.version}</target>
         		</configuration>
         	</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.3</version>
 				<configuration>
-					<source />
-					<target />
+					<source>${java.version}</source>
+          			<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -64,22 +65,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<!-- distributionManagement>
-		<repository>
-			<id>internal.repo</id>
-			<name>Temporary Staging Repository</name>
-			<url>file:///tmp/mvn-repo</url>
-		</repository>
-	</distributionManagement-->
-
-	<!-- Environment Settings -->
-	<repositories>
-		<!--repository>
-			<id>internal.staging.repo</id>
-			<url>file:///tmp/mvn-repo</url>
-		</repository-->
-	</repositories>
 
 	<!-- More Project Information -->
 	<name>PTCRISync</name>
