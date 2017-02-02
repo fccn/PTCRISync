@@ -73,15 +73,6 @@
 		</plugins>
 	</build>
 
-	<!-- distributionManagement> <repository> <id>internal.repo</id> <name>Temporary 
-		Staging Repository</name> <url>file:///tmp/mvn-repo</url> </repository> </distributionManagement -->
-
-	<!-- Environment Settings -->
-	<repositories>
-		<!--repository> <id>internal.staging.repo</id> <url>file:///tmp/mvn-repo</url> 
-			</repository -->
-	</repositories>
-
 	<!-- More Project Information -->
 	<name>PTCRISync</name>
 	<description>This project aims to help the synchronization between ORCID and local systems.</description>
