@@ -54,7 +54,8 @@ public class ORCIDHelper {
 				ISSN("issn"), JFM("jfm"), JSTOR("jstor"), LCCN("lccn"), MR("mr"), 
 				OCLC("oclc"), OL("ol"), OSTI("osti"), PAT("pat"), PMC("pmc"), 
 				PMID("pmid"), RFC("rfc"), SOURCE_WORK_ID("source-work-id"), 
-				SSRN("ssrn"), URI("uri"), URN("urn"), WOSUID("wosuid"), ZBL("zbl");
+				SSRN("ssrn"), URI("uri"), URN("urn"), WOSUID("wosuid"), ZBL("zbl"),
+				CIENCIAIUL("cienciaiul");
 
 		public final String value;
 
