@@ -354,6 +354,26 @@ public class ORCIDHelper {
 
 		return act.getPutCode();
 	}
+	
+	/**
+	 * Retrieves the local key of an activity, currently assumed to be stored in
+	 * the put-code field.
+	 *
+	 * @param act
+	 *            the activity from which to get the local key
+	 * @param defaultValue
+	 *            for local activity when there isn't any putCode
+	 * @return the local key
+	 * @throws NullPointerException
+	 *             if the activity is null
+	 */
+	public static BigInteger getActivityLocalKey(ElementSummary act, BigInteger defaultValue) {		
+		BigInteger putCode = getActivityLocalKey(act);
+		if (putCode == null) {
+			putCode = defaultValue;
+		}		
+		return putCode;
+	}	
 
 	/**
 	 * Retrieves the local key of an activity, currently assumed to be stored in
