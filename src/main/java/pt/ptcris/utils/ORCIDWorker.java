@@ -5,6 +5,7 @@ import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import pt.ptcris.ORCIDClient;
 
@@ -19,6 +20,7 @@ public abstract class ORCIDWorker extends Thread {
 	protected final Logger _log;
 	protected final Map<BigInteger, Object> cb;
 	protected final ORCIDClient client;
+	protected final Map<String, String> mdcCtxMap;
 
 	/**
 	 * A threaded worker that can be launched in parallel to communicate with
@@ -41,6 +43,7 @@ public abstract class ORCIDWorker extends Thread {
 		this.client = client;
 		this.cb = cb;
 		this._log = log;
+		this.mdcCtxMap = MDC.getCopyOfContextMap();
 	}
 
 	/**

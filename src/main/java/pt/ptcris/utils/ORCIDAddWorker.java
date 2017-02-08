@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
@@ -48,6 +49,7 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	public void run() {
 		try {
 			_log.debug("[addWork] " + ORCIDHelper.getWorkTitle(work));
+			MDC.setContextMap(mdcCtxMap);
 
 			final BigInteger putcode = client.addWork(work);
 	

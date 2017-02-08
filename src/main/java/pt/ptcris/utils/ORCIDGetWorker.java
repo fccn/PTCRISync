@@ -5,6 +5,7 @@ import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
@@ -57,6 +58,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	public void run() {
 		try {
 			_log.debug("[getFullWork] " + work.getPutCode());
+			MDC.setContextMap(mdcCtxMap);
 
 			final Work fullWork = client.getWork(work.getPutCode());
 			ORCIDHelper.finalizeGet(fullWork, work);

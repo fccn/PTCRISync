@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
 import pt.ptcris.ORCIDClient;
@@ -48,6 +49,7 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	public void run() {
 		try {
 			_log.debug("[deleteWork] " + putcode);
+			MDC.setContextMap(mdcCtxMap);
 
 			client.deleteWork(putcode);
 
