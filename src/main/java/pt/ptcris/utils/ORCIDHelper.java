@@ -1,7 +1,6 @@
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -359,12 +358,12 @@ public class ORCIDHelper {
 	
 	/**
 	 * Retrieves the local key of an activity, currently assumed to be stored in
-	 * the put-code field.
+	 * the put-code field. If empty, returns the default value.
 	 *
 	 * @param act
 	 *            the activity from which to get the local key
 	 * @param defaultValue
-	 *            for local activity when there isn't any putCode
+	 *            a default value in case the put-code is empty
 	 * @return the local key
 	 * @throws NullPointerException
 	 *             if the activity is null

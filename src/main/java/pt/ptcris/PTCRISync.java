@@ -194,6 +194,8 @@ public final class PTCRISync {
 	 * The procedure reports the status for each of the input local productions,
 	 * identifying them by the provided local put-code, including the ORCID
 	 * error if the process failed. See {@link PTCRISyncResult} for the codes.
+	 * If the local put-code is empty, returns a default value, which currently
+	 * is the put-code remotely assigned by ORCID.
 	 * </p>
 	 *
 	 * <p>
