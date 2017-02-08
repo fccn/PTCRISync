@@ -95,6 +95,7 @@ public class ORCIDHelper {
 	 */
 	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException {
 		_log.debug("[getSummaries]");
+		
 		final ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
 		final List<WorkGroup> workGroupList = getWorkGroups(activitiesSummary);
@@ -113,9 +114,11 @@ public class ORCIDHelper {
 	 *             if the communication with ORCID fails
 	 */
 	public List<WorkSummary> getSourcedWorkSummaries() throws OrcidClientException {
-		_log.debug("[getSourcedSummaries]");
-		final ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		final String sourceClientID = client.getClientId();
+		
+		_log.debug("[getSourcedSummaries] " + sourceClientID);
+		
+		final ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
 		final List<WorkGroup> workGroupList = getWorkGroups(activitiesSummary);
 		
@@ -169,6 +172,7 @@ public class ORCIDHelper {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 		
 		_log.debug("[getFullWork] " + mergedWork.getPutCode());
+		
 		if (client.threads() > 1) {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
@@ -207,6 +211,7 @@ public class ORCIDHelper {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 		
 		_log.debug("[getFullWork] " + mergedWork.getPutCode());
+		
 		final Work fullWork = client.getWork(mergedWork.getPutCode());
 		finalizeGet(fullWork, mergedWork);
 
@@ -244,7 +249,7 @@ public class ORCIDHelper {
 	public BigInteger addWork(Work work) throws OrcidClientException, NullPointerException {
 		if (work == null) throw new NullPointerException("Can't add null work.");
 		
-		_log.debug("[addWork]" + getWorkTitle(work));
+		_log.debug("[addWork] " + getWorkTitle(work));
 	
 		// remove any put-code otherwise ORCID will throw an error
 		final Work clone = ORCIDHelper.clone(work);
@@ -291,7 +296,7 @@ public class ORCIDHelper {
 	 *             if the communication with ORCID fails
 	 */
 	public void deleteAllSourcedWorks() throws OrcidClientException {
-		_log.debug("[deleteSourced]");
+		_log.debug("[deleteSourced] " + client.getClientId());
 
 		final List<WorkSummary> workSummaryList = getSourcedWorkSummaries();
 	
@@ -831,7 +836,7 @@ public class ORCIDHelper {
 	 *            the work
 	 * @return the work's title if defined, empty string otherwise
 	 */
-	private static String getWorkTitle(Work work) {
+	protected static String getWorkTitle(Work work) {
 		if (work == null || work.getTitle() == null)
 			return "";
 		return work.getTitle().getTitle();
