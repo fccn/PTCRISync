@@ -71,10 +71,11 @@ public class Scenario14 extends Scenario {
 	}
 
 	/** {@inheritDoc} */
-	int expectedExportCodes(BigInteger putcode) {
-		if (putcode == BigInteger.valueOf(2))
-			return PTCRISyncResult.ADDOK;
-		else return PTCRISyncResult.UPDATEOK;
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		res.add(PTCRISyncResult.ADDOK);
+		res.add(PTCRISyncResult.UPDATEOK);
+		return res;
 	}
 	
 	/** {@inheritDoc} */

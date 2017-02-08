@@ -35,13 +35,14 @@ public class ScenarioInvalidLocal2 extends Scenario {
 	}
 
 	/** {@inheritDoc} */
-	@Override
-	int expectedExportCodes(BigInteger code) {
-		if (code.equals(BigInteger.valueOf(2))
-				|| code.equals(BigInteger.valueOf(3)))
-			return PTCRISyncResult.INVALID;
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		if (putcode.equals(BigInteger.valueOf(2))
+				|| putcode.equals(BigInteger.valueOf(3)))
+			res.add(PTCRISyncResult.INVALID);
 		else
-			return PTCRISyncResult.ADDOK;
+			res.add(PTCRISyncResult.ADDOK);
+		return res;
 	}
 
 	/** {@inheritDoc} */

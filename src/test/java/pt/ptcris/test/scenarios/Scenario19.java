@@ -50,12 +50,13 @@ public class Scenario19 extends Scenario {
 	}
 
 	/** {@inheritDoc} */
-	@Override
-	int expectedExportCodes(BigInteger code) {
-		if (code.equals(BigInteger.valueOf(0)))
-			return PTCRISyncResult.UPTODATE;
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		if (putcode.equals(BigInteger.valueOf(0)))
+			res.add(PTCRISyncResult.UPDATEOK);
 		else
-			return PTCRISyncResult.ADDOK;
+			res.add(PTCRISyncResult.ADDOK);
+		return res;
 	}
 
 	/** {@inheritDoc} */

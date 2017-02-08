@@ -26,9 +26,10 @@ public class ScenarioInvalidLocal1 extends Scenario {
 	}
 
 	/** {@inheritDoc} */
-	@Override
-	int expectedExportCodes(BigInteger code) {
-		return PTCRISyncResult.INVALID;
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		res.add(PTCRISyncResult.INVALID);
+		return res;
 	}
 
 	/** {@inheritDoc} */

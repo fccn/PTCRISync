@@ -87,8 +87,10 @@ public class Scenario13 extends Scenario {
 	}
 
 	/** {@inheritDoc} */
-	int expectedExportCodes(BigInteger putcode) {
-		return PTCRISyncResult.UPDATEOK;
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		res.add(PTCRISyncResult.UPDATEOK);
+		return res;
 	}
 	
 	/** {@inheritDoc} */

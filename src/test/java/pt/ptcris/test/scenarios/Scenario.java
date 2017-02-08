@@ -170,8 +170,10 @@ public abstract class Scenario {
 	 *            {@link #exportLocalWorks()}
 	 * @return the expected CRIS-source works
 	 */
-	int expectedExportCodes(BigInteger putcode) {
-		return PTCRISyncResult.ADDOK;
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		res.add(PTCRISyncResult.ADDOK);
+		return res;
 	}
 
 	/**
@@ -263,7 +265,7 @@ public abstract class Scenario {
 	 */
 	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
 		for (BigInteger id : results.keySet())
-			if (!(results.get(id).code == expectedExportCodes(id)))
+			if (!expectedExportCodes(id).contains(results.get(id).code))
 				return false;
 		return true;
 	}

@@ -2,7 +2,9 @@ package pt.ptcris.test.scenarios;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
@@ -68,8 +70,10 @@ public class Scenario11 extends Scenario {
 	}
 
 	/** {@inheritDoc} */
-	int expectedExportCodes(BigInteger putcode) {
-		return PTCRISyncResult.UPDATEOK;
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		res.add(PTCRISyncResult.UPDATEOK);
+		return res;
 	}
 	
 	/** {@inheritDoc} */
