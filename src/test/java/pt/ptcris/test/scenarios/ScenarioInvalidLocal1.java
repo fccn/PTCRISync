@@ -27,27 +27,8 @@ public class ScenarioInvalidLocal1 extends Scenario {
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> expectedORCIDCRISWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIHANDLE(BigInteger.valueOf(2), "3", "0", "1"));
-		return works;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	List<Work> expectedImportedWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOI(BigInteger.valueOf(3), null, "0"));
-		return works;
-	}
-
-	/** {@inheritDoc} */
-	@Override
 	int expectedExportCodes(BigInteger code) {
-		if (code.equals(BigInteger.valueOf(3)))
-			return PTCRISyncResult.CLIENTERROR;
-		else
-			return PTCRISyncResult.ADDOK;
+		return PTCRISyncResult.INVALID;
 	}
 
 	/** {@inheritDoc} */
