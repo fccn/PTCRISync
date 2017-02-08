@@ -58,7 +58,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	public void run() {
 		try {
 			_log.debug("[getFullWork] " + work.getPutCode());
-			MDC.setContextMap(mdcCtxMap);
+//			MDC.setContextMap(mdcCtxMap);
 
 			final Work fullWork = client.getWork(work.getPutCode());
 			ORCIDHelper.finalizeGet(fullWork, work);

@@ -45,6 +45,7 @@ public class ORCIDHelper {
 	public static final String INVALID_PUBLICATIONDATE = "PublicationDate";
 	public static final String INVALID_YEAR = "Year";
 	public static final String INVALID_TYPE = "Type";
+	public static final String OVERLAPPING_EIDs = "OverlappingEIDs";
 	
 	public enum EIdType {
 		OTHER_ID("other-id"), AGR("agr"), ARXIV("arxiv"), ASIN("asin"), 
@@ -442,6 +443,21 @@ public class ORCIDHelper {
 		return matches;
 	}
 
+	public static Map<Work, ExternalIdsDiff> getExternalIdsDiff(Work work, Collection<Work> works) 
+			throws NullPointerException {
+		if (work == null || works == null)
+			throw new NullPointerException("Can't get external ids.");
+		
+		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
+		for (Work match : works) {
+			final ExternalIdsDiff diff = 
+					new ExternalIdsDiff(match.getExternalIds(), work.getExternalIds());
+			if (!diff.same.isEmpty())
+				matches.put(match, diff);
+		}
+		return matches;
+	}
+	
 	/**
 	 * Checks whether a work is already up to date regarding another one, i.e.,
 	 * whether a work has the same {@link ExternalId external
@@ -632,6 +648,10 @@ public class ORCIDHelper {
 		return true;
 	}
 
+	public static Set<String> testMinimalQuality(Work work) throws NullPointerException {
+		return testMinimalQuality(work,new HashSet<Work>());
+	}
+	
 	/**
 	 * Tests whether a work has minimal quality to be synchronized, by
 	 * inspecting its meta-data, returns the detected invalid fields.
@@ -646,11 +666,13 @@ public class ORCIDHelper {
 	 * 
 	 * @param work
 	 *            the work to test for quality
+	 * @param others 
+	 * 			  other coexisting works
 	 * @return the set of invalid fields
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public static Set<String> testMinimalQuality(Work work) throws NullPointerException {
+	public static Set<String> testMinimalQuality(Work work, Collection<Work> others) throws NullPointerException {
 		if (work == null)
 			throw new NullPointerException("Can't test null work.");
 		
@@ -676,7 +698,16 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
+		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(work, others);
+		for (Work match : worksDiffs.keySet())
+			if (match.getPutCode() != work.getPutCode() && !worksDiffs.get(match).same.isEmpty())
+				res.add(OVERLAPPING_EIDs);
+		
 		return res;
+	}
+
+	public static Set<String> testMinimalQuality(WorkSummary work) throws NullPointerException {
+		return testMinimalQuality(work,new HashSet<Work>());
 	}
 
 	/**
@@ -693,11 +724,13 @@ public class ORCIDHelper {
 	 * 
 	 * @param work
 	 *            the work to test for quality
+	 * @param others 
+	 * 			  other coexisting works
 	 * @return the set of invalid fields
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public static Set<String> testMinimalQuality(WorkSummary work) throws NullPointerException {
+	public static Set<String> testMinimalQuality(WorkSummary work, Collection<Work> others) throws NullPointerException {
 		if (work == null)
 			throw new NullPointerException("Can't test null work.");
 	
@@ -723,6 +756,11 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
+		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(work, others);
+		for (Work match : worksDiffs.keySet())
+			if (match.getPutCode() != work.getPutCode() && !worksDiffs.get(match).same.isEmpty())
+				res.add(OVERLAPPING_EIDs);
+
 		return res;
 	}
 
@@ -738,13 +776,15 @@ public class ORCIDHelper {
 	 * 
 	 * @param work
 	 *            the work to test for quality
+	 * @param others
+	 *            other coexisting works
 	 * @throws InvalidWorkException
 	 *             if the quality test fails, containing the reasons for failing
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public static void tryMinimalQuality(Work work) throws InvalidWorkException {
-		Set<String> invs = testMinimalQuality(work);
+	public static void tryMinimalQuality(Work work, Collection<Work> others) throws InvalidWorkException {
+		Set<String> invs = testMinimalQuality(work,others);
 		if (!invs.isEmpty()) {
 			throw new InvalidWorkException(invs);
 		}
@@ -762,13 +802,15 @@ public class ORCIDHelper {
 	 * 
 	 * @param work
 	 *            the work to test for quality
+	 * @param others
+	 *            other coexisting works
 	 * @throws InvalidWorkException
 	 *             if the quality test fails, containing the reasons for failing
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public static void tryMinimalQuality(WorkSummary work) throws InvalidWorkException {
-		Set<String> invs = testMinimalQuality(work);
+	public static void tryMinimalQuality(WorkSummary work, Collection<Work> others) throws InvalidWorkException {
+		Set<String> invs = testMinimalQuality(work, others);
 		if (!invs.isEmpty()) {
 			throw new InvalidWorkException(invs);
 		}

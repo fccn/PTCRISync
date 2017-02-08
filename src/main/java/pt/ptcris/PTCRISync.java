@@ -250,7 +250,7 @@ public final class PTCRISync {
 			Work localWork = localWorks.get(c);
 
 			try {
-				ORCIDHelper.tryMinimalQuality(localWork);
+				ORCIDHelper.tryMinimalQuality(localWork,localWorks);
 			} catch (InvalidWorkException invalid) {
 				invalidWorks.add(localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
