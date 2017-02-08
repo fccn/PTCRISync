@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;

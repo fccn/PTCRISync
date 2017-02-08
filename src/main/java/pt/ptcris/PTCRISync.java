@@ -251,7 +251,8 @@ public final class PTCRISync {
 				ORCIDHelper.tryMinimalQuality(localWork);
 			} catch (InvalidWorkException invalid) {
 				invalidWorks.add(localWork);
-				result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.invalid(invalid));
+				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+						PTCRISyncResult.invalid(invalid));
 			}
 		}
 		localWorks.removeAll(invalidWorks);
@@ -282,7 +283,8 @@ public final class PTCRISync {
 				if (forced || !ORCIDHelper.isUpToDate(localWork, orcidWork))
 					toUpdate.add(new UpdateRecord(localWork, orcidWork, worksDiffs.get(localWork)));
 				else
-					result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.UPTODATE_RESULT);
+					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+							PTCRISyncResult.UPTODATE_RESULT);
 				localWorks.remove(localWork);
 			}
 		}
@@ -303,9 +305,11 @@ public final class PTCRISync {
 				localWork.setExternalIds(weids);
 				try {
 					helper.updateWork(update.posWork.getPutCode(), localWork);
-					result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.OK_UPD_RESULT);
+					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+							PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.fail(e));
+					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+							PTCRISyncResult.fail(e));
 				}
 			}
 		}
@@ -327,9 +331,11 @@ public final class PTCRISync {
 				localWork.setExternalIds(weids);
 				try {
 					helper.updateWork(update.posWork.getPutCode(), localWork);
-					result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.OK_UPD_RESULT);
+					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+							PTCRISyncResult.OK_UPD_RESULT);
 				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.fail(e));
+					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+							PTCRISyncResult.fail(e));
 				}
 			}
 		}
@@ -345,9 +351,11 @@ public final class PTCRISync {
 			// local works that were not updated remaining
 			try {
 				BigInteger remotePutcode = helper.addWork(localWork);
-				result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.OK_ADD_RESULT);
+				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+						PTCRISyncResult.OK_ADD_RESULT);
 			} catch (OrcidClientException e) {
-				result.put(ORCIDHelper.getActivityLocalKey(localWork), PTCRISyncResult.fail(e));
+				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
+						PTCRISyncResult.fail(e));
 			}
 		}
 

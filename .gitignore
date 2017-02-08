@@ -1,10 +1,13 @@
-/target/
-/bin/
-/.settings/
+# ignore mvn 
+/target
+/bin
 
 .DS_STORE
-.classpath
-.project
 file.log
 
 *.class
+
+# ignore eclipse
+.classpath
+.settings
+.project

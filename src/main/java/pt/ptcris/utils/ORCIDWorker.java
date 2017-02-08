@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.security.InvalidParameterException;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import pt.ptcris.ORCIDClient;
 

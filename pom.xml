@@ -7,9 +7,10 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<orcid-api-client.version>2.0-rc2</orcid-api-client.version>
-        <log4j.version>2.4</log4j.version>
+		<orcid-api-client.version>2.0</orcid-api-client.version>
+		<logback-version>1.1.7</logback-version>
 		<junit.version>4.12</junit.version>
+		<java.version>1.7</java.version>
 	</properties>
 
 	<dependencies>
@@ -19,14 +20,21 @@
 			<artifactId>degois-orcid-client</artifactId>
 			<version>${orcid-api-client.version}</version>
 		</dependency>
-		<!-- Log4J -->
+		<!-- Logging -->
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback-version}</version>
+			<scope>compile</scope>
 		</dependency>
-        <!-- JUnit -->
-        <dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>${logback-version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- JUnit -->
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
@@ -40,18 +48,18 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.3</version>
-        		<configuration>
-          			<source>1.7</source>
-          			<target>1.7</target>
-        		</configuration>
-        	</plugin>
+				<version>3.0.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.3</version>
 				<configuration>
-					<source />
-					<target />
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -64,22 +72,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<!-- distributionManagement>
-		<repository>
-			<id>internal.repo</id>
-			<name>Temporary Staging Repository</name>
-			<url>file:///tmp/mvn-repo</url>
-		</repository>
-	</distributionManagement-->
-
-	<!-- Environment Settings -->
-	<repositories>
-		<!--repository>
-			<id>internal.staging.repo</id>
-			<url>file:///tmp/mvn-repo</url>
-		</repository-->
-	</repositories>
 
 	<!-- More Project Information -->
 	<name>PTCRISync</name>
