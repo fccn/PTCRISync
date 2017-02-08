@@ -339,7 +339,7 @@ public class ORCIDHelper {
 		
 		executor.shutdown();
 		final boolean timeout = executor.awaitTermination(100, TimeUnit.SECONDS);
-		executor = Executors.newFixedThreadPool(100);
+		executor = Executors.newFixedThreadPool(client.threads());
 		return timeout;
 	}
 	
