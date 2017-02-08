@@ -170,15 +170,14 @@ public class ORCIDHelper {
 	public void getFullWork(WorkSummary mergedWork, Map<BigInteger, Object> cb)
 			throws NullPointerException {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
-		
-		_log.debug("[getFullWork] " + mergedWork.getPutCode());
-		
+				
 		if (client.threads() > 1) {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
 		} else {
 			Work fullWork;
 			try {
+				_log.debug("[getFullWork] " + mergedWork.getPutCode());
 				fullWork = client.getWork(mergedWork.getPutCode());
 				finalizeGet(fullWork, mergedWork);
 				

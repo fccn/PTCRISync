@@ -53,6 +53,8 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	@Override
 	public void run() {
 		try {
+			_log.debug("[updateWork] " + work.getPutCode());
+
 			client.updateWork(work.getPutCode(), work);
 			
 			callback(work.getPutCode(), work);

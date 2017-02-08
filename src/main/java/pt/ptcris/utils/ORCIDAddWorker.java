@@ -47,6 +47,8 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	@Override
 	public void run() {
 		try {
+			_log.debug("[addWork] " + ORCIDHelper.getWorkTitle(work));
+
 			final BigInteger putcode = client.addWork(work);
 	
 			callback(putcode, work);

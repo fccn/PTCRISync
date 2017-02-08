@@ -47,6 +47,8 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	@Override
 	public void run() {
 		try {
+			_log.debug("[deleteWork] " + putcode);
+
 			client.deleteWork(putcode);
 
 			callback(putcode, null);

@@ -56,6 +56,8 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	@Override
 	public void run() {
 		try {
+			_log.debug("[getFullWork] " + work.getPutCode());
+
 			final Work fullWork = client.getWork(work.getPutCode());
 			ORCIDHelper.finalizeGet(fullWork, work);
 
