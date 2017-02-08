@@ -53,7 +53,7 @@ public class Scenario19 extends Scenario {
 	Set<Integer> expectedExportCodes(BigInteger putcode) {
 		Set<Integer> res = new HashSet<Integer>();
 		if (putcode.equals(BigInteger.valueOf(0)))
-			res.add(PTCRISyncResult.UPDATEOK);
+			res.add(PTCRISyncResult.UPTODATE);
 		else
 			res.add(PTCRISyncResult.ADDOK);
 		return res;
