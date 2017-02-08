@@ -417,8 +417,8 @@ public class ORCIDHelper {
 
 	/**
 	 * Calculates the symmetric difference of {@link ExternalId external
-	 * identifiers} between a work and a set of works. Works that do not match
-	 * (i.e., no identifier is common) are ignored.
+	 * identifiers} between a work summary and a set of works. Works that do not
+	 * match (i.e., no identifier is common) are ignored.
 	 *
 	 * @param work
 	 *            the work summary to be compared with other works
@@ -443,6 +443,19 @@ public class ORCIDHelper {
 		return matches;
 	}
 
+	/**
+	 * Calculates the symmetric difference of {@link ExternalId external
+	 * identifiers} between a work and a set of works. Works that do not match
+	 * (i.e., no identifier is common) are ignored.
+	 *
+	 * @param work
+	 *            the work summary to be compared with other works
+	 * @param works
+	 *            the set of works against which the work summary is compared
+	 * @return The symmetric difference of external identifiers between work and works
+	 * @throws NullPointerException
+	 *             if either of the parameters is null
+	 */
 	public static Map<Work, ExternalIdsDiff> getExternalIdsDiff(Work work, Collection<Work> works) 
 			throws NullPointerException {
 		if (work == null || works == null)
@@ -629,6 +642,15 @@ public class ORCIDHelper {
 		return res;
 	}
 	
+	/**
+	 * Checks whether the part-of identifiers of a work are up-to-date.
+	 * 
+	 * @param eids1
+	 *            the current external identifiers
+	 * @param eids2
+	 *            the external identifiers to be checked if up-to-date
+	 * @return true if up-to-date
+	 */
 	private static boolean testPartOfIDs(List<ExternalId> eids1, List<ExternalId> eids2) {
 		for (final ExternalId eid2 : eids2) {
 			if (eid2.getExternalIdRelationship() == RelationshipType.SELF) {}
@@ -648,26 +670,43 @@ public class ORCIDHelper {
 		return true;
 	}
 
+	/**
+	 * Tests whether a work has minimal quality to be synchronized, by
+	 * inspecting its meta-data, returns the detected invalid fields.
+	 * 
+ 	 * The considered fields are: external identifiers, title, publication date
+	 * (year), work type. All this meta-data is available in work summaries.
+	 * 
+	 * @see #testMinimalQuality(Work, Collection)
+	 * 
+	 * @param work
+	 *            the work to test for quality
+	 * @return the set of invalid fields
+	 * @throws NullPointerException
+	 *             if the work is null
+	 */
 	public static Set<String> testMinimalQuality(Work work) throws NullPointerException {
 		return testMinimalQuality(work,new HashSet<Work>());
 	}
 	
 	/**
 	 * Tests whether a work has minimal quality to be synchronized, by
-	 * inspecting its meta-data, returns the detected invalid fields.
+	 * inspecting its meta-data and that of coexisting works, and returns the
+	 * detected invalid fields.
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
-	 * (year), work type. All these meta-data is available in work summaries.
-	 * The publication date is not necessary for data sets and  research
-	 * techniques.
+	 * (year), work type. The test also checks whether the external identifiers
+	 * overlap with those of the coexisting works. All this meta-data is
+	 * available in work summaries. The publication date is not necessary for
+	 * data sets and research techniques.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
 	 * 
 	 * @param work
 	 *            the work to test for quality
-	 * @param others 
-	 * 			  other coexisting works
+	 * @param others
+	 *            other coexisting works
 	 * @return the set of invalid fields
 	 * @throws NullPointerException
 	 *             if the work is null
@@ -706,26 +745,43 @@ public class ORCIDHelper {
 		return res;
 	}
 
+	/**
+	 * Tests whether a work summary has minimal quality to be synchronized,
+	 * by inspecting its meta-data, returns the detected invalid fields.
+	 * 
+ 	 * The considered fields are: external identifiers, title, publication date
+	 * (year), work type. All this meta-data is available in work summaries.
+	 * 
+	 * @see #testMinimalQuality(WorkSummary, Collection)
+	 * 
+	 * @param work
+	 *            the work summary to test for quality
+	 * @return the set of invalid fields
+	 * @throws NullPointerException
+	 *             if the work is null
+	 */
 	public static Set<String> testMinimalQuality(WorkSummary work) throws NullPointerException {
 		return testMinimalQuality(work,new HashSet<Work>());
 	}
 
 	/**
-	 * Tests whether a work has minimal quality to be synchronized, by
-	 * inspecting its meta-data, returns the detected invalid fields.
+	 * Tests whether a work summary has minimal quality to be synchronized, by
+	 * inspecting its meta-data and that of coexisting works, and returns the
+	 * detected invalid fields.
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
-	 * (year), work type. All these meta-data is available in work summaries.
-	 * The publication date is not necessary for data sets and  research
-	 * techniques.
+	 * (year), work type. The test also checks whether the external identifiers
+	 * overlap with those of the coexisting works. All this meta-data is
+	 * available in work summaries. The publication date is not necessary for
+	 * data sets and research techniques.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
 	 * 
 	 * @param work
 	 *            the work to test for quality
-	 * @param others 
-	 * 			  other coexisting works
+	 * @param others
+	 *            other coexisting works
 	 * @return the set of invalid fields
 	 * @throws NullPointerException
 	 *             if the work is null
@@ -769,7 +825,8 @@ public class ORCIDHelper {
 	 * inspecting its meta-data. Throws an exception if the test fails.
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
-	 * (year), work type. All these meta-data is available in work summaries.
+	 * (year), work type. The overlapping of external identifiers with other
+	 * works is also tested. All this meta-data is available in work summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -791,17 +848,18 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Tests whether a work has minimal quality to be synchronized, by
+	 * Tests whether a work summary has minimal quality to be synchronized, by
 	 * inspecting its meta-data. Throws an exception if the test fails.
 	 * 
 	 * The considered fields are: external identifiers, title, publication date
-	 * (year), work type. All these meta-data is available in work summaries.
+	 * (year), work type. The overlapping of external identifiers with other
+	 * works is also tested. All this meta-data is available in work summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
 	 * 
 	 * @param work
-	 *            the work to test for quality
+	 *            the summary work to test for quality
 	 * @param others
 	 *            other coexisting works
 	 * @throws InvalidWorkException
