@@ -1,6 +1,7 @@
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -229,7 +230,7 @@ public class ORCIDHelper {
 	 *            the original summary
 	 */
 	static void finalizeGet(Work fullWork, WorkSummary sumWork) {
-		fullWork.setExternalIds(sumWork.getExternalIds());
+		fullWork.setExternalIds(getNonNullExternalIds(sumWork));
 		cleanWorkLocalKey(fullWork);
 	}
 
@@ -436,7 +437,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(match.getExternalIds(), work.getExternalIds());
+					new ExternalIdsDiff(getNonNullExternalIds(match), getNonNullExternalIds(work));
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -464,7 +465,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(match.getExternalIds(), work.getExternalIds());
+					new ExternalIdsDiff(getNonNullExternalIds(match), getNonNullExternalIds(work));
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -488,8 +489,8 @@ public class ORCIDHelper {
 	 */
 	public static boolean hasNewIDs(Work preWork, WorkSummary posWork) {
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIds(),
-				posWork.getExternalIds());
+				getNonNullExternalIds(preWork),
+				getNonNullExternalIds(posWork));
 
 		return diff.more.isEmpty();
 	}
@@ -546,8 +547,8 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 		
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIds(),
-				posWork.getExternalIds());
+				getNonNullExternalIds(preWork),
+				getNonNullExternalIds(posWork));
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
@@ -568,8 +569,8 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				preWork.getExternalIds(),
-				posWork.getExternalIds());
+				getNonNullExternalIds(preWork),
+				getNonNullExternalIds(posWork));
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
@@ -631,7 +632,9 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
-		res &= testPartOfIDs(preWork.getExternalIds().getExternalId(),posWork.getExternalIds().getExternalId());
+		res &= testPartOfIDs(
+				ORCIDHelper.getNonNullExternalIds(preWork).getExternalId(), 
+				ORCIDHelper.getNonNullExternalIds(posWork).getExternalId());
 		res &= getWorkTitle(preWork).equals(getWorkTitle(posWork));
 		res &= (getPubYear(preWork) == null && getPubYear(posWork) == null)
 				|| (getPubYear(preWork) != null && getPubYear(posWork) != null 
@@ -915,7 +918,7 @@ public class ORCIDHelper {
 		final WorkSummary preferred = group.getWorkSummary().get(0);
 		final WorkSummary dummy = clone(preferred);
 
-		final List<ExternalId> eids = dummy.getExternalIds().getExternalId();
+		final List<ExternalId> eids = getNonNullExternalIds(dummy).getExternalId();
 		for (ExternalId id : group.getExternalIds().getExternalId()) {
 			final ExternalId eid = new ExternalId();
 			eid.setExternalIdRelationship(RelationshipType.SELF);
@@ -984,6 +987,38 @@ public class ORCIDHelper {
 		return work.getPublicationDate().getYear().getValue();
 	}
 
+	/**
+	 * Returns the non-null external identifiers of a work (null becomes empty
+	 * list).
+	 * 
+	 * @param work
+	 *            the work from which to retrieve the external identifiers
+	 * @return the non-null external identifiers
+	 */
+	public static ExternalIds getNonNullExternalIds (Work work) {
+		if (work.getExternalIds() != null && work.getExternalIds().getExternalId() != null) {
+			return work.getExternalIds();
+		} else {
+			return new ExternalIds(new ArrayList<ExternalId>());
+		}
+	}
+	
+	/**
+	 * Returns the non-null external identifiers of a work summary (null becomes
+	 * empty list).
+	 * 
+	 * @param work
+	 *            the work summary from which to retrieve the external
+	 *            identifiers
+	 * @return the non-null external identifiers
+	 */
+	public static ExternalIds getNonNullExternalIds (WorkSummary work) {
+		if (work.getExternalIds() != null && work.getExternalIds().getExternalId() != null) {
+			return work.getExternalIds();
+		} else {
+			return new ExternalIds(new ArrayList<ExternalId>());
+		}
+	}
 
 	/**
 	 * Copies all meta-data from an activity summary into another.
@@ -1023,15 +1058,15 @@ public class ORCIDHelper {
 		dummy.setPublicationDate(work.getPublicationDate());
 		dummy.setTitle(work.getTitle());
 		dummy.setType(work.getType());
-		dummy.setExternalIds(work.getExternalIds());
+		dummy.setExternalIds(getNonNullExternalIds(work));
 		return dummy;
 	}
 
 	/**
-	 * Clones a work summary.
+	 * Clones a work.
 	 * 
 	 * @param work
-	 *            the summary to be cloned
+	 *            the work to be cloned
 	 * @return the clone
 	 */
 	public static Work clone(Work work) {
@@ -1042,7 +1077,7 @@ public class ORCIDHelper {
 		dummy.setPublicationDate(work.getPublicationDate());
 		dummy.setTitle(work.getTitle());
 		dummy.setType(work.getType());
-		dummy.setExternalIds(work.getExternalIds());
+		dummy.setExternalIds(getNonNullExternalIds(work));
 		dummy.setContributors(work.getContributors());
 
 		dummy.setCitation(work.getCitation());

@@ -44,15 +44,13 @@ public final class ExternalIdsDiff {
 		List<ExternalId> eids1 = new LinkedList<ExternalId>();
 		List<ExternalId> eids2 = new LinkedList<ExternalId>();
 
-		if (weids1 != null && weids1.getExternalId() != null)
-			for (ExternalId eid : weids1.getExternalId())
-				if (eid.getExternalIdRelationship() == RelationshipType.SELF)
-					eids1.add(eid);
+		for (ExternalId eid : weids1.getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
+				eids1.add(eid);
 
-		if (weids2 != null && weids2.getExternalId() != null)
-			for (ExternalId eid : weids2.getExternalId())
-				if (eid.getExternalIdRelationship() == RelationshipType.SELF)
-					eids2.add(eid);		
+		for (ExternalId eid : weids2.getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
+				eids2.add(eid);	
 		
 		calculateDifference(eids1, eids2);
 	}
