@@ -14,7 +14,8 @@ import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 public abstract class ActivityComparator<A extends ElementSummary> {
 
 	/**
-	 * A threshold on the similarity metric that defines matching activities.
+	 * A (non-inclusive) threshold on the similarity metric that defines
+	 * matching activities.
 	 * 
 	 * @return the threshold value
 	 */
