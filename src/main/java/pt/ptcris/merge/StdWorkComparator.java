@@ -1,12 +1,10 @@
 package pt.ptcris.merge;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.um.dsi.gavea.orcid.model.work.Work;
 
-import org.um.dsi.gavea.orcid.model.common.ExternalId;
-import org.um.dsi.gavea.orcid.model.work.WorkSummary;
+import pt.ptcris.utils.ExternalIdsDiff;
 
-public class StdWorkComparator extends ActivityComparator<WorkSummary> {
+public class StdWorkComparator extends ActivityComparator<Work> {
 
 	@Override
 	int threshold() {
@@ -14,12 +12,10 @@ public class StdWorkComparator extends ActivityComparator<WorkSummary> {
 	}
 
 	@Override
-	float compare(WorkSummary w1, WorkSummary w2) {
-		Set<ExternalId> eids1 = new HashSet<ExternalId>();
-		for (ExternalId i : w1.getExternalIds().getExternalId())
-			eids1.add(i);
-		// TODO Auto-generated method stub
-		return 0;
+	float compare(Work w1, Work w2) {
+		ExternalIdsDiff diff = new ExternalIdsDiff(w1.getExternalIds(),
+				w2.getExternalIds());
+		return diff.same.size();
 	}
 
 }
