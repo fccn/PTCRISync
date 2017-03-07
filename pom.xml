@@ -40,6 +40,12 @@
 			<version>${junit.version}</version>
 			<!--scope>test</scope -->
 		</dependency>
+        <!--  Simmetrics-core (for Levenshtein ratio functions) -->
+        <dependency>
+	    	<groupId>com.github.mpkorstanje</groupId>
+	    	<artifactId>simmetrics-core</artifactId>
+	    	<version>4.1.1</version>
+		</dependency>
 	</dependencies>
 
 	<!-- Build Settings -->
