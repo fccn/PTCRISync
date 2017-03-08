@@ -6,15 +6,23 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 /**
  * A work comparator that uses weighted string similarity (using Levenshtein ratio) to compare two works. If the similarity is above the provided
  * threshold, the works are considered similar.
+ * 
+ * The weights have default values but can be provided upon creation of the comparator instance.
  *
  */
 public class WeightedWorkComparator extends ActivityComparator<Work> {
 
-	private int threshold = 75; // Default threshold is 75%;
-	private int weight_title = 50; // Default title weight is 50%;
-	private int weight_source = 20; // Default source weight is 20%;
-	private int weight_year = 20; // Default year weight is 20%;
-	private int weight_type = 10; // Default type weight is 10%;
+	private static final int DEFAULT_THRESHOLD = 75; // Default threshold is 75%;
+	private static final int DEFAULT_WEIGHT_TITLE = 50; // Default title weight is 50%;
+	private static final int DEFAULT_WEIGHT_SOURCE = 20; // Default source weight is 20%;
+	private static final int DEFAULT_WEIGHT_YEAR = 20; // Default year weight is 20%;
+	private static final int DEFAULT_WEIGHT_TYPE = 10; // Default type weight is 10%;
+
+	private int threshold;
+	private int weight_title;
+	private int weight_source;
+	private int weight_year;
+	private int weight_type;
 
 	/**
 	 * 
@@ -38,6 +46,40 @@ public class WeightedWorkComparator extends ActivityComparator<Work> {
 		this.weight_source = weight_source;
 		this.weight_year = weight_year;
 		this.weight_type = weight_type;
+
+		if (this.weight_title + this.weight_source + this.weight_year + this.weight_type != 100) {
+			throw new IllegalArgumentException("The sum of the weights must be 100.");
+		}
+	}
+
+	/**
+	 * 
+	 * @param threshold
+	 *            the threshold to be considered when comparing works (default: 75%)
+	 */
+	public WeightedWorkComparator(int threshold) throws IllegalArgumentException {
+		this.threshold = threshold;
+
+		this.weight_title = DEFAULT_WEIGHT_TITLE;
+		this.weight_source = DEFAULT_WEIGHT_SOURCE;
+		this.weight_year = DEFAULT_WEIGHT_YEAR;
+		this.weight_type = DEFAULT_WEIGHT_TYPE;
+
+		if (this.weight_title + this.weight_source + this.weight_year + this.weight_type != 100) {
+			throw new IllegalArgumentException("The sum of the weights must be 100.");
+		}
+	}
+
+	/**
+	 * Constructor without parameters: all default values are used
+	 */
+	public WeightedWorkComparator() throws IllegalArgumentException {
+		this.threshold = DEFAULT_THRESHOLD;
+
+		this.weight_title = DEFAULT_WEIGHT_TITLE;
+		this.weight_source = DEFAULT_WEIGHT_SOURCE;
+		this.weight_year = DEFAULT_WEIGHT_YEAR;
+		this.weight_type = DEFAULT_WEIGHT_TYPE;
 
 		if (this.weight_title + this.weight_source + this.weight_year + this.weight_type != 100) {
 			throw new IllegalArgumentException("The sum of the weights must be 100.");
