@@ -306,14 +306,9 @@ public final class PTCRISync {
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				weids.setExternalId(ids);
 				localWork.setExternalIds(weids);
-				try {
-					helper.updateWork(update.posWork.getPutCode(), localWork);
-					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
-							PTCRISyncResult.OK_UPD_RESULT);
-				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
-							PTCRISyncResult.fail(e));
-				}
+
+				PTCRISyncResult res = helper.updateWork(update.posWork.getPutCode(), localWork);
+				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
 			}
 		}
 
@@ -332,14 +327,9 @@ public final class PTCRISync {
 				ids.addAll(update.eidsDiff.less);
 				weids.setExternalId(ids);
 				localWork.setExternalIds(weids);
-				try {
-					helper.updateWork(update.posWork.getPutCode(), localWork);
-					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
-							PTCRISyncResult.OK_UPD_RESULT);
-				} catch (OrcidClientException e) {
-					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
-							PTCRISyncResult.fail(e));
-				}
+
+				PTCRISyncResult res = helper.updateWork(update.posWork.getPutCode(), localWork);
+				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
 			}
 		}
 		

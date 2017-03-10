@@ -285,13 +285,14 @@ public class ORCIDHelper {
 	 *            the put-code of the remote ORCID work that will be updated
 	 * @param updatedWork
 	 *            the new state of the work that will be updated
+	 * @return 
 	 * @throws OrcidClientException
 	 *             if communication with the ORCID API fails
 	 * @throws NullPointerException
 	 *             if either parameter is null
 	 */
-	public void updateWork(BigInteger remotePutcode, Work updatedWork)
-			throws OrcidClientException, NullPointerException {
+	public PTCRISyncResult updateWork(BigInteger remotePutcode, Work updatedWork)
+			throws NullPointerException {
 		if (remotePutcode == null || updatedWork == null) 
 			throw new NullPointerException("Can't update null work.");
 
@@ -301,7 +302,7 @@ public class ORCIDHelper {
 		// set the remote put-code
 		clone.setPutCode(remotePutcode);
 
-		client.updateWork(remotePutcode, clone);
+		return client.updateWork(remotePutcode, clone);
 	}
 
 	/**

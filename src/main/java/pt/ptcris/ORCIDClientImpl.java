@@ -201,8 +201,18 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateWork(BigInteger putcode, Work work) throws OrcidClientException {
-		orcidClient.updateWork(orcidToken, putcode.toString(), work);
+	public PTCRISyncResult updateWork(BigInteger putcode, Work work) {
+		PTCRISyncResult res;
+		try {
+			orcidClient.updateWork(orcidToken, putcode.toString(), work);
+			res = PTCRISyncResult.OK_UPD_RESULT;
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
+		return res;
+		
+		
+		
 	}
 
 	/**

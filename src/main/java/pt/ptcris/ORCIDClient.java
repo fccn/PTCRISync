@@ -79,7 +79,7 @@ public interface ORCIDClient {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	public void updateWork(BigInteger putcode, Work work) throws OrcidClientException;
+	public PTCRISyncResult updateWork(BigInteger putcode, Work work);
 
 	/**
 	 * Retrieves every activity summary from the ORCID profile.
