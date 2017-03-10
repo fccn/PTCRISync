@@ -1,7 +1,5 @@
 package pt.ptcris.merge;
 
-import org.um.dsi.gavea.orcid.model.common.ElementSummary;
-
 /**
  * An activity comparator used by the grouper to creates groups of matching
  * activities. Concrete implementations should be provided by the users through
@@ -11,7 +9,7 @@ import org.um.dsi.gavea.orcid.model.common.ElementSummary;
  * @param <A>
  *            the type of activities being compared
  */
-public abstract class ActivityComparator<A extends ElementSummary> {
+public abstract class ActivityComparator<A> {
 
 	/**
 	 * A (non-inclusive) threshold on the similarity metric that defines

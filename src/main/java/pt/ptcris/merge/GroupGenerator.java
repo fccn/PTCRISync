@@ -3,9 +3,7 @@ package pt.ptcris.merge;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.um.dsi.gavea.orcid.model.common.ElementSummary;
-
-public class GroupGenerator<E extends ElementSummary> {
+public class GroupGenerator<E> {
 
 	private List<ActivityGroup<E>> groups = new ArrayList<ActivityGroup<E>>();
 

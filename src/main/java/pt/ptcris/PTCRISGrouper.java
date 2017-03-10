@@ -3,8 +3,6 @@ package pt.ptcris;
 import java.util.Collection;
 import java.util.List;
 
-import org.um.dsi.gavea.orcid.model.common.ElementSummary;
-
 import pt.ptcris.merge.ActivityGroup;
 import pt.ptcris.merge.GroupGenerator;
 import pt.ptcris.merge.ActivityComparator;
@@ -24,6 +22,12 @@ import pt.ptcris.merge.ActivityComparator;
  * respective threshold.
  * </p>
  * 
+ * TODO: Activities within groups are not ordered, groups are sets. Should they
+ * be? Specifically, ordered by meta-data quality (e.g., number of filled
+ * fields).
+ * 
+ * TODO: Singleton groups are being returned. Does this encumber the process?
+ * Should they be filtered by PTCRIS or by the users?
  */
 public class PTCRISGrouper {
 
@@ -37,7 +41,7 @@ public class PTCRISGrouper {
 	 *            the provided activity comparator
 	 * @return the local activities, grouped
 	 */
-	public static <E extends ElementSummary> List<ActivityGroup<E>> group(
+	public static <E> List<ActivityGroup<E>> group(
 			Collection<E> locals, ActivityComparator<E> comparator) {
 		GroupGenerator<E> gen = new GroupGenerator<E>(comparator);
 		for (E e : locals)

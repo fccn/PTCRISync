@@ -3,8 +3,6 @@ package pt.ptcris.merge;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.um.dsi.gavea.orcid.model.common.ElementSummary;
-
 /**
  * Represents groups of matched activities. Currently, simply encapsulates a set of
  * activities, there is no additional structure.
@@ -12,7 +10,7 @@ import org.um.dsi.gavea.orcid.model.common.ElementSummary;
  * @param <A>
  *            the type of activities being grouped
  */
-public class ActivityGroup<A extends ElementSummary> {
+public class ActivityGroup<A> {
 	private Set<A> activities;
 
 	/**
