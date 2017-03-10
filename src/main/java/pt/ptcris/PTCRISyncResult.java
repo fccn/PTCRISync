@@ -1,5 +1,7 @@
 package pt.ptcris;
 
+import java.math.BigInteger;
+
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
 import pt.ptcris.exceptions.InvalidWorkException;
@@ -21,8 +23,10 @@ public final class PTCRISyncResult {
 	/**
 	 * Creates a successful "add" message.
 	 */
-	public static final PTCRISyncResult OK_ADD_RESULT = new PTCRISyncResult(ADDOK);
-
+	public static PTCRISyncResult ok(BigInteger putcode) {
+		return new PTCRISyncResult(ADDOK, putcode);
+	}
+	
 	/**
 	 * Creates a successful "update" message.
 	 */
@@ -57,6 +61,7 @@ public final class PTCRISyncResult {
 
 	public final int code;
 	public final Exception exception;
+	public final BigInteger putcode;
 
 	/**
 	 * Constructs a PTCRISync result with a code and exception.
@@ -67,10 +72,20 @@ public final class PTCRISyncResult {
 	 *            the exception containing additional information if
 	 *            unsuccessful
 	 */
-	private PTCRISyncResult(int code, Exception exception) {
+	private PTCRISyncResult(int code, Exception exception, BigInteger putcode) {
 		this.code = code;
 		this.exception = exception;
+		this.putcode = putcode;
 	}
+	
+	private PTCRISyncResult(int code, BigInteger putcode) {
+		this(code, null, putcode);
+	}
+	
+	private PTCRISyncResult(int code, Exception exception) {
+		this(code, exception, null);
+	}
+
 
 	/**
 	 * Constructs a PTCRISync result with a sucess code (i.e., without an
@@ -80,7 +95,7 @@ public final class PTCRISyncResult {
 	 *            the code that defines the outcome
 	 */
 	private PTCRISyncResult(int code) {
-		this(code, null);
+		this(code, null, null);
 	}
 
 }

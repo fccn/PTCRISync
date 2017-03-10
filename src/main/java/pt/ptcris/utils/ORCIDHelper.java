@@ -29,6 +29,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.exceptions.InvalidWorkException;
 
 /**
@@ -247,7 +248,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public BigInteger addWork(Work work) throws OrcidClientException, NullPointerException {
+	public PTCRISyncResult addWork(Work work) throws NullPointerException {
 		if (work == null) throw new NullPointerException("Can't add null work.");
 		
 		_log.debug("[addWork] " + getWorkTitle(work));
@@ -256,9 +257,23 @@ public class ORCIDHelper {
 		final Work clone = ORCIDHelper.clone(work);
 		clone.setPutCode(null);
 	
-		final BigInteger putcode = client.addWork(clone);
+		return client.addWork(clone);
+	}
 	
-		return putcode;
+	public List<PTCRISyncResult> addWorks(Collection<Work> works) throws OrcidClientException, NullPointerException {
+		if (works == null) throw new NullPointerException("Can't add null works.");
+		
+		_log.debug("[addWorks] " + works.size());
+	
+		List<Work> clones = new ArrayList<Work>();
+		// remove any put-code otherwise ORCID will throw an error
+		for (Work work : works) {
+			final Work clone = ORCIDHelper.clone(work);
+			clone.setPutCode(null);
+			clones.add(clone);
+		}
+	
+		return client.addWorks(clones);
 	}
 	
 	/**

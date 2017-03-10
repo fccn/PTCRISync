@@ -226,11 +226,12 @@ public final class PTCRISync {
 	 * @throws NullPointerException
 	 *             if any of the arguments is null
 	 */
-	@SuppressWarnings("unused")
 	private static Map<BigInteger, PTCRISyncResult> exportBase(ORCIDClient client, List<Work> localWorks, ProgressHandler handler, boolean forced)
 			throws OrcidClientException, NullPointerException {
 		if (client == null || localWorks == null || handler == null)
 			throw new NullPointerException("Export failed.");
+		
+		boolean bulk = true;
 		
 		int progress = 0;
 		handler.setProgress(progress);
@@ -344,20 +345,30 @@ public final class PTCRISync {
 		
 		// add the local works that had no match
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING_WORKS");
-		for (int c = 0; c != localWorks.size(); c++) {
+		for (int c = 0; c != localWorks.size();) {
 			progress = (int) ((double) c / localWorks.size() * 100);
 			handler.setProgress(progress);
 
-			Work localWork = localWorks.get(c);
-
-			// local works that were not updated remaining
-			try {
-				BigInteger remotePutcode = helper.addWork(localWork);
-				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
-						PTCRISyncResult.OK_ADD_RESULT);
-			} catch (OrcidClientException e) {
-				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
-						PTCRISyncResult.fail(e));
+			if (bulk) {
+				List<Work> tmp = new ArrayList<Work>();
+				for (int j = 0; j < 100 && c < localWorks.size(); j++) {
+					tmp.add(localWorks.get(c));
+					c++;
+				}
+				List<PTCRISyncResult> res = helper.addWorks(tmp);
+				for (int i = 0; i < res.size(); i++) {
+					// test if OK
+					result.put(ORCIDHelper.getActivityLocalKey(tmp.get(i), BigInteger.valueOf(c)),res.get(i));
+				}
+				
+			} 
+			else {
+				Work localWork = localWorks.get(c);
+	
+				// local works that were not updated remaining
+				PTCRISyncResult res = helper.addWork(localWork);
+				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
+				c++;
 			}
 		}
 

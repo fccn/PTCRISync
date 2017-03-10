@@ -1,12 +1,17 @@
 package pt.ptcris;
 
+import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.orcid.ns.bulk.Bulk;
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
 import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.error.Error;
 
 /**
  * An implementation of the ORCID client interface built over the
@@ -143,8 +148,45 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BigInteger addWork(Work work) throws OrcidClientException {
-		return new BigInteger(orcidClient.addWork(orcidToken, work));
+	public PTCRISyncResult addWork(Work work) {
+		PTCRISyncResult res;
+		try {
+			BigInteger putcode = new BigInteger(orcidClient.addWork(orcidToken, work));
+			res = PTCRISyncResult.ok(putcode);
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
+		return res;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<PTCRISyncResult> addWorks(List<Work> works) {
+		Bulk bulk = new Bulk();
+		List<PTCRISyncResult> res = new ArrayList<PTCRISyncResult>();
+		for (Work work : works)
+			bulk.getWorkOrError().add(work);
+		try {
+			Bulk res_bulk = orcidClient.addWorks(orcidToken, bulk);
+			for (Serializable r : res_bulk.getWorkOrError()) {
+				if (r instanceof Work)
+					res.add(PTCRISyncResult.ok(((Work) r).getPutCode()));
+				else {
+					Error err = (Error) r;
+					OrcidClientException e = new OrcidClientException(err.getResponseCode(), 
+																	  err.getUserMessage(),
+																	  err.getErrorCode(),
+																	  err.getDeveloperMessage());
+					res.add(PTCRISyncResult.fail(e));
+				}
+			}
+		} catch (OrcidClientException e) {
+			for (int i=0;i<works.size();i++)
+				res.add(PTCRISyncResult.fail(e));
+		}
+		return res; 
 	}
 
 	/**

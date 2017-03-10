@@ -1,6 +1,7 @@
 package pt.ptcris;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
@@ -44,7 +45,19 @@ public interface ORCIDClient {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	public BigInteger addWork(Work work) throws OrcidClientException;
+	public PTCRISyncResult addWork(Work work);
+
+	/**
+	 * Adds a set of new works to the ORCID profile. This should generate a
+	 * single API call internally.
+	 *
+	 * @param works
+	 *            the works to be added to the ORCID profile
+	 * @return the put-codes assigned by ORCID to each of the newly created works
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails
+	 */
+	public List<PTCRISyncResult> addWorks(List<Work> works);
 
 	/**
 	 * Deletes a work from the ORCID profile.
