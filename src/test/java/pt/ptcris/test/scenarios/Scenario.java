@@ -263,8 +263,10 @@ public abstract class Scenario {
 	 */
 	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
 		for (BigInteger id : results.keySet())
-			if (!expectedExportCodes(id).contains(results.get(id).code))
+			if (!expectedExportCodes(id).contains(results.get(id).code)) {
+				TestHelper.handler().sendError("Was "+results.get(id).code);
 				return false;
+			}
 		return true;
 	}
 
