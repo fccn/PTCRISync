@@ -67,8 +67,9 @@ public class ORCIDHelper {
 		}
 	}
 
-	boolean bulk = true;
-
+	private boolean bulk = true;
+	final private int bulk_size = 100;
+	
 	private static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
 	/**
@@ -315,7 +316,7 @@ public class ORCIDHelper {
 	
 			if (bulk) {
 				List<Work> tmp = new ArrayList<Work>();
-				for (int j = 0; j < 100 && c < localWorks.size(); j++) {
+				for (int j = 0; j < bulk_size && c < localWorks.size(); j++) {
 					tmp.add(localWorks.get(c));
 					c++;
 				}
