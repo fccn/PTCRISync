@@ -5,11 +5,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.orcid.ns.bulk.Bulk;
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
 import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.activities.Works;
+import org.um.dsi.gavea.orcid.model.bulk.Bulk;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.error.Error;
 
@@ -228,6 +229,14 @@ public class ORCIDClientImpl implements ORCIDClient {
 		return orcidClient.readActivitiesSummary(orcidToken);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Works getWorksSummary() throws OrcidClientException {
+		return orcidClient.readWorksSummary(orcidToken);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

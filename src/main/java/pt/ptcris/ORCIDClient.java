@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.activities.Works;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 /**
@@ -90,6 +91,15 @@ public interface ORCIDClient {
 	 */
 	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException;
 
+	/**
+	 * Retrieves every work summary from the ORCID profile.
+	 *
+	 * @return the works summary of the ORCID profile
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails
+	 */
+	public Works getWorksSummary() throws OrcidClientException;
+	
 	/**
 	 * The number of worker threads that will be used to communicate with the
 	 * ORCID API.

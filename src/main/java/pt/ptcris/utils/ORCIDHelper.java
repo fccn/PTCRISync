@@ -103,9 +103,8 @@ public class ORCIDHelper {
 	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException {
 		_log.debug("[getSummaries]");
 		
-		final ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		final List<WorkGroup> workGroupList = getWorkGroups(activitiesSummary);
+		final List<WorkGroup> workGroupList = client.getWorksSummary().getGroup();
 		for (WorkGroup group : workGroupList)
 			workSummaryList.add(groupToWork(group));
 		return workSummaryList;
