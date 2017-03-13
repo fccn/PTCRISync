@@ -167,7 +167,7 @@ public class ScenarioPerformance extends Scenario {
 	Set<Integer> expectedExportCodes(BigInteger putcode) {
 		Set<Integer> res = new HashSet<Integer>();
 		res.add(PTCRISyncResult.ADDOK);
-		res.add(PTCRISyncResult.INVALID);
+		res.add(PTCRISyncResult.UPDATEOK);
 		return res;
 	}
 	
