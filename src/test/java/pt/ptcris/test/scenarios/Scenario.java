@@ -50,10 +50,8 @@ public abstract class Scenario {
 		externalClient = externalClient();
 		TestHelper.cleanUp(crisClient);
 		TestHelper.cleanUp(externalClient);
-		for (Work work : setupORCIDExternalWorks())
-			externalClient.addWork(work);
-		for (Work work : setupORCIDCRISWorks())
-			crisClient.addWork(work);
+		externalClient.addWorks(setupORCIDExternalWorks(),null);
+		crisClient.addWorks(setupORCIDCRISWorks(),null);
 		this.localWorks = setupLocalWorks();
 		this.exportWorks = exportLocalWorks();
 		this.localWorks.addAll(this.exportWorks);

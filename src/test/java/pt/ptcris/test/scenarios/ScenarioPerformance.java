@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
@@ -39,6 +40,7 @@ public class ScenarioPerformance extends Scenario {
 		works.add(TestHelper.workDOI(null, "7", "37"));
 		works.add(TestHelper.workDOI(null, "8", "38"));
 		works.add(TestHelper.workDOI(null, "9", "39"));
+		works.add(TestHelper.workDOI(null, "9", "299"));
 		return works;
 	}
 
@@ -147,5 +149,29 @@ public class ScenarioPerformance extends Scenario {
 		return new ORCIDHelper(
 				TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
+
+	/** {@inheritDoc} */
+	List<Work> exportLocalWorks() {
+		List<Work> works = new ArrayList<Work>();
+		for (int i = 100; i<=300; i++)
+			works.add(TestHelper.workDOI(BigInteger.valueOf(i), i+"", i+""));
+		return works;
+	}
+	
+	/** {@inheritDoc} */
+	List<Work> expectedORCIDCRISWorks() {
+		return exportLocalWorks();
+	}
+	
+	/** {@inheritDoc} */
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		res.add(PTCRISyncResult.ADDOK);
+		res.add(PTCRISyncResult.INVALID);
+		return res;
+	}
+	
+	
+	
 
 }

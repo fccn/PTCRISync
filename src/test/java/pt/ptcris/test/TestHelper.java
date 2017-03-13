@@ -41,7 +41,7 @@ public class TestHelper {
 			else
 				work.setType(WorkType.CONFERENCE_PAPER);
 
-			FuzzyDate date = new FuzzyDate(new Year("201" + meta), null, null);
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
 			work.setPublicationDate(date);
 		}
 
