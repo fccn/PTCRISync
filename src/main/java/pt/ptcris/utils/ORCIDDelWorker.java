@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * A worker thread that can be used to DELETE works from ORCID.
@@ -47,16 +47,12 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 */
 	@Override
 	public void run() {
-		try {
-			_log.debug("[deleteWork] " + putcode);
-			MDC.setContextMap(mdcCtxMap);
+		_log.debug("[deleteWork] " + putcode);
+		MDC.setContextMap(mdcCtxMap);
 
-			client.deleteWork(putcode);
+		PTCRISyncResult res = client.deleteWork(putcode);
 
-			callback(putcode, null);
-		} catch (final OrcidClientException e) {
-			callback(putcode,e);
-		}
+		callback(putcode, res);
 	}
 
 }

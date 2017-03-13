@@ -16,12 +16,13 @@ public final class PTCRISyncResult {
 
 	public static final int ADDOK = -5;
 	public static final int UPDATEOK = -10;
+	public static final int DELETEOK = -15;
 	public static final int UPTODATE = -20;
 	public static final int INVALID = -30;
 	public static final int CLIENTERROR = -40;
 
 	/**
-	 * Creates a successful "add" message.
+	 * Creates a successful "add" message with the assigned put-code.
 	 */
 	public static PTCRISyncResult ok(BigInteger putcode) {
 		return new PTCRISyncResult(ADDOK, putcode);
@@ -31,6 +32,11 @@ public final class PTCRISyncResult {
 	 * Creates a successful "update" message.
 	 */
 	public static final PTCRISyncResult OK_UPD_RESULT = new PTCRISyncResult(UPDATEOK);
+
+	/**
+	 * Creates a successful "delete" message.
+	 */
+	public static final PTCRISyncResult OK_DEL_RESULT = new PTCRISyncResult(DELETEOK);
 
 	/**
 	 * Creates an "already up-to-date" message.
@@ -64,13 +70,16 @@ public final class PTCRISyncResult {
 	public final BigInteger putcode;
 
 	/**
-	 * Constructs a PTCRISync result with a code and exception.
+	 * Constructs a PTCRISync result with a result code, possible exception and
+	 * possible assigned put-code.
 	 *
 	 * @param code
 	 *            the code that defines the outcome
 	 * @param exception
 	 *            the exception containing additional information if
 	 *            unsuccessful
+	 * @param putcode
+	 *            the assigned put-code, if successful add
 	 */
 	private PTCRISyncResult(int code, Exception exception, BigInteger putcode) {
 		this.code = code;
@@ -78,18 +87,35 @@ public final class PTCRISyncResult {
 		this.putcode = putcode;
 	}
 	
+	/**
+	 * Constructs a PTCRISync result with a result code and an assigned
+	 * put-code, used for additions.
+	 *
+	 * @param code
+	 *            the code that defines the outcome
+	 * @param putcode
+	 *            the assigned put-code, if successful add
+	 */
 	private PTCRISyncResult(int code, BigInteger putcode) {
 		this(code, null, putcode);
 	}
-	
+
+	/**
+	 * Constructs a PTCRISync result with a result code and an exception, used
+	 * for unsuccessful results.
+	 *
+	 * @param code
+	 *            the code that defines the outcome
+	 * @param exception
+	 *            the exception containing additional information if
+	 *            unsuccessful
+	 */
 	private PTCRISyncResult(int code, Exception exception) {
 		this(code, exception, null);
 	}
 
-
 	/**
-	 * Constructs a PTCRISync result with a sucess code (i.e., without an
-	 * exception).
+	 * Constructs a PTCRISync result with a success code.
 	 *
 	 * @param code
 	 *            the code that defines the outcome

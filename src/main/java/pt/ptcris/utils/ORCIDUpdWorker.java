@@ -6,10 +6,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * A worker thread that can be used to UPDATE works from ORCID.
@@ -53,16 +53,12 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	 */
 	@Override
 	public void run() {
-		try {
-			_log.debug("[updateWork] " + work.getPutCode());
-			MDC.setContextMap(mdcCtxMap);
+		_log.debug("[updateWork] " + work.getPutCode());
+		MDC.setContextMap(mdcCtxMap);
 
-			client.updateWork(work.getPutCode(), work);
-			
-			callback(work.getPutCode(), work);
-		} catch (final OrcidClientException e) {
-			callback(work.getPutCode(), e);
-		}
+		final PTCRISyncResult res = client.updateWork(work.getPutCode(), work);
+		
+		callback(work.getPutCode(), res);
 	}
 
 }

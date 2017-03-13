@@ -231,7 +231,6 @@ public final class PTCRISync {
 		if (client == null || localWorks == null || handler == null)
 			throw new NullPointerException("Export failed.");
 		
-		boolean bulk = true;
 		
 		int progress = 0;
 		handler.setProgress(progress);
@@ -271,13 +270,8 @@ public final class PTCRISync {
 			Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(orcidWork, localWorks);
 			// there is no local work matching a CRIS sourced remote work
 			if (worksDiffs.isEmpty()) {
-				try {
-					helper.deleteWork(orcidWork.getPutCode());
-				} catch (OrcidClientException e) {
-					// TODO: deleting a remote work is not connected to any local work, so
-					// there is no local key to assign to this error in the output
-					// result.put(????, PTCRISyncResult.fail(e));
-				}
+				// TODO: the delete may fail (the result is returned); how to communicate this to the caller?
+				helper.deleteWork(orcidWork.getPutCode());
 			}
 			// there is at least one local work matching a CRIS sourced remote work
 			else {
@@ -334,34 +328,14 @@ public final class PTCRISync {
 		}
 		
 		// add the local works that had no match
+		// the progress handler must be moved to the helper due to bulk additions
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING_WORKS");
-		for (int c = 0; c != localWorks.size();) {
-			progress = (int) ((double) c / localWorks.size() * 100);
-			handler.setProgress(progress);
+		List<PTCRISyncResult> res = helper.addWorks(localWorks,handler);
 
-			if (bulk) {
-				List<Work> tmp = new ArrayList<Work>();
-				for (int j = 0; j < 100 && c < localWorks.size(); j++) {
-					tmp.add(localWorks.get(c));
-					c++;
-				}
-				List<PTCRISyncResult> res = helper.addWorks(tmp);
-				for (int i = 0; i < res.size(); i++) {
-					// test if OK
-					result.put(ORCIDHelper.getActivityLocalKey(tmp.get(i), BigInteger.valueOf(c)),res.get(i));
-				}
-				
-			} 
-			else {
-				Work localWork = localWorks.get(c);
-	
-				// local works that were not updated remaining
-				PTCRISyncResult res = helper.addWork(localWork);
-				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
-				c++;
-			}
-		}
-
+		int pad = result.size();
+		for (int i = 0; i < res.size(); i++)
+			result.put(ORCIDHelper.getActivityLocalKey(localWorks.get(i), BigInteger.valueOf(pad+i)),res.get(i));
+		
 		handler.done();
 		return result;
 	}

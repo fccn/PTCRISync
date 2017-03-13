@@ -193,8 +193,13 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteWork(BigInteger putcode) throws OrcidClientException {
-		orcidClient.deleteWork(orcidToken, putcode.toString());
+	public PTCRISyncResult deleteWork(BigInteger putcode) {
+		try {
+			orcidClient.deleteWork(orcidToken, putcode.toString());
+			return PTCRISyncResult.OK_DEL_RESULT;
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
 	}
 
 	/**

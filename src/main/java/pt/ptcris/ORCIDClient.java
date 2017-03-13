@@ -67,7 +67,7 @@ public interface ORCIDClient {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	public void deleteWork(BigInteger putcode) throws OrcidClientException;
+	public PTCRISyncResult deleteWork(BigInteger putcode);
 
 	/**
 	 * Updates a work in the ORCID profile.

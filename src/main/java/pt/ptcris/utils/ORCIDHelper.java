@@ -31,6 +31,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.exceptions.InvalidWorkException;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -65,6 +66,8 @@ public class ORCIDHelper {
 			this.value = value;
 		}
 	}
+
+	boolean bulk = true;
 
 	private static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
@@ -236,19 +239,19 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Synchronously adds a work to an ORCID profile.
+	 * Synchronously adds a work to an ORCID profile. The OK result includes the
+	 * newly assigned put-code. If communication fails, error message is
+	 * included in the result.
 	 *
 	 * @see ORCIDClient#addWork(Work)
 	 * 
 	 * @param work
 	 *            the new work to be added
-	 * @return the put-code assigned to the new work by ORCID
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID API fails
+	 * @return the result of the ORCID call
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public PTCRISyncResult addWork(Work work) throws NullPointerException {
+	private PTCRISyncResult addWork(Work work) throws NullPointerException {
 		if (work == null) throw new NullPointerException("Can't add null work.");
 		
 		_log.debug("[addWork] " + getWorkTitle(work));
@@ -260,7 +263,22 @@ public class ORCIDHelper {
 		return client.addWork(clone);
 	}
 	
-	public List<PTCRISyncResult> addWorks(Collection<Work> works) throws OrcidClientException, NullPointerException {
+	/**
+	 * Synchronously adds a list of works to an ORCID profile. A list of results
+	 * is returned, one for each input work. The OK result includes the newly
+	 * assigned put-code. If communication fails, error message is included in
+	 * the result. If the overall communication fails, the result is replicated
+	 * for each input.
+	 *
+	 * @see ORCIDClient#addWorks(List)
+	 * 
+	 * @param works
+	 *            the new works to be added
+	 * @return the results of the ORCID call for each input work
+	 * @throws NullPointerException
+	 *             if the work is null
+	 */
+	private List<PTCRISyncResult> addWorks(Collection<Work> works) throws NullPointerException {
 		if (works == null) throw new NullPointerException("Can't add null works.");
 		
 		_log.debug("[addWorks] " + works.size());
@@ -277,6 +295,42 @@ public class ORCIDHelper {
 	}
 	
 	/**
+	 * Synchronously adds a list of works to an ORCID profile, either through
+	 * atomic or bulk calls. A list of results is returned, one for each input
+	 * work. The OK result includes the newly assigned put-code. If
+	 * communication fails, error message is included in the result. If the
+	 * overall communication fails, the result is replicated for each input.
+	 *
+	 * @param works
+	 *            the new works to be added
+	 * @return the results of the ORCID call for each input work
+	 * @throws NullPointerException
+	 *             if the work is null
+	 */
+	public List<PTCRISyncResult> addWorks(List<Work> localWorks, ProgressHandler handler) throws NullPointerException {
+		List<PTCRISyncResult> res = new ArrayList<PTCRISyncResult>();
+		for (int c = 0; c != localWorks.size();) {
+			int progress = (int) ((double) c / localWorks.size() * 100);
+			if (handler!=null) handler.setProgress(progress);
+	
+			if (bulk) {
+				List<Work> tmp = new ArrayList<Work>();
+				for (int j = 0; j < 100 && c < localWorks.size(); j++) {
+					tmp.add(localWorks.get(c));
+					c++;
+				}
+				res.addAll(this.addWorks(tmp));
+			} 
+			else {
+				Work localWork = localWorks.get(c);
+				res.add(this.addWork(localWork));
+				c++;
+			}
+		}
+		return res;
+	}
+	
+	/**
 	 * Synchronously updates a work in an ORCID profile.
 	 * 
 	 * @see ORCIDClient#updateWork(BigInteger, Work)
@@ -285,9 +339,7 @@ public class ORCIDHelper {
 	 *            the put-code of the remote ORCID work that will be updated
 	 * @param updatedWork
 	 *            the new state of the work that will be updated
-	 * @return 
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID API fails
+	 * @return the result of the ORCID call
 	 * @throws NullPointerException
 	 *             if either parameter is null
 	 */
@@ -328,19 +380,17 @@ public class ORCIDHelper {
 	 * @see ORCIDClient#deleteWork(BigInteger)
 	 * 
 	 * @param putcode the remote put-code of the work to be deleted
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
-	public void deleteWork(BigInteger putcode) 
-			throws OrcidClientException, NullPointerException {
+	public PTCRISyncResult deleteWork(BigInteger putcode) 
+			throws NullPointerException {
 		if (putcode == null) 
 			throw new NullPointerException("Can't delete null work.");
 
 		_log.debug("[deleteWork] " + putcode);
 	
-		client.deleteWork(putcode);
+		return client.deleteWork(putcode);
 	}
 
 	/**
@@ -1105,5 +1155,6 @@ public class ORCIDHelper {
 		dummy.setUrl(work.getUrl());
 		return dummy;
 	}
+
 
 }
