@@ -32,7 +32,6 @@ public class IntegerComparator extends ActivityComparator<Integer> {
 		List<ActivityGroup<Integer>> groups = PTCRISGrouper.group(Arrays.asList(is), new IntegerComparator());
 		
 		assertEquals(groups.size(), 3);
-		
 	}
 
 }
