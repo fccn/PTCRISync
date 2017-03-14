@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
@@ -124,9 +123,8 @@ public class ORCIDHelper {
 		
 		_log.debug("[getSourcedSummaries] " + sourceClientID);
 		
-		final ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		final List<WorkGroup> workGroupList = getWorkGroups(activitiesSummary);
+		final List<WorkGroup> workGroupList = client.getWorksSummary().getGroup();
 		
 		for (WorkGroup workGroup : workGroupList) {
 			for (WorkSummary workSummary : workGroup.getWorkSummary()) {
@@ -138,23 +136,6 @@ public class ORCIDHelper {
 			}
 		}
 		return workSummaryList;
-	}
-
-	/**
-	 * Retrieves a list of groups from an activities summary, empty if the
-	 * objects are null.
-	 * 
-	 * @param activitiesSummary
-	 *            the activities summary
-	 * @return the list of work groups
-	 */
-	private static List<WorkGroup> getWorkGroups(ActivitiesSummary activitiesSummary) {
-		if (activitiesSummary != null 
-				&& activitiesSummary.getWorks() != null
-				&& activitiesSummary.getWorks().getGroup() != null)
-			return activitiesSummary.getWorks().getGroup();
-		else
-			return new LinkedList<WorkGroup>();
 	}
 
 	/**
