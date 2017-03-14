@@ -212,6 +212,24 @@ public class ORCIDHelper {
 
 		return fullWork;
 	}
+	
+	public List<Work> getFullWorks(List<WorkSummary> mergedWorks) 
+			throws OrcidClientException, NullPointerException {
+		if (mergedWorks == null) throw new NullPointerException("Can't get null work.");
+		
+		_log.debug("[getFullWorks] " + mergedWorks.size());
+		
+		List<BigInteger> putcodes = new ArrayList<BigInteger>();
+		for (WorkSummary w : mergedWorks)
+			putcodes.add(w.getPutCode());
+		
+		List<Work> fullWorks = client.getWorks(putcodes);
+
+		for (int i = 0; i < fullWorks.size(); i++)
+			finalizeGet(fullWorks.get(i), mergedWorks.get(i));
+
+		return fullWorks;
+	}
 
 	/**
 	 * Finalizes a get by updating the meta-data.

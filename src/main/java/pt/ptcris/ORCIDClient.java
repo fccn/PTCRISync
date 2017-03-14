@@ -47,6 +47,18 @@ public interface ORCIDClient {
 	public Work getWork(BigInteger putcode) throws OrcidClientException;
 
 	/**
+	 * Retrieves a list of complete works from the ORCID profile (as opposed to
+	 * only its summary).
+	 *
+	 * @param putcodes
+	 *            the put-code of the works
+	 * @return the complete works
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails
+	 */
+	public List<Work> getWorks(List<BigInteger> putcodes) throws OrcidClientException;
+
+	/**
 	 * Adds a new work to the ORCID profile.
 	 *
 	 * @param work

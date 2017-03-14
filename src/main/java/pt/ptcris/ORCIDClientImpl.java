@@ -156,6 +156,29 @@ public class ORCIDClientImpl implements ORCIDClient {
 
 	/**
 	 * {@inheritDoc}
+	 */	
+	@Override
+	public List<Work> getWorks(List<BigInteger> putcodes) throws OrcidClientException {
+		List<String> pcs = new ArrayList<String>();
+		for (BigInteger i : putcodes)
+			pcs.add(i.toString());
+		List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
+		List<Work> res = new ArrayList<Work>();
+		for (Serializable w : bulk) 
+			if (w instanceof Work)
+				res.add((Work) w);
+			else {
+				Error err = (Error) w;
+				throw new OrcidClientException(err.getResponseCode(), 
+											   err.getUserMessage(),
+											   err.getErrorCode(),
+											   err.getDeveloperMessage());	
+			}
+		return res;
+	}
+	
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public PTCRISyncResult addWork(Work work) {
