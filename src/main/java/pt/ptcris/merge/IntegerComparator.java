@@ -23,12 +23,12 @@ import pt.ptcris.PTCRISGrouper;
 public class IntegerComparator extends ActivityComparator<Integer> {
 
 	@Override
-	int threshold() {
+	public int threshold() {
 		return 90;
 	}
 
 	@Override
-	float compare(Integer i1, Integer i2) {
+	public float compare(Integer i1, Integer i2) {
 		float res =  Math.abs(i1-i2);
 		res = res / ((i1+i2)/2);
 		res = 100*(1-res);

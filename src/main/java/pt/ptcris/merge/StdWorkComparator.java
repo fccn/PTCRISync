@@ -21,12 +21,12 @@ import pt.ptcris.utils.ExternalIdsDiff;
 public class StdWorkComparator extends ActivityComparator<Work> {
 
 	@Override
-	int threshold() {
+	public int threshold() {
 		return 0;
 	}
 
 	@Override
-	float compare(Work w1, Work w2) {
+	public float compare(Work w1, Work w2) {
 		ExternalIdsDiff diff = new ExternalIdsDiff(
 				w1.getExternalIds(),
 				w2.getExternalIds());
