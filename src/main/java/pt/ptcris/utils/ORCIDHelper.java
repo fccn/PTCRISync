@@ -180,43 +180,46 @@ public class ORCIDHelper {
 		}
 	}
 
-	public void getFullWorks(List<WorkSummary> mergedWorks, Map<BigInteger, PTCRISyncResult> cb)
+	public void getFullWorks(List<WorkSummary> mergedWorks, Map<BigInteger, PTCRISyncResult> cb, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
 		if (mergedWorks == null) throw new NullPointerException("Can't get null work.");
-		
+		_log.debug("[getFullWorks] " + mergedWorks.size());
+		if (handler != null) handler.setCurrentStatus("ORCID_GET_ITERATION");
+
 		if (client.threads() > 1) {
-			if (bulk_size_get > 1) {
-				for (int i = 0; i < mergedWorks.size();) {
+			for (int i = 0; i < mergedWorks.size();) {
+				int progress = (int) ((double) i / mergedWorks.size() * 100);
+				if (handler != null) handler.setProgress(progress);
+				if (bulk_size_get > 1) {
 					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
-					for (int j = 0; j < bulk_size_get && i<mergedWorks.size(); j ++) {
-		  				putcodes.add(mergedWorks.get(i));
-		  				i++;
+					for (int j = 0; j < bulk_size_get && i < mergedWorks.size(); j++) {
+						putcodes.add(mergedWorks.get(i));
+						i++;
 					}
-					final ORCIDBulkGetWorker worker = new ORCIDBulkGetWorker(putcodes,client, cb, _log);
+					final ORCIDBulkGetWorker worker = new ORCIDBulkGetWorker(putcodes, client, cb, _log);
 					executor.execute(worker);
-				}
-			} else {
-				for (int i = 0; i < mergedWorks.size(); i++) {
-					final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWorks.get(i),client, cb, _log);
+				} else {
+					final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWorks.get(i), client, cb, _log);
 					executor.execute(worker);
+					i++;
 				}
 			}
 		} else {
-			_log.debug("[getFullWorks] " + mergedWorks.size());
-			Map<BigInteger,PTCRISyncResult> fullWorks = new HashMap<BigInteger, PTCRISyncResult>();
-			if (bulk_size_get > 1) {
-				for (int i = 0; i < mergedWorks.size();) {
+			Map<BigInteger, PTCRISyncResult> fullWorks = new HashMap<BigInteger, PTCRISyncResult>();
+			for (int i = 0; i < mergedWorks.size();) {
+				int progress = (int) ((double) i / mergedWorks.size() * 100);
+				if (handler != null) handler.setProgress(progress);
+				if (bulk_size_get > 1) {
 					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
-					for (int j = 0; j < bulk_size_get && i<mergedWorks.size(); j ++) {
-		  				putcodes.add(mergedWorks.get(i));
-		  				i++;
+					for (int j = 0; j < bulk_size_get && i < mergedWorks.size(); j++) {
+						putcodes.add(mergedWorks.get(i));
+						i++;
 					}
 					fullWorks.putAll(client.getWorks(putcodes));
-				}	
-			} else {
-				for (int i = 0; i < mergedWorks.size(); i++) {
-					fullWorks.put(mergedWorks.get(i).getPutCode(),client.getWork(mergedWorks.get(i)));
-				}	
+				} else {
+					fullWorks.put(mergedWorks.get(i).getPutCode(), client.getWork(mergedWorks.get(i)));
+					i++;
+				}
 			}
 			cb.putAll(fullWorks);
 		}
@@ -309,6 +312,8 @@ public class ORCIDHelper {
 	 */
 	public List<PTCRISyncResult> addWorks(List<Work> localWorks, ProgressHandler handler) throws NullPointerException {
 		List<PTCRISyncResult> res = new ArrayList<PTCRISyncResult>();
+		if (handler != null) handler.setCurrentStatus("ORCID_ADDING_WORKS");
+
 		for (int c = 0; c != localWorks.size();) {
 			int progress = (int) ((double) c / localWorks.size() * 100);
 			if (handler!=null) handler.setProgress(progress);

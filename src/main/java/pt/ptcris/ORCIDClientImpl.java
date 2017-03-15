@@ -171,30 +171,31 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */	
 	@Override
-	public Map<BigInteger,PTCRISyncResult> getWorks(List<WorkSummary> putcodes) {
+	public Map<BigInteger,PTCRISyncResult> getWorks(List<WorkSummary> summaries) {
 		List<String> pcs = new ArrayList<String>();
-		for (WorkSummary i : putcodes)
+		for (WorkSummary i : summaries)
 			pcs.add(i.getPutCode().toString());
-		List<Serializable> bulk;
 		Map<BigInteger,PTCRISyncResult> res = new HashMap<BigInteger,PTCRISyncResult>();
 		try {
-			bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
-			for (int i = 0; i < putcodes.size(); i++) {
+			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
+			for (int i = 0; i < summaries.size(); i++) {
 				Serializable w = bulk.get(i);
-				if (w instanceof Work)
-					res.put(putcodes.get(i).getPutCode(),PTCRISyncResult.got(putcodes.get(i).getPutCode(),(Work) w));
+				if (w instanceof Work) {
+					ORCIDHelper.finalizeGet((Work) w, summaries.get(i));
+					res.put(summaries.get(i).getPutCode(),PTCRISyncResult.got(summaries.get(i).getPutCode(),(Work) w));
+				}
 				else {
 					Error err = (Error) w;
 					OrcidClientException e = new OrcidClientException(err.getResponseCode(), 
 							err.getUserMessage(),
 							err.getErrorCode(),
 							err.getDeveloperMessage());	
-					res.put(putcodes.get(i).getPutCode(),PTCRISyncResult.fail(e));
+					res.put(summaries.get(i).getPutCode(),PTCRISyncResult.fail(e));
 				}
 			}
 		} catch (OrcidClientException e1) {
-			for (int i = 0; i < putcodes.size(); i++) 
-				res.put(putcodes.get(i).getPutCode(),PTCRISyncResult.fail(e1));
+			for (int i = 0; i < summaries.size(); i++) 
+				res.put(summaries.get(i).getPutCode(),PTCRISyncResult.fail(e1));
 		}
 		return res;
 	}

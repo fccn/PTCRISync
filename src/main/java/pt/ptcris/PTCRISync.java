@@ -441,7 +441,7 @@ public final class PTCRISync {
 			}
 		}
 
-		helper.getFullWorks(temp, worksToImport);
+		helper.getFullWorks(temp, worksToImport, handler);
 
 		helper.waitWorkers();
 
@@ -590,7 +590,7 @@ public final class PTCRISync {
 			}
 		}
 	
-		helper.getFullWorks(temp, worksToImport);
+		helper.getFullWorks(temp, worksToImport, handler);
 
 		helper.waitWorkers();
 	
