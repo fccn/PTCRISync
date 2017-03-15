@@ -23,7 +23,10 @@ import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.activities.Works;
 import org.um.dsi.gavea.orcid.model.bulk.Bulk;
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.error.Error;
+
+import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * An implementation of the ORCID client interface built over the
@@ -152,38 +155,46 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */	
 	@Override
-	public Work getWork(BigInteger putcode) throws OrcidClientException {
-		return orcidClient.readWork(orcidToken, putcode.toString());
+	public PTCRISyncResult getWork(WorkSummary putcode) {
+		PTCRISyncResult res;
+		try {
+			Work work = orcidClient.readWork(orcidToken, putcode.getPutCode().toString());
+			ORCIDHelper.finalizeGet(work, putcode);
+			res = PTCRISyncResult.got(putcode.getPutCode(), work);
+		} catch (OrcidClientException e) {
+			res = PTCRISyncResult.fail(e);
+		}
+		return res;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */	
 	@Override
-	public Map<BigInteger,Object> getWorks(List<BigInteger> putcodes) {
+	public Map<BigInteger,PTCRISyncResult> getWorks(List<WorkSummary> putcodes) {
 		List<String> pcs = new ArrayList<String>();
-		for (BigInteger i : putcodes)
-			pcs.add(i.toString());
+		for (WorkSummary i : putcodes)
+			pcs.add(i.getPutCode().toString());
 		List<Serializable> bulk;
-		Map<BigInteger,Object> res = new HashMap<BigInteger,Object>();
+		Map<BigInteger,PTCRISyncResult> res = new HashMap<BigInteger,PTCRISyncResult>();
 		try {
 			bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
 			for (int i = 0; i < putcodes.size(); i++) {
 				Serializable w = bulk.get(i);
 				if (w instanceof Work)
-					res.put(putcodes.get(i),(Work) w);
+					res.put(putcodes.get(i).getPutCode(),PTCRISyncResult.got(putcodes.get(i).getPutCode(),(Work) w));
 				else {
 					Error err = (Error) w;
 					OrcidClientException e = new OrcidClientException(err.getResponseCode(), 
 							err.getUserMessage(),
 							err.getErrorCode(),
 							err.getDeveloperMessage());	
-					res.put(putcodes.get(i),e);
+					res.put(putcodes.get(i).getPutCode(),PTCRISyncResult.fail(e));
 				}
 			}
 		} catch (OrcidClientException e1) {
 			for (int i = 0; i < putcodes.size(); i++) 
-				res.put(putcodes.get(i),e1);
+				res.put(putcodes.get(i).getPutCode(),PTCRISyncResult.fail(e1));
 		}
 		return res;
 	}

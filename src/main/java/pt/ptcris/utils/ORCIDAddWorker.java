@@ -44,7 +44,7 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log) {
+	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
 		super(client, cb, log);
 		if (work == null)
 			throw new NullPointerException("UPDATE: arguments must not be null.");

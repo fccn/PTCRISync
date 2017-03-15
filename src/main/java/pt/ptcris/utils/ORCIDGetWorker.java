@@ -15,11 +15,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * A worker thread that can be used to GET works from ORCID.
@@ -50,7 +49,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work's put-code is undefined
 	 */
-	public ORCIDGetWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	public ORCIDGetWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws InvalidParameterException, NullPointerException {
 		super(client, cb, log);
 		if (work == null)
@@ -69,15 +68,10 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 			MDC.setContextMap(mdcCtxMap);
 		} catch (Exception e) {} // if the context is empty
 		
-		try {
-			_log.debug("[getFullWork] " + work.getPutCode());
-			final Work fullWork = client.getWork(work.getPutCode());
-			ORCIDHelper.finalizeGet(fullWork, work);
+		_log.debug("[getFullWork] " + work.getPutCode());
+		final PTCRISyncResult fullWork = client.getWork(work);
 
-			callback(work.getPutCode(), fullWork);
-		} catch (final OrcidClientException e) {
-			callback(work.getPutCode(), e);
-		}
+		callback(work.getPutCode(), fullWork);
 	}
 
 }

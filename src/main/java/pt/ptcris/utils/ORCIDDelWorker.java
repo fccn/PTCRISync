@@ -43,7 +43,7 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
-	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws NullPointerException {
 		super(client, cb, log);
 		if (putcode == null)

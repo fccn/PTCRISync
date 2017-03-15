@@ -47,7 +47,7 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work is null
 	 */
-	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws NullPointerException, InvalidParameterException {
 		super(client, cb, log);
 		if (work == null)

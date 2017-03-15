@@ -12,7 +12,7 @@ package pt.ptcris;
 import java.math.BigInteger;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.exceptions.InvalidWorkException;
 
@@ -42,7 +42,7 @@ public final class PTCRISyncResult {
 	/**
 	 * Creates a successful "get" message with the assigned put-code.
 	 */
-	public static PTCRISyncResult got(BigInteger putcode, ActivitiesSummary act) {
+	public static PTCRISyncResult got(BigInteger putcode, Work act) {
 		return new PTCRISyncResult(GETOK, act);
 	}
 	
@@ -86,7 +86,7 @@ public final class PTCRISyncResult {
 	public final int code;
 	public final Exception exception;
 	public final BigInteger putcode;
-	public final ActivitiesSummary act;
+	public final Work act;
 
 	/**
 	 * Constructs a PTCRISync result with a result code, possible exception and
@@ -101,7 +101,7 @@ public final class PTCRISyncResult {
 	 *            the assigned put-code, if successful add
 	 * @param act TODO
 	 */
-	private PTCRISyncResult(int code, Exception exception, BigInteger putcode, ActivitiesSummary act) {
+	private PTCRISyncResult(int code, Exception exception, BigInteger putcode, Work act) {
 		this.code = code;
 		this.exception = exception;
 		this.putcode = putcode;
@@ -145,7 +145,7 @@ public final class PTCRISyncResult {
 		this(code, null, null, null);
 	}
 	
-	private PTCRISyncResult(int code, ActivitiesSummary act) {
+	private PTCRISyncResult(int code, Work act) {
 		this(code, null, null, act);
 	}
 

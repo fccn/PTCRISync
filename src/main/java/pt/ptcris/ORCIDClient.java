@@ -17,6 +17,7 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.activities.Works;
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 /**
  * Interface that encapsulates the communication with the ORCID client for a
@@ -45,7 +46,7 @@ public interface ORCIDClient {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	public Work getWork(BigInteger putcode) throws OrcidClientException;
+	public PTCRISyncResult getWork(WorkSummary putcode);
 
 	/**
 	 * Retrieves a list of complete works from the ORCID profile (as opposed to
@@ -57,7 +58,7 @@ public interface ORCIDClient {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	public Map<BigInteger,Object> getWorks(List<BigInteger> putcodes);
+	public Map<BigInteger,PTCRISyncResult> getWorks(List<WorkSummary> putcodes);
 
 	/**
 	 * Adds a new work to the ORCID profile.

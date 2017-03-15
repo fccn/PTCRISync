@@ -75,8 +75,8 @@ public class ORCIDHelper {
 		}
 	}
 
-	private int bulk_size_add = 100;
-	private int bulk_size_get = 50;
+	private int bulk_size_add = -1;
+	private int bulk_size_get = -1;
 	
 	private static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
@@ -163,7 +163,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the merged work is null
 	 */
-	private void getFullWork(WorkSummary mergedWork, Map<BigInteger, Object> cb)
+	public void getFullWork(WorkSummary mergedWork, Map<BigInteger, PTCRISyncResult> cb)
 			throws NullPointerException {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 				
@@ -171,49 +171,16 @@ public class ORCIDHelper {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
 		} else {
-			Work fullWork;
-			try {
-				_log.debug("[getFullWork] " + mergedWork.getPutCode());
-				fullWork = client.getWork(mergedWork.getPutCode());
-				finalizeGet(fullWork, mergedWork);
-				
-				cb.put(mergedWork.getPutCode(), fullWork);
-			} catch (OrcidClientException e) {
-				cb.put(mergedWork.getPutCode(), e);
-			}
+			PTCRISyncResult fullWork;
+			
+			_log.debug("[getFullWork] " + mergedWork.getPutCode());
+			fullWork = client.getWork(mergedWork);
+			
+			cb.put(mergedWork.getPutCode(), fullWork);
 		}
 	}
 
-	/**
-	 * Synchronously gets a full work from an ORCID profile. The resulting work
-	 * contains every external identifier set in the input work summary, because
-	 * the summary resulted from the merging of a group, but the retrieve full
-	 * work is a single work. It also clears the put-code, since at this level
-	 * they represent the local identifier.
-	 *
-	 * @see ORCIDClient#getWork(BigInteger)
-	 * 
-	 * @param mergedWork
-	 *            the work summary representing a merged group
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID API fails
-	 * @throws NullPointerException
-	 *             if the merged work is null
-	 * @return the full work retrieved from ORCID
-	 */
-	private Work getFullWork(WorkSummary mergedWork) 
-			throws OrcidClientException, NullPointerException {
-		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
-		
-		_log.debug("[getFullWork] " + mergedWork.getPutCode());
-		
-		final Work fullWork = client.getWork(mergedWork.getPutCode());
-		finalizeGet(fullWork, mergedWork);
-
-		return fullWork;
-	}
-	
-	public void getFullWorks(List<WorkSummary> mergedWorks, Map<BigInteger, Object> cb)
+	public void getFullWorks(List<WorkSummary> mergedWorks, Map<BigInteger, PTCRISyncResult> cb)
 			throws OrcidClientException, NullPointerException {
 		if (mergedWorks == null) throw new NullPointerException("Can't get null work.");
 		
@@ -236,29 +203,23 @@ public class ORCIDHelper {
 			}
 		} else {
 			_log.debug("[getFullWorks] " + mergedWorks.size());
-			Map<BigInteger,Object> fullWorks = new HashMap<BigInteger, Object>();
+			Map<BigInteger,PTCRISyncResult> fullWorks = new HashMap<BigInteger, PTCRISyncResult>();
 			if (bulk_size_get > 1) {
 				for (int i = 0; i < mergedWorks.size();) {
-					List<BigInteger> putcodes = new ArrayList<BigInteger>();
+					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
 					for (int j = 0; j < bulk_size_get && i<mergedWorks.size(); j ++) {
-		  				putcodes.add(mergedWorks.get(i).getPutCode());
+		  				putcodes.add(mergedWorks.get(i));
 		  				i++;
 					}
 					fullWorks.putAll(client.getWorks(putcodes));
 				}	
 			} else {
 				for (int i = 0; i < mergedWorks.size(); i++) {
-					fullWorks.put(mergedWorks.get(i).getPutCode(),client.getWork(mergedWorks.get(i).getPutCode()));
+					fullWorks.put(mergedWorks.get(i).getPutCode(),client.getWork(mergedWorks.get(i)));
 				}	
 			}
-			for (WorkSummary s : mergedWorks)
-				if (fullWorks.get(s.getPutCode()) instanceof Work)
-					finalizeGet((Work) fullWorks.get(s.getPutCode()), s);
 			cb.putAll(fullWorks);
 		}
-		
-		
-		
 
 	}
 
@@ -272,7 +233,7 @@ public class ORCIDHelper {
 	 * @param sumWork
 	 *            the original summary
 	 */
-	static void finalizeGet(Work fullWork, WorkSummary sumWork) {
+	public static void finalizeGet(Work fullWork, WorkSummary sumWork) {
 		fullWork.setExternalIds(getNonNullExternalIds(sumWork));
 		cleanWorkLocalKey(fullWork);
 	}

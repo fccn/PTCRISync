@@ -420,13 +420,12 @@ public final class PTCRISync {
 			throw new NullPointerException("Import works failed.");
 
 		int progress = 0;
-		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
 
 		ORCIDHelper helper = new ORCIDHelper(client);
 		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
 
-		Map<BigInteger, Object> worksToImport = new HashMap<BigInteger, Object>();
+		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
 
 		// filter novel works only
 		List<WorkSummary> temp = new ArrayList<WorkSummary>();
@@ -447,15 +446,16 @@ public final class PTCRISync {
 		helper.waitWorkers();
 
 		List<Work> results = new ArrayList<Work>();
-		for (Object r : worksToImport.values())
-			if (r instanceof Work)
-				results.add((Work) r);
+		for (PTCRISyncResult r : worksToImport.values())
+			if (r.act != null)
+				results.add(r.act);
 			else {
 				// TODO: r instanceof OrcidClientException
 				// meaning that the GET of a particular work failed
 			}
 
 		handler.done();
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_FINISHED");
 		return new LinkedList<Work>(results);
 	}
 
@@ -572,7 +572,7 @@ public final class PTCRISync {
 		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
 	
 		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
-		Map<BigInteger, Object> worksToImport = new HashMap<BigInteger, Object>();
+		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
 	
 		// filter invalid works only
 		List<WorkSummary> temp = new ArrayList<WorkSummary>();
@@ -596,8 +596,8 @@ public final class PTCRISync {
 	
 		Map<Work, Set<String>> results = new HashMap<Work, Set<String>>();
 		for (BigInteger i : worksToImport.keySet())
-			if (worksToImport.get(i) instanceof Work)
-				results.put((Work) worksToImport.get(i), invalidsToImport.get(i));
+			if (worksToImport.get(i).act != null)
+				results.put(worksToImport.get(i).act, invalidsToImport.get(i));
 			else {
 				// TODO: r instanceof OrcidClientException
 				// meaning that the GET of a particular work failed

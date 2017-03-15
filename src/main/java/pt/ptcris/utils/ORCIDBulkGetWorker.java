@@ -11,16 +11,15 @@ package pt.ptcris.utils;
 
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * A worker thread that can be used to GET works from ORCID.
@@ -51,7 +50,7 @@ public final class ORCIDBulkGetWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work's put-code is undefined
 	 */
-	public ORCIDBulkGetWorker(List<WorkSummary> works, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	public ORCIDBulkGetWorker(List<WorkSummary> works, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws InvalidParameterException, NullPointerException {
 		super(client, cb, log);
 		if (works == null)
@@ -71,16 +70,10 @@ public final class ORCIDBulkGetWorker extends ORCIDWorker {
 		} catch (Exception e) {} // if the context is empty
 		
 		_log.debug("[getFullWorks] " + works.size());
-		List<BigInteger> putcodes = new ArrayList<BigInteger>();
-		for (WorkSummary w : works)
-			putcodes.add(w.getPutCode());
-		final Map<BigInteger,Object> fullWorks = client.getWorks(putcodes);
+		final Map<BigInteger,PTCRISyncResult> fullWorks = client.getWorks(works);
 		
 		for (WorkSummary w : works) {
-			Object wrk = fullWorks.get(w.getPutCode());
-			if (wrk instanceof Work) {
-				ORCIDHelper.finalizeGet((Work) fullWorks.get(w.getPutCode()), w);
-			}
+			PTCRISyncResult wrk = fullWorks.get(w.getPutCode());
 			callback(w.getPutCode(), wrk);
 		}
 	}
