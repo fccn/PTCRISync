@@ -75,8 +75,8 @@ public class ORCIDHelper {
 		}
 	}
 
-	private boolean bulk = true;
-	final private int bulk_size = 100;
+	private int bulk_size_add = 100;
+	private int bulk_size_get = 50;
 	
 	private static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
@@ -163,7 +163,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the merged work is null
 	 */
-	public void getFullWork(WorkSummary mergedWork, Map<BigInteger, Object> cb)
+	private void getFullWork(WorkSummary mergedWork, Map<BigInteger, Object> cb)
 			throws NullPointerException {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 				
@@ -201,7 +201,7 @@ public class ORCIDHelper {
 	 *             if the merged work is null
 	 * @return the full work retrieved from ORCID
 	 */
-	public Work getFullWork(WorkSummary mergedWork) 
+	private Work getFullWork(WorkSummary mergedWork) 
 			throws OrcidClientException, NullPointerException {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 		
@@ -213,22 +213,53 @@ public class ORCIDHelper {
 		return fullWork;
 	}
 	
-	public List<Work> getFullWorks(List<WorkSummary> mergedWorks) 
+	public void getFullWorks(List<WorkSummary> mergedWorks, Map<BigInteger, Object> cb)
 			throws OrcidClientException, NullPointerException {
 		if (mergedWorks == null) throw new NullPointerException("Can't get null work.");
 		
-		_log.debug("[getFullWorks] " + mergedWorks.size());
+		if (client.threads() > 1) {
+			if (bulk_size_get > 1) {
+				for (int i = 0; i < mergedWorks.size();) {
+					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
+					for (int j = 0; j < bulk_size_get && i<mergedWorks.size(); j ++) {
+		  				putcodes.add(mergedWorks.get(i));
+		  				i++;
+					}
+					final ORCIDBulkGetWorker worker = new ORCIDBulkGetWorker(putcodes,client, cb, _log);
+					executor.execute(worker);
+				}
+			} else {
+				for (int i = 0; i < mergedWorks.size(); i++) {
+					final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWorks.get(i),client, cb, _log);
+					executor.execute(worker);
+				}
+			}
+		} else {
+			_log.debug("[getFullWorks] " + mergedWorks.size());
+			Map<BigInteger,Object> fullWorks = new HashMap<BigInteger, Object>();
+			if (bulk_size_get > 1) {
+				for (int i = 0; i < mergedWorks.size();) {
+					List<BigInteger> putcodes = new ArrayList<BigInteger>();
+					for (int j = 0; j < bulk_size_get && i<mergedWorks.size(); j ++) {
+		  				putcodes.add(mergedWorks.get(i).getPutCode());
+		  				i++;
+					}
+					fullWorks.putAll(client.getWorks(putcodes));
+				}	
+			} else {
+				for (int i = 0; i < mergedWorks.size(); i++) {
+					fullWorks.put(mergedWorks.get(i).getPutCode(),client.getWork(mergedWorks.get(i).getPutCode()));
+				}	
+			}
+			for (WorkSummary s : mergedWorks)
+				if (fullWorks.get(s.getPutCode()) instanceof Work)
+					finalizeGet((Work) fullWorks.get(s.getPutCode()), s);
+			cb.putAll(fullWorks);
+		}
 		
-		List<BigInteger> putcodes = new ArrayList<BigInteger>();
-		for (WorkSummary w : mergedWorks)
-			putcodes.add(w.getPutCode());
 		
-		List<Work> fullWorks = client.getWorks(putcodes);
+		
 
-		for (int i = 0; i < fullWorks.size(); i++)
-			finalizeGet(fullWorks.get(i), mergedWorks.get(i));
-
-		return fullWorks;
 	}
 
 	/**
@@ -321,9 +352,9 @@ public class ORCIDHelper {
 			int progress = (int) ((double) c / localWorks.size() * 100);
 			if (handler!=null) handler.setProgress(progress);
 	
-			if (bulk) {
+			if (bulk_size_add > 1) {
 				List<Work> tmp = new ArrayList<Work>();
-				for (int j = 0; j < bulk_size && c < localWorks.size(); j++) {
+				for (int j = 0; j < bulk_size_add && c < localWorks.size(); j++) {
 					tmp.add(localWorks.get(c));
 					c++;
 				}

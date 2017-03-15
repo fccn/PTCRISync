@@ -12,7 +12,9 @@ package pt.ptcris;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
 import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
@@ -158,22 +160,31 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */	
 	@Override
-	public List<Work> getWorks(List<BigInteger> putcodes) throws OrcidClientException {
+	public Map<BigInteger,Object> getWorks(List<BigInteger> putcodes) {
 		List<String> pcs = new ArrayList<String>();
 		for (BigInteger i : putcodes)
 			pcs.add(i.toString());
-		List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
-		List<Work> res = new ArrayList<Work>();
-		for (Serializable w : bulk) 
-			if (w instanceof Work)
-				res.add((Work) w);
-			else {
-				Error err = (Error) w;
-				throw new OrcidClientException(err.getResponseCode(), 
-											   err.getUserMessage(),
-											   err.getErrorCode(),
-											   err.getDeveloperMessage());	
+		List<Serializable> bulk;
+		Map<BigInteger,Object> res = new HashMap<BigInteger,Object>();
+		try {
+			bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
+			for (int i = 0; i < putcodes.size(); i++) {
+				Serializable w = bulk.get(i);
+				if (w instanceof Work)
+					res.put(putcodes.get(i),(Work) w);
+				else {
+					Error err = (Error) w;
+					OrcidClientException e = new OrcidClientException(err.getResponseCode(), 
+							err.getUserMessage(),
+							err.getErrorCode(),
+							err.getDeveloperMessage());	
+					res.put(putcodes.get(i),e);
+				}
 			}
+		} catch (OrcidClientException e1) {
+			for (int i = 0; i < putcodes.size(); i++) 
+				res.put(putcodes.get(i),e1);
+		}
 		return res;
 	}
 	

@@ -12,6 +12,7 @@ package pt.ptcris;
 import java.math.BigInteger;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
+import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 
 import pt.ptcris.exceptions.InvalidWorkException;
 
@@ -23,6 +24,7 @@ import pt.ptcris.exceptions.InvalidWorkException;
  */
 public final class PTCRISyncResult {
 
+	public static final int GETOK = -1;
 	public static final int ADDOK = -5;
 	public static final int UPDATEOK = -10;
 	public static final int DELETEOK = -15;
@@ -35,6 +37,13 @@ public final class PTCRISyncResult {
 	 */
 	public static PTCRISyncResult ok(BigInteger putcode) {
 		return new PTCRISyncResult(ADDOK, putcode);
+	}
+	
+	/**
+	 * Creates a successful "get" message with the assigned put-code.
+	 */
+	public static PTCRISyncResult got(BigInteger putcode, ActivitiesSummary act) {
+		return new PTCRISyncResult(GETOK, act);
 	}
 	
 	/**
@@ -77,6 +86,7 @@ public final class PTCRISyncResult {
 	public final int code;
 	public final Exception exception;
 	public final BigInteger putcode;
+	public final ActivitiesSummary act;
 
 	/**
 	 * Constructs a PTCRISync result with a result code, possible exception and
@@ -89,11 +99,13 @@ public final class PTCRISyncResult {
 	 *            unsuccessful
 	 * @param putcode
 	 *            the assigned put-code, if successful add
+	 * @param act TODO
 	 */
-	private PTCRISyncResult(int code, Exception exception, BigInteger putcode) {
+	private PTCRISyncResult(int code, Exception exception, BigInteger putcode, ActivitiesSummary act) {
 		this.code = code;
 		this.exception = exception;
 		this.putcode = putcode;
+		this.act = act;
 	}
 	
 	/**
@@ -106,7 +118,7 @@ public final class PTCRISyncResult {
 	 *            the assigned put-code, if successful add
 	 */
 	private PTCRISyncResult(int code, BigInteger putcode) {
-		this(code, null, putcode);
+		this(code, null, putcode, null);
 	}
 
 	/**
@@ -120,7 +132,7 @@ public final class PTCRISyncResult {
 	 *            unsuccessful
 	 */
 	private PTCRISyncResult(int code, Exception exception) {
-		this(code, exception, null);
+		this(code, exception, null, null);
 	}
 
 	/**
@@ -130,7 +142,11 @@ public final class PTCRISyncResult {
 	 *            the code that defines the outcome
 	 */
 	private PTCRISyncResult(int code) {
-		this(code, null, null);
+		this(code, null, null, null);
+	}
+	
+	private PTCRISyncResult(int code, ActivitiesSummary act) {
+		this(code, null, null, act);
 	}
 
 }

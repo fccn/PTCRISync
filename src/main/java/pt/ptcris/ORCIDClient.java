@@ -11,6 +11,7 @@ package pt.ptcris;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
@@ -56,7 +57,7 @@ public interface ORCIDClient {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	public List<Work> getWorks(List<BigInteger> putcodes) throws OrcidClientException;
+	public Map<BigInteger,Object> getWorks(List<BigInteger> putcodes);
 
 	/**
 	 * Adds a new work to the ORCID profile.

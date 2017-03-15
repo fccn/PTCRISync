@@ -429,6 +429,7 @@ public final class PTCRISync {
 		Map<BigInteger, Object> worksToImport = new HashMap<BigInteger, Object>();
 
 		// filter novel works only
+		List<WorkSummary> temp = new ArrayList<WorkSummary>();
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
 		for (int c = 0; c != orcidWorks.size(); c++) {
 			progress = (int) ((double) c / orcidWorks.size() * 100);
@@ -437,9 +438,11 @@ public final class PTCRISync {
 			WorkSummary mergedOrcidWork = orcidWorks.get(c);
 			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getExternalIdsDiff(mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
-				helper.getFullWork(mergedOrcidWork, worksToImport);
+				temp.add(mergedOrcidWork);
 			}
 		}
+
+		helper.getFullWorks(temp, worksToImport);
 
 		helper.waitWorkers();
 
@@ -572,6 +575,7 @@ public final class PTCRISync {
 		Map<BigInteger, Object> worksToImport = new HashMap<BigInteger, Object>();
 	
 		// filter invalid works only
+		List<WorkSummary> temp = new ArrayList<WorkSummary>();
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_ITERATION");
 		for (int c = 0; c != orcidWorks.size(); c++) {
 			progress = (int) ((double) c / orcidWorks.size() * 100);
@@ -582,10 +586,12 @@ public final class PTCRISync {
 			Set<String> invalids = ORCIDHelper.testMinimalQuality(mergedOrcidWork);
 			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);
 			if (matchingWorks.isEmpty() && !invalids.isEmpty()) {
-				helper.getFullWork(mergedOrcidWork, worksToImport);
+				temp.add(mergedOrcidWork);
 			}
 		}
 	
+		helper.getFullWorks(temp, worksToImport);
+
 		helper.waitWorkers();
 	
 		Map<Work, Set<String>> results = new HashMap<Work, Set<String>>();
