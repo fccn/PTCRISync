@@ -75,8 +75,8 @@ public class ORCIDHelper {
 		}
 	}
 
-	private int bulk_size_add = -1;
-	private int bulk_size_get = -1;
+	private int bulk_size_add = 100;
+	private int bulk_size_get = 50;
 	
 	private static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
