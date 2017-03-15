@@ -42,7 +42,8 @@ import org.junit.runners.Suite;
     Scenario20.class,
     ScenarioInvalidLocal1.class,
     ScenarioInvalidLocal2.class,
-    ScenarioPerformance.class
+    ScenarioPerformance.class,
+    ScenarioPerformance2.class
 })
 
 public class AllScenarios {}
