@@ -26,7 +26,7 @@ public abstract class ActivityComparator<A> {
 	 * 
 	 * @return the threshold value
 	 */
-	abstract int threshold();
+	abstract public int threshold();
 
 	/**
 	 * Calculates a similarity metric between two activities.
@@ -37,7 +37,7 @@ public abstract class ActivityComparator<A> {
 	 *            other activity
 	 * @return the similarity metric between the activities
 	 */
-	abstract float compare(A act1, A act2);
+	abstract public float compare(A act1, A act2);
 
 	/**
 	 * Tests whether two activities match, given the
