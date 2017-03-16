@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -500,7 +499,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if either of the parameters is null
 	 */
-	public static Map<Work, ExternalIdsDiff> getExternalIdsDiff(WorkSummary work, Collection<Work> works) 
+	public static Map<Work, ExternalIdsDiff> getSelfExternalIdsDiff(WorkSummary work, Collection<Work> works) 
 			throws NullPointerException {
 		if (work == null || works == null)
 			throw new NullPointerException("Can't get external ids.");
@@ -508,7 +507,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(getNonNullExternalIds(match), getNonNullExternalIds(work));
+					new ExternalIdsDiff(getSelfExternalIds(match), getSelfExternalIds(work));
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -528,7 +527,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if either of the parameters is null
 	 */
-	public static Map<Work, ExternalIdsDiff> getExternalIdsDiff(Work work, Collection<Work> works) 
+	public static Map<Work, ExternalIdsDiff> getSelfExternalIdsDiff(Work work, Collection<Work> works) 
 			throws NullPointerException {
 		if (work == null || works == null)
 			throw new NullPointerException("Can't get external ids.");
@@ -536,7 +535,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(getNonNullExternalIds(match), getNonNullExternalIds(work));
+					new ExternalIdsDiff(getSelfExternalIds(match), getSelfExternalIds(work));
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -558,10 +557,10 @@ public class ORCIDHelper {
 	 * @return true if all the UIDs between the two works are the same, false
 	 *         otherwise.
 	 */
-	public static boolean hasNewIDs(Work preWork, WorkSummary posWork) {
+	public static boolean hasNewSelfIDs(Work preWork, WorkSummary posWork) {
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				getNonNullExternalIds(preWork),
-				getNonNullExternalIds(posWork));
+				getSelfExternalIds(preWork),
+				getSelfExternalIds(posWork));
 
 		return diff.more.isEmpty();
 	}
@@ -617,10 +616,8 @@ public class ORCIDHelper {
 		if (preWork == null || posWork == null)
 			throw new NullPointerException("Can't test null works.");
 		
-		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				getNonNullExternalIds(preWork),
-				getNonNullExternalIds(posWork));
-		return diff.more.isEmpty() && diff.less.isEmpty();
+		return identicalEIDs(getSelfExternalIds(preWork),
+							 getSelfExternalIds(posWork));
 	}
 
 	/**
@@ -639,11 +636,15 @@ public class ORCIDHelper {
 		if (preWork == null || posWork == null)
 			throw new NullPointerException("Can't test null works.");
 
-		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				getNonNullExternalIds(preWork),
-				getNonNullExternalIds(posWork));
+		return identicalEIDs(getSelfExternalIds(preWork),
+							 getSelfExternalIds(posWork));
+	}
+	
+	private static boolean identicalEIDs(ExternalIds eids1, ExternalIds eids2) {
+		final ExternalIdsDiff diff = new ExternalIdsDiff(eids1,eids2);
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
+	
 
 	/**
 	 * Checks whether a work is already up to date regarding another one,
@@ -669,6 +670,9 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
+		res &= identicalEIDs(
+				ORCIDHelper.getPartOfExternalIds(preWork), 
+				ORCIDHelper.getPartOfExternalIds(posWork));
 		res &= getWorkTitle(preWork).equals(getWorkTitle(posWork));
 		res &= (getPubYear(preWork) == null && getPubYear(posWork) == null)
 				|| (getPubYear(preWork) != null && getPubYear(posWork) != null 
@@ -703,9 +707,9 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
-		res &= testPartOfIDs(
-				ORCIDHelper.getNonNullExternalIds(preWork).getExternalId(), 
-				ORCIDHelper.getNonNullExternalIds(posWork).getExternalId());
+		res &= identicalEIDs(
+				ORCIDHelper.getPartOfExternalIds(preWork), 
+				ORCIDHelper.getPartOfExternalIds(posWork));
 		res &= getWorkTitle(preWork).equals(getWorkTitle(posWork));
 		res &= (getPubYear(preWork) == null && getPubYear(posWork) == null)
 				|| (getPubYear(preWork) != null && getPubYear(posWork) != null 
@@ -714,34 +718,6 @@ public class ORCIDHelper {
 				|| (preWork.getType() != null && posWork.getType() != null && preWork
 						.getType().equals(posWork.getType()));
 		return res;
-	}
-	
-	/**
-	 * Checks whether the part-of identifiers of a work are up-to-date.
-	 * 
-	 * @param eids1
-	 *            the current external identifiers
-	 * @param eids2
-	 *            the external identifiers to be checked if up-to-date
-	 * @return true if up-to-date
-	 */
-	private static boolean testPartOfIDs(List<ExternalId> eids1, List<ExternalId> eids2) {
-		for (final ExternalId eid2 : eids2) {
-			if (eid2.getExternalIdRelationship() == RelationshipType.SELF) {}
-			else {
-				boolean found = false;
-				Iterator<ExternalId> it = eids1.iterator();
-				while (!found && it.hasNext()) {
-					ExternalId eid1 = it.next();
-					if (eid2.getExternalIdRelationship() == eid1.getExternalIdRelationship()
-						&& eid1.getExternalIdValue().equals(eid2.getExternalIdValue())
-						&& eid1.getExternalIdType().equals(eid2.getExternalIdType())) 
-					found = true;
-				}
-				if (!found) return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -811,7 +787,7 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
-		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(work, others);
+		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getSelfExternalIdsDiff(work, others);
 		for (Work match : worksDiffs.keySet())
 			if (match.getPutCode() != work.getPutCode() && !worksDiffs.get(match).same.isEmpty())
 				res.add(OVERLAPPING_EIDs);
@@ -886,7 +862,7 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
-		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(work, others);
+		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getSelfExternalIdsDiff(work, others);
 		for (Work match : worksDiffs.keySet())
 			if (match.getPutCode() != work.getPutCode() && !worksDiffs.get(match).same.isEmpty())
 				res.add(OVERLAPPING_EIDs);
@@ -989,7 +965,7 @@ public class ORCIDHelper {
 		final WorkSummary preferred = group.getWorkSummary().get(0);
 		final WorkSummary dummy = clone(preferred);
 
-		final List<ExternalId> eids = getNonNullExternalIds(dummy).getExternalId();
+		final List<ExternalId> eids = getPartOfExternalIds(dummy).getExternalId();
 		for (ExternalId id : group.getExternalIds().getExternalId()) {
 			final ExternalId eid = new ExternalId();
 			eid.setExternalIdRelationship(RelationshipType.SELF);
@@ -1089,6 +1065,38 @@ public class ORCIDHelper {
 		} else {
 			return new ExternalIds(new ArrayList<ExternalId>());
 		}
+	}
+	
+	public static ExternalIds getPartOfExternalIds (WorkSummary work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.PART_OF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+	
+	public static ExternalIds getPartOfExternalIds (Work work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.PART_OF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+	
+	public static ExternalIds getSelfExternalIds (WorkSummary work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+	
+	public static ExternalIds getSelfExternalIds (Work work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
+				res.add(eid);
+		return new ExternalIds(res);
 	}
 
 	/**

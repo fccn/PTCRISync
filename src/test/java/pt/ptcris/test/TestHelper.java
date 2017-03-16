@@ -52,6 +52,7 @@ public class TestHelper {
 
 			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
 			work.setPublicationDate(date);
+
 		}
 
 		return work;
@@ -125,6 +126,14 @@ public class TestHelper {
 
 		work.getExternalIds().getExternalId().add(e1);
 
+		
+		ExternalId e2 = new ExternalId();
+		e2.setExternalIdRelationship(RelationshipType.PART_OF);
+		e2.setExternalIdValue("11111");
+		e2.setExternalIdType("isbn");
+
+		work.getExternalIds().getExternalId().add(e2);
+		
 		return work;
 	}
 
@@ -150,6 +159,13 @@ public class TestHelper {
 		
 		work.getExternalIds().getExternalId().add(e);
 
+		ExternalId e2 = new ExternalId();
+		e2.setExternalIdRelationship(RelationshipType.PART_OF);
+		e2.setExternalIdValue("11111");
+		e2.setExternalIdType("isbn");
+
+		work.getExternalIds().getExternalId().add(e2);
+		
 		return work;
 	}
 

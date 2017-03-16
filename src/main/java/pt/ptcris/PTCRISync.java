@@ -165,7 +165,7 @@ public final class PTCRISync {
 	 * Finally, for local productions without any matching ORCID work new ORCID works
 	 * are created. The matching is performed by detecting shared
 	 * {@link ExternalIdentifier external identifiers} (see
-	 * {@link ORCIDHelper#getExternalIdsDiff(WorkSummary, Collection)}).
+	 * {@link ORCIDHelper#getSelfExternalIdsDiff(WorkSummary, Collection)}).
 	 * </p>
 	 *
 	 * <p>
@@ -276,7 +276,7 @@ public final class PTCRISync {
 			handler.setProgress(progress);
 			WorkSummary orcidWork = orcidWorks.get(c);
 
-			Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(orcidWork, localWorks);
+			Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getSelfExternalIdsDiff(orcidWork, localWorks);
 			// there is no local work matching a CRIS sourced remote work
 			if (worksDiffs.isEmpty()) {
 				// TODO: the delete may fail (the result is returned); how to communicate this to the caller?
@@ -307,6 +307,7 @@ public final class PTCRISync {
 				Work localWork = update.preWork;
 				ExternalIds weids = new ExternalIds();
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
+				ids.addAll(ORCIDHelper.getPartOfExternalIds(localWork).getExternalId());
 				weids.setExternalId(ids);
 				localWork.setExternalIds(weids);
 
@@ -328,6 +329,7 @@ public final class PTCRISync {
 				ExternalIds weids = new ExternalIds();
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				ids.addAll(update.eidsDiff.less);
+				ids.addAll(ORCIDHelper.getPartOfExternalIds(localWork).getExternalId());
 				weids.setExternalId(ids);
 				localWork.setExternalIds(weids);
 
@@ -435,7 +437,7 @@ public final class PTCRISync {
 			handler.setProgress(progress);
 
 			WorkSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getExternalIdsDiff(mergedOrcidWork, localWorks);
+			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				temp.add(mergedOrcidWork);
 			}
@@ -510,7 +512,7 @@ public final class PTCRISync {
 			handler.setProgress(progress);
 
 			WorkSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getExternalIdsDiff(mergedOrcidWork, localWorks);
+			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
 			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				counter++;
 			}
@@ -582,7 +584,7 @@ public final class PTCRISync {
 			handler.setProgress(progress);
 	
 			WorkSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getExternalIdsDiff(mergedOrcidWork, localWorks);
+			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
 			Set<String> invalids = ORCIDHelper.testMinimalQuality(mergedOrcidWork);
 			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);
 			if (matchingWorks.isEmpty() && !invalids.isEmpty()) {
@@ -687,10 +689,10 @@ public final class PTCRISync {
 			handler.setProgress(progress);
 
 			WorkSummary orcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingLocalWorks = ORCIDHelper.getExternalIdsDiff(orcidWork, localWorks);
+			Map<Work, ExternalIdsDiff> matchingLocalWorks = ORCIDHelper.getSelfExternalIdsDiff(orcidWork, localWorks);
 			if (!matchingLocalWorks.isEmpty()) {
 				for (Work mathingLocalWork : matchingLocalWorks.keySet()) {
-					if (!ORCIDHelper.hasNewIDs(mathingLocalWork, orcidWork)) {
+					if (!ORCIDHelper.hasNewSelfIDs(mathingLocalWork, orcidWork)) {
 						Work workUpdate = ORCIDHelper.clone(mathingLocalWork);
 						ExternalIds weids = new ExternalIds();
 						List<ExternalId> neids = new ArrayList<ExternalId>(matchingLocalWorks.get(mathingLocalWork).more);

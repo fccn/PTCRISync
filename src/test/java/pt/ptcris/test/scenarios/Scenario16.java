@@ -54,8 +54,12 @@ public class Scenario16 extends Scenario {
 	@Override
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workHANDLE(BigInteger.valueOf(1), null, "0"));
-		works.add(TestHelper.workHANDLE(BigInteger.valueOf(1), null, "1"));
+		Work w = TestHelper.workHANDLE(BigInteger.valueOf(1), null, "0");
+		w.setExternalIds(ORCIDHelper.getSelfExternalIds(w));
+		works.add(w);
+		Work w1 = TestHelper.workHANDLE(BigInteger.valueOf(1), null, "1");
+		w1.setExternalIds(ORCIDHelper.getSelfExternalIds(w1));
+		works.add(w1);
 		return works;
 	}
 
