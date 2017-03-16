@@ -159,7 +159,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 		PTCRISyncResult res;
 		try {
 			Work work = orcidClient.readWork(orcidToken, putcode.getPutCode().toString());
-			ORCIDHelper.finalizeGet(work, putcode);
+			finalizeGet(work, putcode);
 			res = PTCRISyncResult.got(putcode.getPutCode(), work);
 		} catch (OrcidClientException e) {
 			res = PTCRISyncResult.fail(e);
@@ -181,7 +181,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 			for (int i = 0; i < summaries.size(); i++) {
 				Serializable w = bulk.get(i);
 				if (w instanceof Work) {
-					ORCIDHelper.finalizeGet((Work) w, summaries.get(i));
+					finalizeGet((Work) w, summaries.get(i));
 					res.put(summaries.get(i).getPutCode(),PTCRISyncResult.got(summaries.get(i).getPutCode(),(Work) w));
 				}
 				else {
@@ -271,9 +271,6 @@ public class ORCIDClientImpl implements ORCIDClient {
 			return PTCRISyncResult.fail(e);
 		}
 		return res;
-		
-		
-		
 	}
 
 	/**
@@ -298,6 +295,21 @@ public class ORCIDClientImpl implements ORCIDClient {
 	@Override
 	public int threads() {
 		return threads;
+	}
+	
+	/**
+	 * Finalizes a get by updating the meta-data.
+	 * 
+	 * @see #getFullWork(WorkSummary)
+	 * 
+	 * @param fullWork
+	 *            the newly retrieved work
+	 * @param sumWork
+	 *            the original summary
+	 */
+	private static void finalizeGet(Work fullWork, WorkSummary sumWork) {
+		fullWork.setExternalIds(ORCIDHelper.getNonNullExternalIds(sumWork));
+		ORCIDHelper.cleanWorkLocalKey(fullWork);
 	}
 
 }
