@@ -147,11 +147,13 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Asynchronously gets a full work from an ORCID profile. The resulting work
-	 * contains every external identifier set in the input work summary, because
-	 * the summary resulted from the merging of a group, but the retrieve full
-	 * work is a single work. It also clears the put-code, since at this level
-	 * they represent the local identifier.
+	 * Gets a full work from an ORCID profile and adds it to a callback map. The
+	 * resulting work contains every external identifier set in the input work
+	 * summary, because the summary resulted from the merging of a group, but
+	 * the retrieved full work is a single work. It also clears the put-code,
+	 * since at this level they represent the local identifier. If possible, the
+	 * process is asynchronous. If the process fails, the exception is embedded in 
+	 * a failed {@link PTCRISyncResult}.
 	 *
 	 * @see ORCIDClient#getWork(BigInteger)
 	 * 
@@ -166,7 +168,7 @@ public class ORCIDHelper {
 			throws NullPointerException {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 				
-		if (client.threads() > 1) {
+		if (client.threads() > 1 && cb != null) {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
 		} else {
@@ -179,13 +181,33 @@ public class ORCIDHelper {
 		}
 	}
 
+	/**
+	 * Gets a list of full works from an ORCID profile and adds them to a
+	 * callback map. The resulting works contain every external identifier set
+	 * in the input work summaries, because the latter resulted from the merging
+	 * of a group, but the retrieved full works are a single work. It also
+	 * clears the put-codes, since at this level they represent the local
+	 * identifier. If possible, the process is asynchronous. If the list is not
+	 * a singleton, a bulk request will be performed. If the process fails of
+	 * for any work, the exceptions are embedded in failed
+	 * {@link PTCRISyncResult}.
+	 *
+	 * @see ORCIDClient#getWorks(List)
+	 * 
+	 * @param mergedWork
+	 *            the work summaries representing the merged groups
+	 * @param cb
+	 *            the callback object
+	 * @throws NullPointerException
+	 *             if the merged work is null
+	 */
 	public void getFullWorks(List<WorkSummary> mergedWorks, Map<BigInteger, PTCRISyncResult> cb, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
 		if (mergedWorks == null) throw new NullPointerException("Can't get null work.");
 		_log.debug("[getFullWorks] " + mergedWorks.size());
 		if (handler != null) handler.setCurrentStatus("ORCID_GET_ITERATION");
 
-		if (client.threads() > 1) {
+		if (client.threads() > 1 && cb != null) {
 			for (int i = 0; i < mergedWorks.size();) {
 				int progress = (int) ((double) i / mergedWorks.size() * 100);
 				if (handler != null) handler.setProgress(progress);

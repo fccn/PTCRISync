@@ -38,70 +38,65 @@ public interface ORCIDClient {
 
 	/**
 	 * Retrieves a complete work from the ORCID profile (as opposed to only its
-	 * summary).
+	 * summary). Exceptions are embedded in the {@link PTCRISyncResult}.
 	 *
-	 * @param putcode
-	 *            the put-code of the work
+	 * @param summary
+	 *            the summary of the work to be retrieved
 	 * @return the complete work
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 */
-	public PTCRISyncResult getWork(WorkSummary putcode);
+	public PTCRISyncResult getWork(WorkSummary summary);
 
 	/**
-	 * Retrieves a list of complete works from the ORCID profile (as opposed to
-	 * only its summary).
+	 * Retrieves a list of complete work from the ORCID profile (as opposed to
+	 * only their summaries). Exceptions are embedded in the
+	 * {@link PTCRISyncResult}. This should generate a single API call
+	 * internally.
 	 *
-	 * @param putcodes
-	 *            the put-code of the works
+	 * @param summaries
+	 *            the summaries of the works to be retrieved
 	 * @return the complete works
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 */
-	public Map<BigInteger,PTCRISyncResult> getWorks(List<WorkSummary> putcodes);
+	public Map<BigInteger, PTCRISyncResult> getWorks(List<WorkSummary> summaries);
 
 	/**
-	 * Adds a new work to the ORCID profile.
+	 * Adds a new work to the ORCID profile. Exceptions are embedded in the
+	 * {@link PTCRISyncResult}.
 	 *
 	 * @param work
 	 *            the work to be added to the ORCID profile
 	 * @return the put-code assigned by ORCID to the newly created work
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 */
 	public PTCRISyncResult addWork(Work work);
 
 	/**
-	 * Adds a set of new works to the ORCID profile. This should generate a
-	 * single API call internally.
+	 * Adds a list of new works to the ORCID profile. Exceptions are embedded in
+	 * the {@link PTCRISyncResult}. This should generate a single API call
+	 * internally.
 	 *
 	 * @param works
 	 *            the works to be added to the ORCID profile
-	 * @return the put-codes assigned by ORCID to each of the newly created works
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
+	 * @return the put-codes assigned by ORCID to each of the newly created
+	 *         works
 	 */
 	public List<PTCRISyncResult> addWorks(List<Work> works);
 
 	/**
-	 * Deletes a work from the ORCID profile.
+	 * Deletes a work from the ORCID profile. Exceptions are embedded in
+	 * the {@link PTCRISyncResult}.
 	 *
 	 * @param putcode
 	 *            the put-code of the work to be deleted
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 */
 	public PTCRISyncResult deleteWork(BigInteger putcode);
 
 	/**
-	 * Updates a work in the ORCID profile.
+	 * Updates a work in the ORCID profile. Exceptions are embedded in
+	 * the {@link PTCRISyncResult}.
 	 *
 	 * @param putcode
 	 *            the put-code of the work to be updated
 	 * @param work
 	 *            the new state of the work
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 */
 	public PTCRISyncResult updateWork(BigInteger putcode, Work work);
 
@@ -122,7 +117,7 @@ public interface ORCIDClient {
 	 *             if the communication with ORCID fails
 	 */
 	public Works getWorksSummary() throws OrcidClientException;
-	
+
 	/**
 	 * The number of worker threads that will be used to communicate with the
 	 * ORCID API.
