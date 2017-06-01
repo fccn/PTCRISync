@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+### PTCRISync [1.0](https://github.com/fccn/PTCRISync/releases/tag/v1.0) (March, 2017)
+
+* Updates to support the ORCID API 2.0
+* Support for bulk getting and adding works
+* New functionality: generic work grouper
+
 ### PTCRISync [0.2](https://github.com/fccn/PTCRISync/releases/tag/v0.2) (December, 2016)
 
 * Updates to support the ORCID API 2.0rc2
