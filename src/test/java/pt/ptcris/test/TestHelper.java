@@ -127,12 +127,12 @@ public class TestHelper {
 		work.getExternalIds().getExternalId().add(e1);
 
 		
-		ExternalId e2 = new ExternalId();
-		e2.setExternalIdRelationship(RelationshipType.PART_OF);
-		e2.setExternalIdValue("11111");
-		e2.setExternalIdType("isbn");
-
-		work.getExternalIds().getExternalId().add(e2);
+//		ExternalId e2 = new ExternalId();
+//		e2.setExternalIdRelationship(RelationshipType.PART_OF);
+//		e2.setExternalIdValue("11111");
+//		e2.setExternalIdType("isbn");
+//
+//		work.getExternalIds().getExternalId().add(e2);
 		
 		return work;
 	}

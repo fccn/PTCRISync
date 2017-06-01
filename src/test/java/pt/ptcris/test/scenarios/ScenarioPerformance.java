@@ -25,31 +25,16 @@ import pt.ptcris.utils.ORCIDHelper;
 
 public class ScenarioPerformance extends Scenario {
 
+	int k = 75;
+	int _i = k, _j = _i + 2*k, _k = _j + k, _l = _k + k;
+	
 	/** {@inheritDoc} */
 	@Override
 	List<Work> setupORCIDCRISWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOI(null, "0", "20"));
-		works.add(TestHelper.workDOI(null, "1", "21"));
-		works.add(TestHelper.workDOI(null, "2", "22"));
-		works.add(TestHelper.workDOI(null, "3", "23"));
-		works.add(TestHelper.workDOI(null, "4", "24"));
-		works.add(TestHelper.workDOI(null, "5", "25"));
-		works.add(TestHelper.workDOI(null, "6", "26"));
-		works.add(TestHelper.workDOI(null, "7", "27"));
-		works.add(TestHelper.workDOI(null, "8", "28"));
-		works.add(TestHelper.workDOI(null, "9", "29"));
-		works.add(TestHelper.workDOI(null, "0", "30"));
-		works.add(TestHelper.workDOI(null, "1", "31"));
-		works.add(TestHelper.workDOI(null, "2", "32"));
-		works.add(TestHelper.workDOI(null, "3", "33"));
-		works.add(TestHelper.workDOI(null, "4", "34"));
-		works.add(TestHelper.workDOI(null, "5", "35"));
-		works.add(TestHelper.workDOI(null, "6", "36"));
-		works.add(TestHelper.workDOI(null, "7", "37"));
-		works.add(TestHelper.workDOI(null, "8", "38"));
-		works.add(TestHelper.workDOI(null, "9", "39"));
-		works.add(TestHelper.workDOI(null, "9", "299"));
+		for (int i = _i; i<_k; i++)
+			works.add(TestHelper.workDOI(BigInteger.valueOf(i), "PTCRIS "+i, i+""));
+		
 		return works;
 	}
 
@@ -57,73 +42,35 @@ public class ScenarioPerformance extends Scenario {
 	@Override
 	List<Work> setupORCIDExternalWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOI(null, "0", "0"));
-		works.add(TestHelper.workDOI(null, "1", "1"));
-		works.add(TestHelper.workDOI(null, "2", "2"));
-		works.add(TestHelper.workDOI(null, "3", "3"));
-		works.add(TestHelper.workDOI(null, "4", "4"));
-		works.add(TestHelper.workDOI(null, "5", "5"));
-		works.add(TestHelper.workDOI(null, "6", "6"));
-		works.add(TestHelper.workDOI(null, "7", "7"));
-		works.add(TestHelper.workDOI(null, "8", "8"));
-		works.add(TestHelper.workDOI(null, "9", "9"));
-		works.add(TestHelper.workDOI(null, "0", "10"));
-		works.add(TestHelper.workDOI(null, "1", "11"));
-		works.add(TestHelper.workDOI(null, "2", "12"));
-		works.add(TestHelper.workDOI(null, "3", "13"));
-		works.add(TestHelper.workDOI(null, "4", "14"));
-		works.add(TestHelper.workDOI(null, "5", "15"));
-		works.add(TestHelper.workDOI(null, "6", "16"));
-		works.add(TestHelper.workDOI(null, "7", "17"));
-		works.add(TestHelper.workDOI(null, "8", "18"));
-		works.add(TestHelper.workDOI(null, "9", "19"));
-		works.add(TestHelper.workDOI(null, "0", "20"));
-		works.add(TestHelper.workDOI(null, "1", "21"));
-		works.add(TestHelper.workDOI(null, "2", "22"));
-		works.add(TestHelper.workDOI(null, "3", "23"));
-		works.add(TestHelper.workDOI(null, "4", "24"));
-		works.add(TestHelper.workDOI(null, "5", "25"));
-		works.add(TestHelper.workDOI(null, "6", "26"));
-		works.add(TestHelper.workDOI(null, "7", "27"));
-		works.add(TestHelper.workDOI(null, "8", "28"));
-		works.add(TestHelper.workDOI(null, "9", "29"));
+		for (int i = _i; i<_j; i++)
+			works.add(TestHelper.workDOI(null, "External source "+i, i+""));
+		for (int i = _j; i<_l; i++)
+			works.add(TestHelper.workDOIHANDLE(null, "External source "+i, i+"", i+""));
 		return works;
 	}
-
+	
+	/** {@inheritDoc} */
+	List<Work> exportLocalWorks() {
+		List<Work> works = new ArrayList<Work>();
+		for (int i = 0; i < _j; i++)
+			works.add(TestHelper.workDOI(BigInteger.valueOf(i), "PTCRIS "+i, i+""));
+		for (int i = _j; i < _k; i++)
+			works.add(TestHelper.workDOI(BigInteger.valueOf(i), "PTCRIS' "+i, i+""));
+		
+		return works;
+	}
+	
+	
 	/** {@inheritDoc} */
 	@Override
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOI(null, "0", "0"));
-		works.add(TestHelper.workDOI(null, "1", "1"));
-		works.add(TestHelper.workDOI(null, "2", "2"));
-		works.add(TestHelper.workDOI(null, "3", "3"));
-		works.add(TestHelper.workDOI(null, "4", "4"));
-		works.add(TestHelper.workDOI(null, "5", "5"));
-		works.add(TestHelper.workDOI(null, "6", "6"));
-		works.add(TestHelper.workDOI(null, "7", "7"));
-		works.add(TestHelper.workDOI(null, "8", "8"));
-		works.add(TestHelper.workDOI(null, "9", "9"));
-		works.add(TestHelper.workDOI(null, "0", "10"));
-		works.add(TestHelper.workDOI(null, "1", "11"));
-		works.add(TestHelper.workDOI(null, "2", "12"));
-		works.add(TestHelper.workDOI(null, "3", "13"));
-		works.add(TestHelper.workDOI(null, "4", "14"));
-		works.add(TestHelper.workDOI(null, "5", "15"));
-		works.add(TestHelper.workDOI(null, "6", "16"));
-		works.add(TestHelper.workDOI(null, "7", "17"));
-		works.add(TestHelper.workDOI(null, "8", "18"));
-		works.add(TestHelper.workDOI(null, "9", "19"));
-		works.add(TestHelper.workDOI(null, "0", "20"));
-		works.add(TestHelper.workDOI(null, "1", "21"));
-		works.add(TestHelper.workDOI(null, "2", "22"));
-		works.add(TestHelper.workDOI(null, "3", "23"));
-		works.add(TestHelper.workDOI(null, "4", "24"));
-		works.add(TestHelper.workDOI(null, "5", "25"));
-		works.add(TestHelper.workDOI(null, "6", "26"));
-		works.add(TestHelper.workDOI(null, "7", "27"));
-		works.add(TestHelper.workDOI(null, "8", "28"));
-		works.add(TestHelper.workDOI(null, "9", "29"));
+	
+		for (int i = _j; i<_k; i++)
+			works.add(TestHelper.workHANDLE(BigInteger.valueOf(i), null, i+""));
+		for (int i = _k; i<_l; i++)
+			works.add(TestHelper.workDOIHANDLE(null, "External source "+i, i+"", i+""));
+
 		return works;
 	}
 
@@ -159,14 +106,7 @@ public class ScenarioPerformance extends Scenario {
 				TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 
-	/** {@inheritDoc} */
-	List<Work> exportLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		for (int i = 100; i<=300; i++)
-			works.add(TestHelper.workDOI(BigInteger.valueOf(i), i+"", i+""));
-		return works;
-	}
-	
+
 	/** {@inheritDoc} */
 	List<Work> expectedORCIDCRISWorks() {
 		return exportLocalWorks();
@@ -176,7 +116,8 @@ public class ScenarioPerformance extends Scenario {
 	Set<Integer> expectedExportCodes(BigInteger putcode) {
 		Set<Integer> res = new HashSet<Integer>();
 		res.add(PTCRISyncResult.ADDOK);
-		res.add(PTCRISyncResult.UPDATEOK);
+		res.add(PTCRISyncResult.UPTODATE); 
+		res.add(PTCRISyncResult.UPDATEOK); 
 		return res;
 	}
 	
