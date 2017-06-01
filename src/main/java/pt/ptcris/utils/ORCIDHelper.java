@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
@@ -5,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
@@ -29,7 +36,9 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.exceptions.InvalidWorkException;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -65,6 +74,9 @@ public class ORCIDHelper {
 		}
 	}
 
+	private int bulk_size_add = 100;
+	private int bulk_size_get = 50;
+	
 	private static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
 	/**
@@ -98,9 +110,8 @@ public class ORCIDHelper {
 	public List<WorkSummary> getAllWorkSummaries() throws OrcidClientException {
 		_log.debug("[getSummaries]");
 		
-		final ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		final List<WorkGroup> workGroupList = getWorkGroups(activitiesSummary);
+		final List<WorkGroup> workGroupList = client.getWorksSummary().getGroup();
 		for (WorkGroup group : workGroupList)
 			workSummaryList.add(groupToWork(group));
 		return workSummaryList;
@@ -120,9 +131,8 @@ public class ORCIDHelper {
 		
 		_log.debug("[getSourcedSummaries] " + sourceClientID);
 		
-		final ActivitiesSummary activitiesSummary = client.getActivitiesSummary();
 		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		final List<WorkGroup> workGroupList = getWorkGroups(activitiesSummary);
+		final List<WorkGroup> workGroupList = client.getWorksSummary().getGroup();
 		
 		for (WorkGroup workGroup : workGroupList) {
 			for (WorkSummary workSummary : workGroup.getWorkSummary()) {
@@ -137,28 +147,13 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Retrieves a list of groups from an activities summary, empty if the
-	 * objects are null.
-	 * 
-	 * @param activitiesSummary
-	 *            the activities summary
-	 * @return the list of work groups
-	 */
-	private static List<WorkGroup> getWorkGroups(ActivitiesSummary activitiesSummary) {
-		if (activitiesSummary != null 
-				&& activitiesSummary.getWorks() != null
-				&& activitiesSummary.getWorks().getGroup() != null)
-			return activitiesSummary.getWorks().getGroup();
-		else
-			return new LinkedList<WorkGroup>();
-	}
-
-	/**
-	 * Asynchronously gets a full work from an ORCID profile. The resulting work
-	 * contains every external identifier set in the input work summary, because
-	 * the summary resulted from the merging of a group, but the retrieve full
-	 * work is a single work. It also clears the put-code, since at this level
-	 * they represent the local identifier.
+	 * Gets a full work from an ORCID profile and adds it to a callback map. The
+	 * resulting work contains every external identifier set in the input work
+	 * summary, because the summary resulted from the merging of a group, but
+	 * the retrieved full work is a single work. It also clears the put-code,
+	 * since at this level they represent the local identifier. If possible, the
+	 * process is asynchronous. If the process fails, the exception is embedded in 
+	 * a failed {@link PTCRISyncResult}.
 	 *
 	 * @see ORCIDClient#getWork(BigInteger)
 	 * 
@@ -169,85 +164,103 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the merged work is null
 	 */
-	public void getFullWork(WorkSummary mergedWork, Map<BigInteger, Object> cb)
+	public void getFullWork(WorkSummary mergedWork, Map<BigInteger, PTCRISyncResult> cb)
 			throws NullPointerException {
 		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
 				
-		if (client.threads() > 1) {
+		if (client.threads() > 1 && cb != null) {
 			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,client, cb, _log);
 			executor.execute(worker);
 		} else {
-			Work fullWork;
-			try {
-				_log.debug("[getFullWork] " + mergedWork.getPutCode());
-				fullWork = client.getWork(mergedWork.getPutCode());
-				finalizeGet(fullWork, mergedWork);
-				
-				cb.put(mergedWork.getPutCode(), fullWork);
-			} catch (OrcidClientException e) {
-				cb.put(mergedWork.getPutCode(), e);
-			}
+			PTCRISyncResult fullWork;
+			
+			_log.debug("[getFullWork] " + mergedWork.getPutCode());
+			fullWork = client.getWork(mergedWork);
+			
+			cb.put(mergedWork.getPutCode(), fullWork);
 		}
 	}
 
 	/**
-	 * Synchronously gets a full work from an ORCID profile. The resulting work
-	 * contains every external identifier set in the input work summary, because
-	 * the summary resulted from the merging of a group, but the retrieve full
-	 * work is a single work. It also clears the put-code, since at this level
-	 * they represent the local identifier.
+	 * Gets a list of full works from an ORCID profile and adds them to a
+	 * callback map. The resulting works contain every external identifier set
+	 * in the input work summaries, because the latter resulted from the merging
+	 * of a group, but the retrieved full works are a single work. It also
+	 * clears the put-codes, since at this level they represent the local
+	 * identifier. If possible, the process is asynchronous. If the list is not
+	 * a singleton, a bulk request will be performed. If the process fails of
+	 * for any work, the exceptions are embedded in failed
+	 * {@link PTCRISyncResult}.
 	 *
-	 * @see ORCIDClient#getWork(BigInteger)
+	 * @see ORCIDClient#getWorks(List)
 	 * 
 	 * @param mergedWork
-	 *            the work summary representing a merged group
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID API fails
+	 *            the work summaries representing the merged groups
+	 * @param cb
+	 *            the callback object
 	 * @throws NullPointerException
 	 *             if the merged work is null
-	 * @return the full work retrieved from ORCID
 	 */
-	public Work getFullWork(WorkSummary mergedWork) 
+	public void getFullWorks(List<WorkSummary> mergedWorks, Map<BigInteger, PTCRISyncResult> cb, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
-		if (mergedWork == null) throw new NullPointerException("Can't get null work.");
-		
-		_log.debug("[getFullWork] " + mergedWork.getPutCode());
-		
-		final Work fullWork = client.getWork(mergedWork.getPutCode());
-		finalizeGet(fullWork, mergedWork);
+		if (mergedWorks == null) throw new NullPointerException("Can't get null work.");
+		_log.debug("[getFullWorks] " + mergedWorks.size());
+		if (handler != null) handler.setCurrentStatus("ORCID_GET_ITERATION");
 
-		return fullWork;
+		if (client.threads() > 1 && cb != null) {
+			for (int i = 0; i < mergedWorks.size();) {
+				int progress = (int) ((double) i / mergedWorks.size() * 100);
+				if (handler != null) handler.setProgress(progress);
+				if (bulk_size_get > 1) {
+					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
+					for (int j = 0; j < bulk_size_get && i < mergedWorks.size(); j++) {
+						putcodes.add(mergedWorks.get(i));
+						i++;
+					}
+					final ORCIDBulkGetWorker worker = new ORCIDBulkGetWorker(putcodes, client, cb, _log);
+					executor.execute(worker);
+				} else {
+					final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWorks.get(i), client, cb, _log);
+					executor.execute(worker);
+					i++;
+				}
+			}
+		} else {
+			Map<BigInteger, PTCRISyncResult> fullWorks = new HashMap<BigInteger, PTCRISyncResult>();
+			for (int i = 0; i < mergedWorks.size();) {
+				int progress = (int) ((double) i / mergedWorks.size() * 100);
+				if (handler != null) handler.setProgress(progress);
+				if (bulk_size_get > 1) {
+					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
+					for (int j = 0; j < bulk_size_get && i < mergedWorks.size(); j++) {
+						putcodes.add(mergedWorks.get(i));
+						i++;
+					}
+					fullWorks.putAll(client.getWorks(putcodes));
+				} else {
+					fullWorks.put(mergedWorks.get(i).getPutCode(), client.getWork(mergedWorks.get(i)));
+					i++;
+				}
+			}
+			cb.putAll(fullWorks);
+		}
+
 	}
 
 	/**
-	 * Finalizes a get by updating the meta-data.
-	 * 
-	 * @see #getFullWork(WorkSummary)
-	 * 
-	 * @param fullWork
-	 *            the newly retrieved work
-	 * @param sumWork
-	 *            the original summary
-	 */
-	static void finalizeGet(Work fullWork, WorkSummary sumWork) {
-		fullWork.setExternalIds(getNonNullExternalIds(sumWork));
-		cleanWorkLocalKey(fullWork);
-	}
-
-	/**
-	 * Synchronously adds a work to an ORCID profile.
+	 * Synchronously adds a work to an ORCID profile. The OK result includes the
+	 * newly assigned put-code. If communication fails, error message is
+	 * included in the result.
 	 *
 	 * @see ORCIDClient#addWork(Work)
 	 * 
 	 * @param work
 	 *            the new work to be added
-	 * @return the put-code assigned to the new work by ORCID
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID API fails
+	 * @return the result of the ORCID call
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public BigInteger addWork(Work work) throws OrcidClientException, NullPointerException {
+	private PTCRISyncResult addWork(Work work) throws NullPointerException {
 		if (work == null) throw new NullPointerException("Can't add null work.");
 		
 		_log.debug("[addWork] " + getWorkTitle(work));
@@ -256,9 +269,76 @@ public class ORCIDHelper {
 		final Work clone = ORCIDHelper.clone(work);
 		clone.setPutCode(null);
 	
-		final BigInteger putcode = client.addWork(clone);
+		return client.addWork(clone);
+	}
 	
-		return putcode;
+	/**
+	 * Synchronously adds a list of works to an ORCID profile. A list of results
+	 * is returned, one for each input work. The OK result includes the newly
+	 * assigned put-code. If communication fails, error message is included in
+	 * the result. If the overall communication fails, the result is replicated
+	 * for each input.
+	 *
+	 * @see ORCIDClient#addWorks(List)
+	 * 
+	 * @param works
+	 *            the new works to be added
+	 * @return the results of the ORCID call for each input work
+	 * @throws NullPointerException
+	 *             if the work is null
+	 */
+	private List<PTCRISyncResult> addWorks(Collection<Work> works) throws NullPointerException {
+		if (works == null) throw new NullPointerException("Can't add null works.");
+		
+		_log.debug("[addWorks] " + works.size());
+	
+		List<Work> clones = new ArrayList<Work>();
+		// remove any put-code otherwise ORCID will throw an error
+		for (Work work : works) {
+			final Work clone = ORCIDHelper.clone(work);
+			clone.setPutCode(null);
+			clones.add(clone);
+		}
+	
+		return client.addWorks(clones);
+	}
+	
+	/**
+	 * Synchronously adds a list of works to an ORCID profile, either through
+	 * atomic or bulk calls. A list of results is returned, one for each input
+	 * work. The OK result includes the newly assigned put-code. If
+	 * communication fails, error message is included in the result. If the
+	 * overall communication fails, the result is replicated for each input.
+	 *
+	 * @param works
+	 *            the new works to be added
+	 * @return the results of the ORCID call for each input work
+	 * @throws NullPointerException
+	 *             if the work is null
+	 */
+	public List<PTCRISyncResult> addWorks(List<Work> localWorks, ProgressHandler handler) throws NullPointerException {
+		List<PTCRISyncResult> res = new ArrayList<PTCRISyncResult>();
+		if (handler != null) handler.setCurrentStatus("ORCID_ADDING_WORKS");
+
+		for (int c = 0; c != localWorks.size();) {
+			int progress = (int) ((double) c / localWorks.size() * 100);
+			if (handler!=null) handler.setProgress(progress);
+	
+			if (bulk_size_add > 1) {
+				List<Work> tmp = new ArrayList<Work>();
+				for (int j = 0; j < bulk_size_add && c < localWorks.size(); j++) {
+					tmp.add(localWorks.get(c));
+					c++;
+				}
+				res.addAll(this.addWorks(tmp));
+			} 
+			else {
+				Work localWork = localWorks.get(c);
+				res.add(this.addWork(localWork));
+				c++;
+			}
+		}
+		return res;
 	}
 	
 	/**
@@ -270,13 +350,12 @@ public class ORCIDHelper {
 	 *            the put-code of the remote ORCID work that will be updated
 	 * @param updatedWork
 	 *            the new state of the work that will be updated
-	 * @throws OrcidClientException
-	 *             if communication with the ORCID API fails
+	 * @return the result of the ORCID call
 	 * @throws NullPointerException
 	 *             if either parameter is null
 	 */
-	public void updateWork(BigInteger remotePutcode, Work updatedWork)
-			throws OrcidClientException, NullPointerException {
+	public PTCRISyncResult updateWork(BigInteger remotePutcode, Work updatedWork)
+			throws NullPointerException {
 		if (remotePutcode == null || updatedWork == null) 
 			throw new NullPointerException("Can't update null work.");
 
@@ -286,7 +365,7 @@ public class ORCIDHelper {
 		// set the remote put-code
 		clone.setPutCode(remotePutcode);
 
-		client.updateWork(remotePutcode, clone);
+		return client.updateWork(remotePutcode, clone);
 	}
 
 	/**
@@ -312,19 +391,17 @@ public class ORCIDHelper {
 	 * @see ORCIDClient#deleteWork(BigInteger)
 	 * 
 	 * @param putcode the remote put-code of the work to be deleted
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
-	public void deleteWork(BigInteger putcode) 
-			throws OrcidClientException, NullPointerException {
+	public PTCRISyncResult deleteWork(BigInteger putcode) 
+			throws NullPointerException {
 		if (putcode == null) 
 			throw new NullPointerException("Can't delete null work.");
 
 		_log.debug("[deleteWork] " + putcode);
 	
-		client.deleteWork(putcode);
+		return client.deleteWork(putcode);
 	}
 
 	/**
@@ -409,7 +486,7 @@ public class ORCIDHelper {
 	 * @throws NullPointerException
 	 *             if the activity is null
 	 */
-	private static void cleanWorkLocalKey(ElementSummary act) throws NullPointerException {
+	public static void cleanWorkLocalKey(ElementSummary act) throws NullPointerException {
 		if (act == null)
 			throw new NullPointerException("Can't clear local key.");
 
@@ -417,7 +494,7 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Calculates the symmetric difference of {@link ExternalId external
+	 * Calculates the symmetric difference of self {@link ExternalId external
 	 * identifiers} between a work summary and a set of works. Works that do not
 	 * match (i.e., no identifier is common) are ignored.
 	 *
@@ -425,11 +502,12 @@ public class ORCIDHelper {
 	 *            the work summary to be compared with other works
 	 * @param works
 	 *            the set of works against which the work summary is compared
-	 * @return The symmetric difference of external identifiers between work and works
+	 * @return The symmetric difference of self external identifiers between
+	 *         work and works
 	 * @throws NullPointerException
 	 *             if either of the parameters is null
 	 */
-	public static Map<Work, ExternalIdsDiff> getExternalIdsDiff(WorkSummary work, Collection<Work> works) 
+	public static Map<Work, ExternalIdsDiff> getSelfExternalIdsDiff(WorkSummary work, Collection<Work> works) 
 			throws NullPointerException {
 		if (work == null || works == null)
 			throw new NullPointerException("Can't get external ids.");
@@ -437,7 +515,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(getNonNullExternalIds(match), getNonNullExternalIds(work));
+					new ExternalIdsDiff(getSelfExternalIds(match), getSelfExternalIds(work));
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -445,7 +523,7 @@ public class ORCIDHelper {
 	}
 
 	/**
-	 * Calculates the symmetric difference of {@link ExternalId external
+	 * Calculates the symmetric difference of self {@link ExternalId external
 	 * identifiers} between a work and a set of works. Works that do not match
 	 * (i.e., no identifier is common) are ignored.
 	 *
@@ -453,11 +531,12 @@ public class ORCIDHelper {
 	 *            the work summary to be compared with other works
 	 * @param works
 	 *            the set of works against which the work summary is compared
-	 * @return The symmetric difference of external identifiers between work and works
+	 * @return The symmetric difference of self external identifiers between
+	 *         work and works
 	 * @throws NullPointerException
 	 *             if either of the parameters is null
 	 */
-	public static Map<Work, ExternalIdsDiff> getExternalIdsDiff(Work work, Collection<Work> works) 
+	public static Map<Work, ExternalIdsDiff> getSelfExternalIdsDiff(Work work, Collection<Work> works) 
 			throws NullPointerException {
 		if (work == null || works == null)
 			throw new NullPointerException("Can't get external ids.");
@@ -465,7 +544,7 @@ public class ORCIDHelper {
 		final Map<Work, ExternalIdsDiff> matches = new HashMap<Work, ExternalIdsDiff>();
 		for (Work match : works) {
 			final ExternalIdsDiff diff = 
-					new ExternalIdsDiff(getNonNullExternalIds(match), getNonNullExternalIds(work));
+					new ExternalIdsDiff(getSelfExternalIds(match), getSelfExternalIds(work));
 			if (!diff.same.isEmpty())
 				matches.put(match, diff);
 		}
@@ -474,23 +553,23 @@ public class ORCIDHelper {
 	
 	/**
 	 * Checks whether a work is already up to date regarding another one, i.e.,
-	 * whether a work has the same {@link ExternalId external
-	 * identifiers} as another one.
+	 * whether a work has the same self {@link ExternalId external identifiers}
+	 * as another one.
 	 *
 	 * This test is expected to be used by the import algorithms, where only new
-	 * external identifiers	 are to be considered.
+	 * self external identifiers are to be considered.
 	 *
 	 * @param preWork
-	 *            The potentially out of date work.
+	 *            The potentially out of date work
 	 * @param posWork
-	 *            The up to date work.
-	 * @return true if all the UIDs between the two works are the same, false
-	 *         otherwise.
+	 *            The up to date work
+	 * @return true if all the self external identifiers between the two works
+	 *         are the same, false otherwise
 	 */
-	public static boolean hasNewIDs(Work preWork, WorkSummary posWork) {
+	public static boolean hasNewSelfIDs(Work preWork, WorkSummary posWork) {
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				getNonNullExternalIds(preWork),
-				getNonNullExternalIds(posWork));
+				getSelfExternalIds(preWork),
+				getSelfExternalIds(posWork));
 
 		return diff.more.isEmpty();
 	}
@@ -508,10 +587,10 @@ public class ORCIDHelper {
 	 * @param posWork
 	 *            the up to date work
 	 * @return true if all the external identifiers and the meta-data between
-	 *         the two works are the same, false otherwise.
+	 *         the two works are the same, false otherwise
 	 */
 	public static boolean isUpToDate(Work preWork, WorkSummary posWork) {
-		return isIDsUpToDate(preWork, posWork) && isMetaUpToDate(preWork, posWork);
+		return isSelfEIDsUpToDate(preWork, posWork) && isMetaUpToDate(preWork, posWork);
 	}
 
 	/**
@@ -524,62 +603,63 @@ public class ORCIDHelper {
 	 * @param posWork
 	 *            the up to date work
 	 * @return true if all the external identifiers and the meta-data between
-	 *         the two works are the same, false otherwise.
+	 *         the two works are the same, false otherwise
 	 */
 	public static boolean isUpToDate(Work preWork, Work posWork) {
-		return isIDsUpToDate(preWork, posWork) && isMetaUpToDate(preWork, posWork);
+		return isSelfEIDsUpToDate(preWork, posWork) && isMetaUpToDate(preWork, posWork);
 	}
 
 	/**
 	 * Checks whether a work is already up to date regarding another one,
-	 * considering the {@link ExternalIdentifier external identifiers}.
+	 * considering the self {@link ExternalIdentifier external identifiers}.
 	 *
 	 * @param preWork
 	 *            the potentially out of date work
 	 * @param posWork
 	 *            the up to date work
-	 * @return true if all the external identifiers are the same, false otherwise.
-	 * @throws NullPointerException if either work is null
+	 * @return true if all the self external identifiers are the same, false
+	 *         otherwise.
+	 * @throws NullPointerException
+	 *             if either work is null
 	 */
-	private static boolean isIDsUpToDate(Work preWork, WorkSummary posWork) 
+	private static boolean isSelfEIDsUpToDate(Work preWork, WorkSummary posWork) 
 			throws NullPointerException {
 		if (preWork == null || posWork == null)
 			throw new NullPointerException("Can't test null works.");
 		
-		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				getNonNullExternalIds(preWork),
-				getNonNullExternalIds(posWork));
-		return diff.more.isEmpty() && diff.less.isEmpty();
+		return identicalEIDs(getSelfExternalIds(preWork),
+							 getSelfExternalIds(posWork));
 	}
 
 	/**
 	 * Checks whether a work is already up to date regarding another one,
-	 * considering the {@link ExternalIdentifier external identifiers}.
+	 * considering the self {@link ExternalIdentifier external identifiers}.
 	 *
 	 * @param preWork
 	 *            the potentially out of date work
 	 * @param posWork
 	 *            the up to date work
-	 * @return true if all the external identifiers are the same, false otherwise.
-	 * @throws NullPointerException if either work is null
+	 * @return true if all the self external identifiers are the same, false
+	 *         otherwise.
+	 * @throws NullPointerException
+	 *             if either work is null
 	 */
-	private static boolean isIDsUpToDate(Work preWork, Work posWork) 
+	private static boolean isSelfEIDsUpToDate(Work preWork, Work posWork) 
 			throws NullPointerException {
 		if (preWork == null || posWork == null)
 			throw new NullPointerException("Can't test null works.");
 
-		final ExternalIdsDiff diff = new ExternalIdsDiff(
-				getNonNullExternalIds(preWork),
-				getNonNullExternalIds(posWork));
-		return diff.more.isEmpty() && diff.less.isEmpty();
+		return identicalEIDs(getSelfExternalIds(preWork),
+							 getSelfExternalIds(posWork));
 	}
-
+	
 	/**
 	 * Checks whether a work is already up to date regarding another one,
-	 * considering meta-data other than the external identifiers.
+	 * considering meta-data other than the self external identifiers.
 	 *
-	 * The considered fields are: title, publication date (year), work type. All
-	 * these meta-data is available in work summaries.
+	 * The considered fields are: title, publication date (year), work type and
+	 * part-of external identifiers. All these meta-data is available in work
+	 * summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -598,6 +678,9 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
+		res &= identicalEIDs(
+				ORCIDHelper.getPartOfExternalIds(preWork), 
+				ORCIDHelper.getPartOfExternalIds(posWork));
 		res &= getWorkTitle(preWork).equals(getWorkTitle(posWork));
 		res &= (getPubYear(preWork) == null && getPubYear(posWork) == null)
 				|| (getPubYear(preWork) != null && getPubYear(posWork) != null 
@@ -610,10 +693,11 @@ public class ORCIDHelper {
 
 	/**
 	 * Checks whether a work is already up to date regarding another one,
-	 * considering meta-data other than the external identifiers.
+	 * considering meta-data other than the self external identifiers.
 	 *
-	 * The considered fields are: title, publication date (year), work type. All
-	 * these meta-data is available in work summaries.
+	 * The considered fields are: title, publication date (year), work type and
+	 * part-of external identifiers. All these meta-data is available in work
+	 * summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -632,9 +716,9 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
-		res &= testPartOfIDs(
-				ORCIDHelper.getNonNullExternalIds(preWork).getExternalId(), 
-				ORCIDHelper.getNonNullExternalIds(posWork).getExternalId());
+		res &= identicalEIDs(
+				ORCIDHelper.getPartOfExternalIds(preWork), 
+				ORCIDHelper.getPartOfExternalIds(posWork));
 		res &= getWorkTitle(preWork).equals(getWorkTitle(posWork));
 		res &= (getPubYear(preWork) == null && getPubYear(posWork) == null)
 				|| (getPubYear(preWork) != null && getPubYear(posWork) != null 
@@ -644,40 +728,12 @@ public class ORCIDHelper {
 						.getType().equals(posWork.getType()));
 		return res;
 	}
-	
-	/**
-	 * Checks whether the part-of identifiers of a work are up-to-date.
-	 * 
-	 * @param eids1
-	 *            the current external identifiers
-	 * @param eids2
-	 *            the external identifiers to be checked if up-to-date
-	 * @return true if up-to-date
-	 */
-	private static boolean testPartOfIDs(List<ExternalId> eids1, List<ExternalId> eids2) {
-		for (final ExternalId eid2 : eids2) {
-			if (eid2.getExternalIdRelationship() == RelationshipType.SELF) {}
-			else {
-				boolean found = false;
-				Iterator<ExternalId> it = eids1.iterator();
-				while (!found && it.hasNext()) {
-					ExternalId eid1 = it.next();
-					if (eid2.getExternalIdRelationship() == eid1.getExternalIdRelationship()
-						&& eid1.getExternalIdValue().equals(eid2.getExternalIdValue())
-						&& eid1.getExternalIdType().equals(eid2.getExternalIdType())) 
-					found = true;
-				}
-				if (!found) return false;
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * Tests whether a work has minimal quality to be synchronized, by
 	 * inspecting its meta-data, returns the detected invalid fields.
 	 * 
- 	 * The considered fields are: external identifiers, title, publication date
+ 	 * The considered fields are: self external identifiers, title, publication date
 	 * (year), work type. All this meta-data is available in work summaries.
 	 * 
 	 * @see #testMinimalQuality(Work, Collection)
@@ -697,7 +753,7 @@ public class ORCIDHelper {
 	 * inspecting its meta-data and that of coexisting works, and returns the
 	 * detected invalid fields.
 	 * 
-	 * The considered fields are: external identifiers, title, publication date
+	 * The considered fields are: self external identifiers, title, publication date
 	 * (year), work type. The test also checks whether the external identifiers
 	 * overlap with those of the coexisting works. All this meta-data is
 	 * available in work summaries. The publication date is not necessary for
@@ -719,13 +775,9 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null work.");
 		
 		final Set<String> res = new HashSet<String>();
-		if (work.getExternalIds() == null)
+		if (getSelfExternalIds(work).getExternalId().isEmpty())
 			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else if (work.getExternalIds().getExternalId() == null
-				|| work.getExternalIds().getExternalId().isEmpty())
-			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else
-			for (ExternalId eid : work.getExternalIds().getExternalId())
+		else for (ExternalId eid : getSelfExternalIds(work).getExternalId())
 				if (!validEIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
@@ -740,7 +792,7 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
-		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(work, others);
+		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getSelfExternalIdsDiff(work, others);
 		for (Work match : worksDiffs.keySet())
 			if (match.getPutCode() != work.getPutCode() && !worksDiffs.get(match).same.isEmpty())
 				res.add(OVERLAPPING_EIDs);
@@ -752,7 +804,7 @@ public class ORCIDHelper {
 	 * Tests whether a work summary has minimal quality to be synchronized,
 	 * by inspecting its meta-data, returns the detected invalid fields.
 	 * 
- 	 * The considered fields are: external identifiers, title, publication date
+ 	 * The considered fields are: self external identifiers, title, publication date
 	 * (year), work type. All this meta-data is available in work summaries.
 	 * 
 	 * @see #testMinimalQuality(WorkSummary, Collection)
@@ -772,7 +824,7 @@ public class ORCIDHelper {
 	 * inspecting its meta-data and that of coexisting works, and returns the
 	 * detected invalid fields.
 	 * 
-	 * The considered fields are: external identifiers, title, publication date
+	 * The considered fields are: self external identifiers, title, publication date
 	 * (year), work type. The test also checks whether the external identifiers
 	 * overlap with those of the coexisting works. All this meta-data is
 	 * available in work summaries. The publication date is not necessary for
@@ -794,13 +846,9 @@ public class ORCIDHelper {
 			throw new NullPointerException("Can't test null work.");
 	
 		final Set<String> res = new HashSet<String>();
-		if (work.getExternalIds() == null)
+		if (getSelfExternalIds(work).getExternalId().isEmpty())
 			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else if (work.getExternalIds().getExternalId() == null
-				|| work.getExternalIds().getExternalId().isEmpty())
-			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else
-			for (ExternalId eid : work.getExternalIds().getExternalId())
+		else for (ExternalId eid : getSelfExternalIds(work).getExternalId())
 				if (!validEIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
@@ -815,7 +863,7 @@ public class ORCIDHelper {
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
 		}
-		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getExternalIdsDiff(work, others);
+		Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getSelfExternalIdsDiff(work, others);
 		for (Work match : worksDiffs.keySet())
 			if (match.getPutCode() != work.getPutCode() && !worksDiffs.get(match).same.isEmpty())
 				res.add(OVERLAPPING_EIDs);
@@ -827,7 +875,7 @@ public class ORCIDHelper {
 	 * Tests whether a work has minimal quality to be synchronized, by
 	 * inspecting its meta-data. Throws an exception if the test fails.
 	 * 
-	 * The considered fields are: external identifiers, title, publication date
+	 * The considered fields are: self external identifiers, title, publication date
 	 * (year), work type. The overlapping of external identifiers with other
 	 * works is also tested. All this meta-data is available in work summaries.
 	 * 
@@ -854,7 +902,7 @@ public class ORCIDHelper {
 	 * Tests whether a work summary has minimal quality to be synchronized, by
 	 * inspecting its meta-data. Throws an exception if the test fails.
 	 * 
-	 * The considered fields are: external identifiers, title, publication date
+	 * The considered fields are: self external identifiers, title, publication date
 	 * (year), work type. The overlapping of external identifiers with other
 	 * works is also tested. All this meta-data is available in work summaries.
 	 * 
@@ -897,8 +945,10 @@ public class ORCIDHelper {
 	
 	/**
 	 * Merges a work group into a single work summary. Simply selects the
-	 * meta-data from the first work of the group (i.e., the preferred one) and
-	 * assigns it any extra external identifiers from the remainder works.
+	 * meta-data (including part-of external identifiers) from the first work of
+	 * the group (i.e., the preferred one) and assigns it any extra (self)
+	 * external identifiers from the remainder works. These remainder identifiers
+	 * are the ones grouped by ORCID.
 	 *
 	 * @param group
 	 *            the work group to be merged
@@ -918,10 +968,10 @@ public class ORCIDHelper {
 		final WorkSummary preferred = group.getWorkSummary().get(0);
 		final WorkSummary dummy = clone(preferred);
 
-		final List<ExternalId> eids = getNonNullExternalIds(dummy).getExternalId();
+		final List<ExternalId> eids = getPartOfExternalIds(dummy).getExternalId();
 		for (ExternalId id : group.getExternalIds().getExternalId()) {
 			final ExternalId eid = new ExternalId();
-			eid.setExternalIdRelationship(RelationshipType.SELF);
+			eid.setExternalIdRelationship(id.getExternalIdRelationship());
 			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
 			eid.setExternalIdValue(id.getExternalIdValue());
 			eids.add(eid);
@@ -951,7 +1001,7 @@ public class ORCIDHelper {
 	 *            the work summary
 	 * @return the work's title if defined, empty string otherwise
 	 */
-	private static String getWorkTitle(WorkSummary work) {
+	protected static String getWorkTitle(WorkSummary work) {
 		if (work == null || work.getTitle() == null)
 			return "";
 		return work.getTitle().getTitle();
@@ -1018,6 +1068,88 @@ public class ORCIDHelper {
 		} else {
 			return new ExternalIds(new ArrayList<ExternalId>());
 		}
+	}
+	
+	
+	/**
+	 * Returns the non-null part-of external identifiers of a work (null becomes
+	 * empty list).
+	 * 
+	 * @param work
+	 *            the work from which to retrieve the external identifiers
+	 * @return the non-null part-of external identifiers
+	 */
+	public static ExternalIds getPartOfExternalIds (Work work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.PART_OF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+
+	/**
+	 * Returns the non-null part-of external identifiers of a work summary (null
+	 * becomes empty list).
+	 * 
+	 * @param work
+	 *            the work summary from which to retrieve the external
+	 *            identifiers
+	 * @return the non-null part-of external identifiers
+	 */
+	public static ExternalIds getPartOfExternalIds (WorkSummary work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.PART_OF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+	
+	/**
+	 * Returns the non-null self external identifiers of a work (null becomes
+	 * empty list).
+	 * 
+	 * @param work
+	 *            the work from which to retrieve the external identifiers
+	 * @return the non-null self external identifiers
+	 */
+	public static ExternalIds getSelfExternalIds (Work work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+
+	/**
+	 * Returns the non-null self external identifiers of a work summary (null
+	 * becomes empty list).
+	 * 
+	 * @param work
+	 *            the work summary from which to retrieve the external
+	 *            identifiers
+	 * @return the non-null self external identifiers
+	 */
+	public static ExternalIds getSelfExternalIds (WorkSummary work) {
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIds(work).getExternalId())
+			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+
+	/**
+	 * Tests whether two sets of (non-exclusively self or part-of) external
+	 * identifiers are identical.
+	 * 
+	 * @param eids1
+	 *            the first set of external identifiers
+	 * @param eids2
+	 *            the second set of external identifiers
+	 * @return whether the external identifiers are identical
+	 */
+	private static boolean identicalEIDs(ExternalIds eids1, ExternalIds eids2) {
+		final ExternalIdsDiff diff = new ExternalIdsDiff(eids1, eids2);
+		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
 	/**
@@ -1089,5 +1221,6 @@ public class ORCIDHelper {
 		dummy.setUrl(work.getUrl());
 		return dummy;
 	}
+
 
 }

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.test.scenarios;
 
 import java.math.BigInteger;
@@ -45,8 +54,12 @@ public class Scenario16 extends Scenario {
 	@Override
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workHANDLE(BigInteger.valueOf(1), null, "0"));
-		works.add(TestHelper.workHANDLE(BigInteger.valueOf(1), null, "1"));
+		Work w = TestHelper.workHANDLE(BigInteger.valueOf(1), null, "0");
+		w.setExternalIds(ORCIDHelper.getSelfExternalIds(w));
+		works.add(w);
+		Work w1 = TestHelper.workHANDLE(BigInteger.valueOf(1), null, "1");
+		w1.setExternalIds(ORCIDHelper.getSelfExternalIds(w1));
+		works.add(w1);
 		return works;
 	}
 

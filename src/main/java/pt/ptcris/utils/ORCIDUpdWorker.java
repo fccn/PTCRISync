@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
@@ -6,10 +15,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * A worker thread that can be used to UPDATE works from ORCID.
@@ -38,7 +47,7 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work is null
 	 */
-	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws NullPointerException, InvalidParameterException {
 		super(client, cb, log);
 		if (work == null)
@@ -53,16 +62,12 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	 */
 	@Override
 	public void run() {
-		try {
-			_log.debug("[updateWork] " + work.getPutCode());
-			MDC.setContextMap(mdcCtxMap);
+		_log.debug("[updateWork] " + work.getPutCode());
+		MDC.setContextMap(mdcCtxMap);
 
-			client.updateWork(work.getPutCode(), work);
-			
-			callback(work.getPutCode(), work);
-		} catch (final OrcidClientException e) {
-			callback(work.getPutCode(), e);
-		}
+		final PTCRISyncResult res = client.updateWork(work.getPutCode(), work);
+		
+		callback(work.getPutCode(), res);
 	}
 
 }

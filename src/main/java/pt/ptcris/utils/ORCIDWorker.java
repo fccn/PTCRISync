@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
@@ -8,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.MDC;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * An abstract worker that can be used to parallelize calls to the ORCID API. A
@@ -18,7 +28,7 @@ import pt.ptcris.ORCIDClient;
 public abstract class ORCIDWorker extends Thread {
 
 	protected final Logger _log;
-	protected final Map<BigInteger, Object> cb;
+	protected final Map<BigInteger, PTCRISyncResult> cb;
 	protected final ORCIDClient client;
 	protected final Map<String, String> mdcCtxMap;
 
@@ -36,7 +46,7 @@ public abstract class ORCIDWorker extends Thread {
 	 * @throws NullPointerException
 	 *             if cb or client are null
 	 */
-	ORCIDWorker(ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws InvalidParameterException {
 		if (cb == null || client == null)
 			throw new NullPointerException("Client and callback must not be null.");
@@ -52,7 +62,7 @@ public abstract class ORCIDWorker extends Thread {
 	 * @param res
 	 *            the result to return
 	 */
-	protected void callback(BigInteger id, Object res) {
+	protected void callback(BigInteger id, PTCRISyncResult res) {
 		cb.put(id, res);
 	}
 

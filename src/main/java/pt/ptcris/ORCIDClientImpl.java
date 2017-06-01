@@ -1,12 +1,32 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris;
 
+import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
 import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.activities.Works;
+import org.um.dsi.gavea.orcid.model.bulk.Bulk;
 import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
+import org.um.dsi.gavea.orcid.model.error.Error;
+
+import pt.ptcris.utils.ORCIDHelper;
 
 /**
  * An implementation of the ORCID client interface built over the
@@ -135,32 +155,122 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */	
 	@Override
-	public Work getWork(BigInteger putcode) throws OrcidClientException {
-		return orcidClient.readWork(orcidToken, putcode.toString());
+	public PTCRISyncResult getWork(WorkSummary putcode) {
+		PTCRISyncResult res;
+		try {
+			Work work = orcidClient.readWork(orcidToken, putcode.getPutCode().toString());
+			finalizeGet(work, putcode);
+			res = PTCRISyncResult.got(putcode.getPutCode(), work);
+		} catch (OrcidClientException e) {
+			res = PTCRISyncResult.fail(e);
+		}
+		return res;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */	
+	@Override
+	public Map<BigInteger,PTCRISyncResult> getWorks(List<WorkSummary> summaries) {
+		List<String> pcs = new ArrayList<String>();
+		for (WorkSummary i : summaries)
+			pcs.add(i.getPutCode().toString());
+		Map<BigInteger,PTCRISyncResult> res = new HashMap<BigInteger,PTCRISyncResult>();
+		try {
+			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
+			for (int i = 0; i < summaries.size(); i++) {
+				Serializable w = bulk.get(i);
+				if (w instanceof Work) {
+					finalizeGet((Work) w, summaries.get(i));
+					res.put(summaries.get(i).getPutCode(),PTCRISyncResult.got(summaries.get(i).getPutCode(),(Work) w));
+				}
+				else {
+					Error err = (Error) w;
+					OrcidClientException e = new OrcidClientException(err.getResponseCode(), 
+							err.getUserMessage(),
+							err.getErrorCode(),
+							err.getDeveloperMessage());	
+					res.put(summaries.get(i).getPutCode(),PTCRISyncResult.fail(e));
+				}
+			}
+		} catch (OrcidClientException e1) {
+			for (int i = 0; i < summaries.size(); i++) 
+				res.put(summaries.get(i).getPutCode(),PTCRISyncResult.fail(e1));
+		}
+		return res;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PTCRISyncResult addWork(Work work) {
+		PTCRISyncResult res;
+		try {
+			BigInteger putcode = new BigInteger(orcidClient.addWork(orcidToken, work));
+			res = PTCRISyncResult.ok(putcode);
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
+		return res;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<PTCRISyncResult> addWorks(List<Work> works) {
+		Bulk bulk = new Bulk();
+		List<PTCRISyncResult> res = new ArrayList<PTCRISyncResult>();
+		for (Work work : works)
+			bulk.getWorkOrError().add(work);
+		try {
+			Bulk res_bulk = orcidClient.addWorks(orcidToken, bulk);
+			for (Serializable r : res_bulk.getWorkOrError()) {
+				if (r instanceof Work)
+					res.add(PTCRISyncResult.ok(((Work) r).getPutCode()));
+				else {
+					Error err = (Error) r;
+					OrcidClientException e = new OrcidClientException(err.getResponseCode(), 
+																	  err.getUserMessage(),
+																	  err.getErrorCode(),
+																	  err.getDeveloperMessage());
+					res.add(PTCRISyncResult.fail(e));
+				}
+			}
+		} catch (OrcidClientException e) {
+			for (int i=0;i<works.size();i++)
+				res.add(PTCRISyncResult.fail(e));
+		}
+		return res; 
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BigInteger addWork(Work work) throws OrcidClientException {
-		return new BigInteger(orcidClient.addWork(orcidToken, work));
+	public PTCRISyncResult deleteWork(BigInteger putcode) {
+		try {
+			orcidClient.deleteWork(orcidToken, putcode.toString());
+			return PTCRISyncResult.OK_DEL_RESULT;
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteWork(BigInteger putcode) throws OrcidClientException {
-		orcidClient.deleteWork(orcidToken, putcode.toString());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void updateWork(BigInteger putcode, Work work) throws OrcidClientException {
-		orcidClient.updateWork(orcidToken, putcode.toString(), work);
+	public PTCRISyncResult updateWork(BigInteger putcode, Work work) {
+		PTCRISyncResult res;
+		try {
+			orcidClient.updateWork(orcidToken, putcode.toString(), work);
+			res = PTCRISyncResult.OK_UPD_RESULT;
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
+		return res;
 	}
 
 	/**
@@ -175,8 +285,31 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Works getWorksSummary() throws OrcidClientException {
+		return orcidClient.readWorksSummary(orcidToken);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int threads() {
 		return threads;
+	}
+	
+	/**
+	 * Finalizes a get by updating the meta-data.
+	 * 
+	 * @see #getFullWork(WorkSummary)
+	 * 
+	 * @param fullWork
+	 *            the newly retrieved work
+	 * @param sumWork
+	 *            the original summary
+	 */
+	private static void finalizeGet(Work fullWork, WorkSummary sumWork) {
+		fullWork.setExternalIds(ORCIDHelper.getNonNullExternalIds(sumWork));
+		ORCIDHelper.cleanWorkLocalKey(fullWork);
 	}
 
 }

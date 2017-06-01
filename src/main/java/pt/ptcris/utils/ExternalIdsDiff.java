@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.utils;
 
 import java.util.HashSet;
@@ -7,7 +16,6 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
-import org.um.dsi.gavea.orcid.model.common.RelationshipType;
 
 /**
  * Calculates and stores the symmetric difference between two sets of
@@ -45,12 +53,10 @@ public final class ExternalIdsDiff {
 		List<ExternalId> eids2 = new LinkedList<ExternalId>();
 
 		for (ExternalId eid : weids1.getExternalId())
-			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
-				eids1.add(eid);
+			eids1.add(eid);
 
 		for (ExternalId eid : weids2.getExternalId())
-			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
-				eids2.add(eid);	
+			eids2.add(eid);	
 		
 		calculateDifference(eids1, eids2);
 	}
@@ -75,7 +81,7 @@ public final class ExternalIdsDiff {
 		more.addAll(eids2);
 		for (final ExternalId eid2 : eids2) {
 			for (final ExternalId eid1 : eids1) {
-				if (sameButNotBothPartOf(eid2.getExternalIdRelationship(),eid1.getExternalIdRelationship())
+				if (eid2.getExternalIdRelationship().equals(eid1.getExternalIdRelationship())
 						&& eid1.getExternalIdValue().equals(eid2.getExternalIdValue())
 						&& eid1.getExternalIdType().equals(eid2.getExternalIdType())) {
 					same.add(eid2);
@@ -84,24 +90,6 @@ public final class ExternalIdsDiff {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Tests whether two external identifier {@link RelationshipType
-	 * relationship types} are the same but not part of.
-	 *
-	 * @param r1
-	 *            an external identifier relationship type
-	 * @param r2
-	 *            another external identifier relationship type
-	 * @return whether external identifiers are the same but not part of
-	 */
-	private static boolean sameButNotBothPartOf(RelationshipType r1, RelationshipType r2) {
-		if (r1 == null && r2 == null)
-			return true;
-		if (r1 != null && r1.equals(r2) && !r1.equals(RelationshipType.PART_OF))
-			return true;
-		return false;
 	}
 
 }

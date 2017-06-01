@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.merge;
 
 /**
@@ -17,7 +26,7 @@ public abstract class ActivityComparator<A> {
 	 * 
 	 * @return the threshold value
 	 */
-	abstract int threshold();
+	abstract public int threshold();
 
 	/**
 	 * Calculates a similarity metric between two activities.
@@ -28,7 +37,7 @@ public abstract class ActivityComparator<A> {
 	 *            other activity
 	 * @return the similarity metric between the activities
 	 */
-	abstract float compare(A act1, A act2);
+	abstract public float compare(A act1, A act2);
 
 	/**
 	 * Tests whether two activities match, given the

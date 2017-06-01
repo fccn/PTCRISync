@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.test.scenarios;
 
 import static org.junit.Assert.*;
@@ -50,10 +59,8 @@ public abstract class Scenario {
 		externalClient = externalClient();
 		TestHelper.cleanUp(crisClient);
 		TestHelper.cleanUp(externalClient);
-		for (Work work : setupORCIDExternalWorks())
-			externalClient.addWork(work);
-		for (Work work : setupORCIDCRISWorks())
-			crisClient.addWork(work);
+		externalClient.addWorks(setupORCIDExternalWorks(),null);
+		crisClient.addWorks(setupORCIDCRISWorks(),null);
 		this.localWorks = setupLocalWorks();
 		this.exportWorks = exportLocalWorks();
 		this.localWorks.addAll(this.exportWorks);
@@ -265,8 +272,10 @@ public abstract class Scenario {
 	 */
 	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
 		for (BigInteger id : results.keySet())
-			if (!expectedExportCodes(id).contains(results.get(id).code))
+			if (!expectedExportCodes(id).contains(results.get(id).code)) {
+				TestHelper.handler().sendError("Was "+results.get(id).code);
 				return false;
+			}
 		return true;
 	}
 

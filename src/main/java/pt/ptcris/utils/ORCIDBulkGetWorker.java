@@ -11,6 +11,7 @@ package pt.ptcris.utils;
 
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,9 +26,9 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-public final class ORCIDGetWorker extends ORCIDWorker {
+public final class ORCIDBulkGetWorker extends ORCIDWorker {
 
-	private final WorkSummary work;
+	private final List<WorkSummary> works;
 
 	/**
 	 * A threaded worker that can be launched in parallel to GET works with the
@@ -49,14 +50,14 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work's put-code is undefined
 	 */
-	public ORCIDGetWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
+	public ORCIDBulkGetWorker(List<WorkSummary> works, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws InvalidParameterException, NullPointerException {
 		super(client, cb, log);
-		if (work == null)
-			throw new NullPointerException("GET: Work must not be null.");
-		if (work.getPutCode() == null)
-			throw new InvalidParameterException("GET: Work must have a put-code defined.");
-		this.work = work;
+		if (works == null)
+			throw new NullPointerException("Bulk GET: Work must not be null.");
+		if (works.size() == 0)
+			throw new InvalidParameterException("Bulk GET: Must have some put-code.");
+		this.works = works;
 	}
 
 	/**
@@ -68,10 +69,13 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 			MDC.setContextMap(mdcCtxMap);
 		} catch (Exception e) {} // if the context is empty
 		
-		_log.debug("[getFullWork] " + work.getPutCode());
-		final PTCRISyncResult fullWork = client.getWork(work);
-
-		callback(work.getPutCode(), fullWork);
+		_log.debug("[getFullWorks] " + works.size());
+		final Map<BigInteger,PTCRISyncResult> fullWorks = client.getWorks(works);
+		
+		for (WorkSummary w : works) {
+			PTCRISyncResult wrk = fullWorks.get(w.getPutCode());
+			callback(w.getPutCode(), wrk);
+		}
 	}
 
 }

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
@@ -5,10 +14,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * A worker thread that can be used to ADD works from ORCID.
@@ -35,7 +44,7 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, Object> cb, Logger log) {
+	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
 		super(client, cb, log);
 		if (work == null)
 			throw new NullPointerException("UPDATE: arguments must not be null.");
@@ -47,16 +56,14 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	 */
 	@Override
 	public void run() {
-		try {
-			_log.debug("[addWork] " + ORCIDHelper.getWorkTitle(work));
-			MDC.setContextMap(mdcCtxMap);
+		_log.debug("[addWork] " + ORCIDHelper.getWorkTitle(work));
+		MDC.setContextMap(mdcCtxMap);
 
-			final BigInteger putcode = client.addWork(work);
-	
-			callback(putcode, work);
-		} catch (final OrcidClientException e) {
-			callback(BigInteger.valueOf(0), e);
-		}
+		final PTCRISyncResult res = client.addWork(work);
+		if (res.putcode == null)
+			callback(BigInteger.valueOf(0), res);
+		else
+			callback(res.putcode, res);
 	}
 
 }

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.test;
 
 import java.math.BigInteger;
@@ -41,8 +50,9 @@ public class TestHelper {
 			else
 				work.setType(WorkType.CONFERENCE_PAPER);
 
-			FuzzyDate date = new FuzzyDate(new Year("201" + meta), null, null);
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
 			work.setPublicationDate(date);
+
 		}
 
 		return work;
@@ -116,6 +126,14 @@ public class TestHelper {
 
 		work.getExternalIds().getExternalId().add(e1);
 
+		
+//		ExternalId e2 = new ExternalId();
+//		e2.setExternalIdRelationship(RelationshipType.PART_OF);
+//		e2.setExternalIdValue("11111");
+//		e2.setExternalIdType("isbn");
+//
+//		work.getExternalIds().getExternalId().add(e2);
+		
 		return work;
 	}
 
@@ -141,6 +159,13 @@ public class TestHelper {
 		
 		work.getExternalIds().getExternalId().add(e);
 
+		ExternalId e2 = new ExternalId();
+		e2.setExternalIdRelationship(RelationshipType.PART_OF);
+		e2.setExternalIdValue("11111");
+		e2.setExternalIdType("isbn");
+
+		work.getExternalIds().getExternalId().add(e2);
+		
 		return work;
 	}
 

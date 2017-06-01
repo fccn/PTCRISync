@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
@@ -5,9 +14,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 
 import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
 
 /**
  * A worker thread that can be used to DELETE works from ORCID.
@@ -34,7 +43,7 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
-	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, Object> cb, Logger log)
+	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws NullPointerException {
 		super(client, cb, log);
 		if (putcode == null)
@@ -47,16 +56,12 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 */
 	@Override
 	public void run() {
-		try {
-			_log.debug("[deleteWork] " + putcode);
-			MDC.setContextMap(mdcCtxMap);
+		_log.debug("[deleteWork] " + putcode);
+		MDC.setContextMap(mdcCtxMap);
 
-			client.deleteWork(putcode);
+		PTCRISyncResult res = client.deleteWork(putcode);
 
-			callback(putcode, null);
-		} catch (final OrcidClientException e) {
-			callback(putcode,e);
-		}
+		callback(putcode, res);
 	}
 
 }
