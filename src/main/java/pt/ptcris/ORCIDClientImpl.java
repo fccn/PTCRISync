@@ -17,14 +17,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
-import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
+import org.um.dsi.gavea.orcid.model.activities.Fundings;
 import org.um.dsi.gavea.orcid.model.activities.Works;
 import org.um.dsi.gavea.orcid.model.bulk.Bulk;
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.error.Error;
+import org.um.dsi.gavea.orcid.model.funding.Funding;
+import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 
 import pt.ptcris.utils.ORCIDHelper;
 
@@ -40,7 +43,7 @@ import pt.ptcris.utils.ORCIDHelper;
 public class ORCIDClientImpl implements ORCIDClient {
 
 	private final OrcidAccessToken orcidToken;
-	private final OrcidOAuthClient orcidClient;
+	private final TempORCIDClient orcidClient;
 	private final String clientId;
 	private final int threads;
 
@@ -140,7 +143,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 		this.orcidToken = orcidToken;
 		this.clientId = clientId;
 		this.threads = threads;
-		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId, clientSecret, redirectUri, debugMode);
+		this.orcidClient = new TempORCIDClient(loginUri, apiUri, clientId, clientSecret, redirectUri, debugMode);
 	}	
 
 	/**
@@ -156,11 +159,23 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 */	
 	@Override
 	public PTCRISyncResult getWork(WorkSummary putcode) {
+		return getSumary(putcode);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */	
+	@Override
+	public PTCRISyncResult getFunding(FundingSummary putcode) {
+		return getSumary(putcode);
+	}
+	
+	private PTCRISyncResult getSumary(ElementSummary putcode) {
 		PTCRISyncResult res;
 		try {
-			Work work = orcidClient.readWork(orcidToken, putcode.getPutCode().toString());
-			finalizeGet(work, putcode);
-			res = PTCRISyncResult.got(putcode.getPutCode(), work);
+			Funding fund = orcidClient.readFunding(orcidToken, putcode.getPutCode().toString());
+			finalizeGet(fund, putcode);
+			res = PTCRISyncResult.got(putcode.getPutCode(), fund);
 		} catch (OrcidClientException e) {
 			res = PTCRISyncResult.fail(e);
 		}
@@ -173,16 +188,16 @@ public class ORCIDClientImpl implements ORCIDClient {
 	@Override
 	public Map<BigInteger,PTCRISyncResult> getWorks(List<WorkSummary> summaries) {
 		List<String> pcs = new ArrayList<String>();
-		for (WorkSummary i : summaries)
+		for (ElementSummary i : summaries)
 			pcs.add(i.getPutCode().toString());
 		Map<BigInteger,PTCRISyncResult> res = new HashMap<BigInteger,PTCRISyncResult>();
 		try {
 			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
 			for (int i = 0; i < summaries.size(); i++) {
 				Serializable w = bulk.get(i);
-				if (w instanceof Work) {
-					finalizeGet((Work) w, summaries.get(i));
-					res.put(summaries.get(i).getPutCode(),PTCRISyncResult.got(summaries.get(i).getPutCode(),(Work) w));
+				if (w instanceof ElementSummary) {
+					finalizeGet((ElementSummary) w, summaries.get(i));
+					res.put(summaries.get(i).getPutCode(),PTCRISyncResult.got(summaries.get(i).getPutCode(),(ElementSummary) w));
 				}
 				else {
 					Error err = (Error) w;
@@ -208,6 +223,21 @@ public class ORCIDClientImpl implements ORCIDClient {
 		PTCRISyncResult res;
 		try {
 			BigInteger putcode = new BigInteger(orcidClient.addWork(orcidToken, work));
+			res = PTCRISyncResult.ok(putcode);
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
+		return res;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PTCRISyncResult addFunding(Funding fund) {
+		PTCRISyncResult res;
+		try {
+			BigInteger putcode = new BigInteger(orcidClient.addFunding(orcidToken, fund));
 			res = PTCRISyncResult.ok(putcode);
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
@@ -245,6 +275,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 		return res; 
 	}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -252,6 +283,19 @@ public class ORCIDClientImpl implements ORCIDClient {
 	public PTCRISyncResult deleteWork(BigInteger putcode) {
 		try {
 			orcidClient.deleteWork(orcidToken, putcode.toString());
+			return PTCRISyncResult.OK_DEL_RESULT;
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PTCRISyncResult deleteFunding(BigInteger putcode) {
+		try {
+			orcidClient.deleteFunding(orcidToken, putcode.toString());
 			return PTCRISyncResult.OK_DEL_RESULT;
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
@@ -272,14 +316,22 @@ public class ORCIDClientImpl implements ORCIDClient {
 		}
 		return res;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
-		return orcidClient.readActivitiesSummary(orcidToken);
+	public PTCRISyncResult updateFunding(BigInteger putcode, Funding work) {
+		PTCRISyncResult res;
+		try {
+			orcidClient.updateFunding(orcidToken, putcode.toString(), work);
+			res = PTCRISyncResult.OK_UPD_RESULT;
+		} catch (OrcidClientException e) {
+			return PTCRISyncResult.fail(e);
+		}
+		return res;
 	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -287,6 +339,22 @@ public class ORCIDClientImpl implements ORCIDClient {
 	@Override
 	public Works getWorksSummary() throws OrcidClientException {
 		return orcidClient.readWorksSummary(orcidToken);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Fundings getFundingsSummary() throws OrcidClientException {
+		return orcidClient.readFundingsSummary(orcidToken);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
+		return orcidClient.readActivitiesSummary(orcidToken);
 	}
 	
 	/**
@@ -300,16 +368,20 @@ public class ORCIDClientImpl implements ORCIDClient {
 	/**
 	 * Finalizes a get by updating the meta-data.
 	 * 
-	 * @see #getFullWork(WorkSummary)
+	 * @see #getFullSummary(ElementSummary)
 	 * 
-	 * @param fullWork
-	 *            the newly retrieved work
-	 * @param sumWork
+	 * @param full
+	 *            the newly retrieved element
+	 * @param summary
 	 *            the original summary
 	 */
-	private static void finalizeGet(Work fullWork, WorkSummary sumWork) {
-		fullWork.setExternalIds(ORCIDHelper.getNonNullExternalIds(sumWork));
-		ORCIDHelper.cleanWorkLocalKey(fullWork);
+	private static void finalizeGet(ElementSummary full, ElementSummary summary) {
+		// External ids are not inherited...
+		if (summary instanceof WorkSummary)
+			((WorkSummary) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((WorkSummary) summary));
+		else if (summary instanceof FundingSummary)
+			((FundingSummary) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((FundingSummary) summary));
+		ORCIDHelper.cleanWorkLocalKey(full);
 	}
 
 }

@@ -31,6 +31,7 @@ import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
@@ -1065,6 +1066,23 @@ public class ORCIDHelper {
 	public static ExternalIds getNonNullExternalIds (WorkSummary work) {
 		if (work.getExternalIds() != null && work.getExternalIds().getExternalId() != null) {
 			return work.getExternalIds();
+		} else {
+			return new ExternalIds(new ArrayList<ExternalId>());
+		}
+	}
+	
+	/**
+	 * Returns the non-null external identifiers of a funding summary (null becomes
+	 * empty list).
+	 * 
+	 * @param funding
+	 *            the funding summary from which to retrieve the external
+	 *            identifiers
+	 * @return the non-null external identifiers
+	 */
+	public static ExternalIds getNonNullExternalIds (FundingSummary funding) {
+		if (funding.getExternalIds() != null && funding.getExternalIds().getExternalId() != null) {
+			return funding.getExternalIds();
 		} else {
 			return new ExternalIds(new ArrayList<ExternalId>());
 		}
