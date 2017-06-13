@@ -49,6 +49,24 @@ public interface ORCIDClient {
 	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException;
 
 	/**
+	 * Retrieves every work summary from the ORCID profile.
+	 *
+	 * @return the work summaries of the ORCID profile
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails
+	 */
+	public Works getWorksSummary() throws OrcidClientException;
+
+	/**
+	 * Retrieves every funding summary from the ORCID profile.
+	 *
+	 * @return the funding summaries of the ORCID profile
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails
+	 */
+	public Fundings getFundingsSummary() throws OrcidClientException;
+
+	/**
 	 * Retrieves a complete work from the ORCID profile (as opposed to only its
 	 * summary). Exceptions are embedded in the {@link PTCRISyncResult}.
 	 *
@@ -57,6 +75,16 @@ public interface ORCIDClient {
 	 * @return the complete work
 	 */
 	public PTCRISyncResult getWork(WorkSummary summary);
+
+	/**
+	 * Retrieves a complete funding entry from the ORCID profile (as opposed to
+	 * only its summary). Exceptions are embedded in the {@link PTCRISyncResult}.
+	 *
+	 * @param summary
+	 *            the summary of the funding entry to be retrieved
+	 * @return the complete funding entry
+	 */
+	public PTCRISyncResult getFunding(FundingSummary summary);
 
 	/**
 	 * Retrieves a list of complete work from the ORCID profile (as opposed to
@@ -81,6 +109,16 @@ public interface ORCIDClient {
 	public PTCRISyncResult addWork(Work work);
 
 	/**
+	 * Adds a new funding entry to the ORCID profile. Exceptions are embedded in
+	 * the {@link PTCRISyncResult}.
+	 *
+	 * @param funding
+	 *            the funding entry to be added to the ORCID profile
+	 * @return the put-code assigned by ORCID to the newly created funding entry
+	 */
+	public PTCRISyncResult addFunding(Funding funding);
+
+	/**
 	 * Adds a list of new works to the ORCID profile. Exceptions are embedded in
 	 * the {@link PTCRISyncResult}. This should generate a single API call
 	 * internally.
@@ -102,6 +140,15 @@ public interface ORCIDClient {
 	public PTCRISyncResult deleteWork(BigInteger putcode);
 
 	/**
+	 * Deletes a funding entry from the ORCID profile. Exceptions are embedded
+	 * in the {@link PTCRISyncResult}.
+	 *
+	 * @param putcode
+	 *            the put-code of the funding entry to be deleted
+	 */
+	public PTCRISyncResult deleteFunding(BigInteger putcode);
+
+	/**
 	 * Updates a work in the ORCID profile. Exceptions are embedded in
 	 * the {@link PTCRISyncResult}.
 	 *
@@ -113,44 +160,6 @@ public interface ORCIDClient {
 	public PTCRISyncResult updateWork(BigInteger putcode, Work work);
 
 	/**
-	 * Retrieves every work summary from the ORCID profile.
-	 *
-	 * @return the work summaries of the ORCID profile
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
-	 */
-	public Works getWorksSummary() throws OrcidClientException;
-
-	/**
-	 * Retrieves a complete funding entry from the ORCID profile (as opposed to
-	 * only its summary). Exceptions are embedded in the {@link PTCRISyncResult}.
-	 *
-	 * @param summary
-	 *            the summary of the funding entry to be retrieved
-	 * @return the complete funding entry
-	 */
-	public PTCRISyncResult getFunding(FundingSummary summary);
-
-	/**
-	 * Adds a new funding entry to the ORCID profile. Exceptions are embedded in
-	 * the {@link PTCRISyncResult}.
-	 *
-	 * @param funding
-	 *            the funding entry to be added to the ORCID profile
-	 * @return the put-code assigned by ORCID to the newly created funding entry
-	 */
-	public PTCRISyncResult addFunding(Funding funding);
-
-	/**
-	 * Deletes a funding entry from the ORCID profile. Exceptions are embedded
-	 * in the {@link PTCRISyncResult}.
-	 *
-	 * @param putcode
-	 *            the put-code of the funding entry to be deleted
-	 */
-	public PTCRISyncResult deleteFunding(BigInteger putcode);
-
-	/**
 	 * Updates a funding entry in the ORCID profile. Exceptions are embedded in
 	 * the {@link PTCRISyncResult}.
 	 *
@@ -160,15 +169,6 @@ public interface ORCIDClient {
 	 *            the new state of the funding entry
 	 */
 	public PTCRISyncResult updateFunding(BigInteger putcode, Funding funding);
-
-	/**
-	 * Retrieves every funding summary from the ORCID profile.
-	 *
-	 * @return the funding summaries of the ORCID profile
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
-	 */
-	public Fundings getFundingsSummary() throws OrcidClientException;
 
 	/**
 	 * The number of worker threads that will be used to communicate with the

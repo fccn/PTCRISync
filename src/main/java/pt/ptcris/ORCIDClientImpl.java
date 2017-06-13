@@ -156,6 +156,33 @@ public class ORCIDClientImpl implements ORCIDClient {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	@Override
+	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
+		return orcidClient.readActivitiesSummary(orcidToken);
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Works getWorksSummary() throws OrcidClientException {
+		return orcidClient.readWorksSummary(orcidToken);
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Fundings getFundingsSummary() throws OrcidClientException {
+		return orcidClient.readFundingsSummary(orcidToken);
+	}
+
+
+	/**
+	 * {@inheritDoc}
 	 */	
 	@Override
 	public PTCRISyncResult getWork(WorkSummary putcode) {
@@ -333,30 +360,6 @@ public class ORCIDClientImpl implements ORCIDClient {
 	}
 
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Works getWorksSummary() throws OrcidClientException {
-		return orcidClient.readWorksSummary(orcidToken);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Fundings getFundingsSummary() throws OrcidClientException {
-		return orcidClient.readFundingsSummary(orcidToken);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ActivitiesSummary getActivitiesSummary() throws OrcidClientException {
-		return orcidClient.readActivitiesSummary(orcidToken);
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
