@@ -21,8 +21,11 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
+import org.um.dsi.gavea.orcid.model.funding.Funding;
+import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
@@ -450,7 +453,7 @@ public final class PTCRISync {
 		List<Work> results = new ArrayList<Work>();
 		for (PTCRISyncResult r : worksToImport.values())
 			if (r.act != null)
-				results.add(r.act);
+				results.add((Work) r.act);
 			else {
 				// TODO: r instanceof OrcidClientException
 				// meaning that the GET of a particular work failed
@@ -599,7 +602,7 @@ public final class PTCRISync {
 		Map<Work, Set<String>> results = new HashMap<Work, Set<String>>();
 		for (BigInteger i : worksToImport.keySet())
 			if (worksToImport.get(i).act != null)
-				results.put(worksToImport.get(i).act, invalidsToImport.get(i));
+				results.put((Work) worksToImport.get(i).act, invalidsToImport.get(i));
 			else {
 				// TODO: r instanceof OrcidClientException
 				// meaning that the GET of a particular work failed
@@ -711,5 +714,128 @@ public final class PTCRISync {
 		handler.done();
 		return worksToUpdate;
 	}
+	
+	public static List<Funding> importFundings(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, NullPointerException {
+		if (client == null || localWorks == null || handler == null)
+			throw new NullPointerException("Import works failed.");
 
+		int progress = 0;
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
+
+		ORCIDHelper helper = new ORCIDHelper(client);
+		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
+
+		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
+
+		// filter novel works only
+		List<FundingSummary> temp = new ArrayList<FundingSummary>();
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
+		for (int c = 0; c != orcidWorks.size(); c++) {
+			progress = (int) ((double) c / orcidWorks.size() * 100);
+			handler.setProgress(progress);
+
+			FundingSummary mergedOrcidWork = orcidWorks.get(c);
+			Map<Funding, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
+			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
+				temp.add(mergedOrcidWork);
+			}
+		}
+
+		helper.getFullFundings(temp, worksToImport, handler);
+
+		helper.waitWorkers();
+
+		List<Funding> results = new ArrayList<Funding>();
+		for (PTCRISyncResult r : worksToImport.values())
+			if (r.act != null)
+				results.add((Funding) r.act);
+			else {
+				// TODO: r instanceof OrcidClientException
+				// meaning that the GET of a particular work failed
+			}
+
+		handler.done();
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_FINISHED");
+		return new LinkedList<Funding>(results);
+	}
+	
+	public static Map<Funding, Set<String>> importFundingInvalid(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, NullPointerException {
+		if (client == null || localWorks == null || handler == null)
+			throw new NullPointerException("Import invalid failed.");
+	
+		int progress = 0;
+		handler.setProgress(progress);
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
+	
+		ORCIDHelper helper = new ORCIDHelper(client);
+		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
+	
+		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
+		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
+	
+		// filter invalid works only
+		List<FundingSummary> temp = new ArrayList<FundingSummary>();
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_ITERATION");
+		for (int c = 0; c != orcidWorks.size(); c++) {
+			progress = (int) ((double) c / orcidWorks.size() * 100);
+			handler.setProgress(progress);
+	
+			FundingSummary mergedOrcidWork = orcidWorks.get(c);
+			Map<Funding, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
+			Set<String> invalids = ORCIDHelper.testMinimalQuality(mergedOrcidWork);
+			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);
+			if (matchingWorks.isEmpty() && !invalids.isEmpty()) {
+				temp.add(mergedOrcidWork);
+			}
+		}
+	
+		helper.getFullFundings(temp, worksToImport, handler);
+
+		helper.waitWorkers();
+	
+		Map<Funding, Set<String>> results = new HashMap<Funding, Set<String>>();
+		for (BigInteger i : worksToImport.keySet())
+			if (worksToImport.get(i).act != null)
+				results.put((Funding) worksToImport.get(i).act, invalidsToImport.get(i));
+			else {
+				// TODO: r instanceof OrcidClientException
+				// meaning that the GET of a particular work failed
+			}
+	
+		handler.done();
+		return results;
+	}
+	
+	public static Integer importFundingCounter(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		if (client == null || localWorks == null || handler == null)
+			throw new NullPointerException("Import counter failed.");
+
+		int progress = 0;
+		handler.setProgress(progress);
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
+
+		ORCIDHelper helper = new ORCIDHelper(client);
+		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
+
+		int counter = 0;
+
+		// filter novel works only
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
+		for (int c = 0; c != orcidWorks.size(); c++) {
+			progress = (int) ((double) c / orcidWorks.size() * 100);
+			handler.setProgress(progress);
+
+			FundingSummary mergedOrcidWork = orcidWorks.get(c);
+			Map<Funding, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
+			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
+				counter++;
+			}
+		}
+
+		handler.done();
+		return counter;
+	}
 }
