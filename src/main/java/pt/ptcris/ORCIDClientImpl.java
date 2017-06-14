@@ -381,9 +381,9 @@ public class ORCIDClientImpl implements ORCIDClient {
 	private static void finalizeGet(ElementSummary full, ElementSummary summary) {
 		// External ids are not inherited...
 		if (summary instanceof WorkSummary)
-			((WorkSummary) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((WorkSummary) summary));
+			((Work) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((WorkSummary) summary));
 		else if (summary instanceof FundingSummary)
-			((FundingSummary) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((FundingSummary) summary));
+			((Funding) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((FundingSummary) summary));
 		ORCIDHelper.cleanWorkLocalKey(full);
 	}
 
