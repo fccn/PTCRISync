@@ -484,6 +484,16 @@ public class ORCIDHelper {
 		}
 	}
 
+	public void deleteAllSourcedFundings() throws OrcidClientException {
+		_log.debug("[deleteSourced] " + client.getClientId());
+
+		final List<FundingSummary> workSummaryList = getSourcedFundingSummaries();
+	
+		for (FundingSummary workSummary : workSummaryList) {
+			deleteFunding(workSummary.getPutCode());
+		}
+	}
+
 	/**
 	 * Synchronously deletes a work in an ORCID profile.
 	 * 
@@ -501,6 +511,16 @@ public class ORCIDHelper {
 		_log.debug("[deleteWork] " + putcode);
 	
 		return client.deleteWork(putcode);
+	}
+	
+	public PTCRISyncResult deleteFunding(BigInteger putcode) 
+			throws NullPointerException {
+		if (putcode == null) 
+			throw new NullPointerException("Can't delete null work.");
+
+		_log.debug("[deleteWork] " + putcode);
+	
+		return client.deleteFunding(putcode);
 	}
 
 	/**
@@ -703,6 +723,14 @@ public class ORCIDHelper {
 		return diff.more.isEmpty();
 	}
 
+	public static boolean hasNewSelfIDs(Funding preWork, FundingSummary posWork) {
+		final ExternalIdsDiff diff = new ExternalIdsDiff(
+				getSelfExternalIds(preWork),
+				getSelfExternalIds(posWork));
+
+		return diff.more.isEmpty();
+	}
+	
 	/**
 	 * Checks whether a work is already up to date regarding another one,
 	 * considering the {@link ExternalId external identifiers} and

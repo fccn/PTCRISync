@@ -838,4 +838,50 @@ public final class PTCRISync {
 		handler.done();
 		return counter;
 	}
+	
+	public static List<Funding> importFundingUpdates(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
+			throws OrcidClientException {
+		if (client == null || localWorks == null || handler == null)
+			throw new NullPointerException("Import updates failed.");
+
+		int progress = 0;
+		handler.setProgress(progress);
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
+
+		ORCIDHelper helper = new ORCIDHelper(client);
+		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
+
+		List<Funding> worksToUpdate = new LinkedList<Funding>();
+
+		// filter already known works only
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
+		for (int c = 0; c != orcidWorks.size(); c++) {
+			progress = (int) ((double) c / orcidWorks.size() * 100);
+			handler.setProgress(progress);
+
+			FundingSummary orcidWork = orcidWorks.get(c);
+			Map<Funding, ExternalIdsDiff> matchingLocalWorks = ORCIDHelper.getSelfExternalIdsDiff(orcidWork, localWorks);
+			if (!matchingLocalWorks.isEmpty()) {
+				for (Funding mathingLocalWork : matchingLocalWorks.keySet()) {
+					if (!ORCIDHelper.hasNewSelfIDs(mathingLocalWork, orcidWork)) {
+						Funding workUpdate = ORCIDHelper.clone(mathingLocalWork);
+						ExternalIds weids = new ExternalIds();
+						List<ExternalId> neids = new ArrayList<ExternalId>(matchingLocalWorks.get(mathingLocalWork).more);
+						weids.setExternalId(neids);
+						ORCIDHelper.setWorkLocalKey(workUpdate, ORCIDHelper.getActivityLocalKey(mathingLocalWork));
+						workUpdate.setExternalIds(weids);
+						workUpdate.setTitle(null);
+						workUpdate.setType(null);
+						workUpdate.setOrganization(null);
+						workUpdate.setStartDate(null);
+						workUpdate.setEndDate(null);
+						worksToUpdate.add(workUpdate);
+					}
+				}
+			}
+		}
+
+		handler.done();
+		return worksToUpdate;
+	}	
 }
