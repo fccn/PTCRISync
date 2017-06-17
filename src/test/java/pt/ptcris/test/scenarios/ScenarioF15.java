@@ -15,13 +15,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.funding.Funding;
 
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
-import pt.ptcris.utils.ORCIDWorkHelper;
+import pt.ptcris.utils.ORCIDFundingHelper;
 
 /**
  * Scenario 15 of the PTCRISync specification v0.4.3, tests import.
@@ -31,32 +31,32 @@ import pt.ptcris.utils.ORCIDWorkHelper;
  * 
  * @see Scenario
  */
-public class Scenario15 extends Scenario {
+public class ScenarioF15 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEID(BigInteger.valueOf(1), "1", "0", "0"));
-		return works;
+	List<Funding> setupLocalFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmb(BigInteger.valueOf(1), "1", "0", "2"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> expectedImportedWorks() {
-		List<Work> works = new ArrayList<Work>();
-		Work w = TestHelper.workHANDLE(BigInteger.valueOf(1), null, "1");
-		w.setExternalIds(new ORCIDWorkHelper(null).getSelfExternalIdsE(w));
-		works.add(w);
-		return works;
+	List<Funding> expectedImportedFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		Funding w = TestHelper.fundingNmb(BigInteger.valueOf(1), null, "1");
+		w.setExternalIds(new ORCIDFundingHelper(null).getSelfExternalIdsE(w));
+		fundings.add(w);
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> expectedImportedInvalidWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.work(null, "0"));
-		return works;
+	List<Funding> expectedImportedInvalidFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.funding(null, "0"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
@@ -70,13 +70,13 @@ public class Scenario15 extends Scenario {
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 
 }

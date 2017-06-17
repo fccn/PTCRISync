@@ -13,60 +13,55 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
+import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
 import pt.ptcris.utils.ORCIDWorkHelper;
 
 /**
- * Scenario 7 of the PTCRISync specification v0.4.3, tests import.
+ * Scenario 4 of the PTCRISync specification v0.4.3, tests import.
  * 
- * Features: 
- * modification notifications at the pre-state
- * 
- * TODO: this scenario does not exactly represent the one from the specification
- * since notifications are not passed to the procedures, thus notifications at
- * pre-state cannot be represented.
+ * Features:
  * 
  * TODO: this scenario does not exactly represent the one from the specification
  * as this would require that the fixture work was set as the preferred, which
  * is impossible programmatically. This does not affect the scenario and one of
  * the user-sourced is selected instead.
  * 
- * @see Scenario
+ * @see ScenarioFunding
  */
-public class Scenario07 extends Scenario {
+public class ScenarioF04 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupORCIDExternalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEID(null, "0", "0", "0"));
+	List<Funding> setupORCIDExternalFundings() {
+		List<Funding> works = new ArrayList<Funding>();
+		works.add(TestHelper.fundingNmbNmb(null, "0", "0", "1"));
 		return works;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOI(BigInteger.valueOf(1), "1", "1"));
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "0", "1"));
+	List<Funding> setupLocalFundings() {
+		List<Funding> works = new ArrayList<Funding>();
+		works.add(TestHelper.fundingNmbNmbNmbNmb(BigInteger.valueOf(2), "0", "0", "2", "1", "3"));
 		return works;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
-
 }

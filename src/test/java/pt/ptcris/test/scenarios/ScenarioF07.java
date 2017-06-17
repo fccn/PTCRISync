@@ -13,11 +13,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
+import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
 import pt.ptcris.utils.ORCIDWorkHelper;
 
@@ -38,35 +40,35 @@ import pt.ptcris.utils.ORCIDWorkHelper;
  * 
  * @see Scenario
  */
-public class Scenario07 extends Scenario {
+public class ScenarioF07 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupORCIDExternalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEID(null, "0", "0", "0"));
+	List<Funding> setupORCIDExternalFundings() {
+		List<Funding> works = new ArrayList<Funding>();
+		works.add(TestHelper.fundingNmbNmb(null, "0", "0", "3"));
 		return works;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOI(BigInteger.valueOf(1), "1", "1"));
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2), "0", "0", "0", "1"));
+	List<Funding> setupLocalFundings() {
+		List<Funding> works = new ArrayList<Funding>();
+		works.add(TestHelper.fundingNmb(BigInteger.valueOf(1), "1", "2"));
+		works.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(2), "0", "0", "3", "1"));
 		return works;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
 
 }

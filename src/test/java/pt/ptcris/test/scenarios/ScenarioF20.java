@@ -12,7 +12,7 @@ package pt.ptcris.test.scenarios;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
-import pt.ptcris.utils.ORCIDWorkHelper;
+import pt.ptcris.utils.ORCIDFundingHelper;
 
 /**
  * Scenario 20 of the PTCRISync specification v0.4.3, tests export.
@@ -21,18 +21,18 @@ import pt.ptcris.utils.ORCIDWorkHelper;
  * 
  * @see Scenario
  */
-public class Scenario20 extends Scenario {
+public class ScenarioF20 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.EMPTYWORKS));
+		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.EMPTYWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDWorkHelper(
+		return new ORCIDFundingHelper(
 				TestClients.getExternalClient(Profile.EMPTYWORKS));
 	}
 

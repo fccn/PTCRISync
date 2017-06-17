@@ -17,33 +17,41 @@ import java.util.Set;
 
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 
+import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
-import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDFundingHelper;
 
 /**
- * Scenario 2 of the PTCRISync specification v0.4.3, tests import.
+ * Scenario 11 of the PTCRISync specification v0.4.3, tests export.
  * 
- * Features: 
- * modification notifications with {same,more}
+ * Features:
+ * export update with {same}
  * 
  * TODO: this scenario does not exactly represent the one from the specification
  * as this would require that the fixture funding was set as the preferred, which
- * is impossible programmatically. This does not affect the scenario and one of
- * the user-sourced is selected instead.
+ * is impossible programmatically. This affects the scenario since its goal
+ * is to depict the promotion of a funding to preferred.
  * 
  * @see Scenario
  */
-public class ScenarioF02 extends ScenarioFunding {
+public class ScenarioF11 extends ScenarioFunding {
+
+	/** {@inheritDoc} */
+	@Override
+	List<Funding> setupORCIDCRISFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(2), "0", "0", "3", "1"));
+		return fundings;
+	}
 
 	/** {@inheritDoc} */
 	@Override
 	List<Funding> setupORCIDExternalFundings() {
 		List<Funding> fundings = new ArrayList<Funding>();
-		fundings.add(TestHelper.fundingNmbNmb(null, "0", "0", "2"));
-		fundings.add(TestHelper.fundingNmbNmb(null, "1", "1", "3"));
+		fundings.add(TestHelper.fundingNmbNmb(BigInteger.valueOf(2), "0", "0", "3"));
 		return fundings;
 	}
 
@@ -51,43 +59,43 @@ public class ScenarioF02 extends ScenarioFunding {
 	@Override
 	List<Funding> setupLocalFundings() {
 		List<Funding> fundings = new ArrayList<Funding>();
-		fundings.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(2), "0", "0", "2", "3"));
+		fundings.add(TestHelper.fundingNmb(BigInteger.valueOf(1), "1", "2"));
 		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Funding> expectedImportedFundings() {
+	List<Funding> exportLocalFundings() {
 		List<Funding> fundings = new ArrayList<Funding>();
-		fundings.add(TestHelper.fundingNmb(BigInteger.valueOf(2), null, "1"));
+		fundings.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(2), "3", "0", "3", "1"));
 		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Funding> expectedImportedInvalidFundings() {
+	List<Funding> expectedORCIDCRISFundings() {
 		List<Funding> fundings = new ArrayList<Funding>();
-		fundings.add(TestHelper.funding(null, "0"));
+		fundings.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(2), "3", "0", "3", "1"));
 		return fundings;
 	}
-	
+
 	/** {@inheritDoc} */
-	@Override
-	Set<String> expectedInvalidCodes(BigInteger putCode) {
-		Set<String> res = new HashSet<String>();
-		res.add(ORCIDHelper.INVALID_EXTERNALIDENTIFIERS);
+	Set<Integer> expectedExportCodes(BigInteger putcode) {
+		Set<Integer> res = new HashSet<Integer>();
+		res.add(PTCRISyncResult.UPDATEOK);
 		return res;
 	}
 	
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
+
 }

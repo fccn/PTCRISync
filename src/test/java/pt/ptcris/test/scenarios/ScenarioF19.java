@@ -15,14 +15,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.funding.Funding;
 
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
-import pt.ptcris.utils.ORCIDWorkHelper;
+import pt.ptcris.utils.ORCIDFundingHelper;
 
 /**
  * Scenario 19 of the PTCRISync specification v0.4.3, tests export.
@@ -32,31 +32,31 @@ import pt.ptcris.utils.ORCIDWorkHelper;
  *
  * @see Scenario
  */
-public class Scenario19 extends Scenario {
+public class ScenarioF19 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupORCIDCRISWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
-		return works;
+	List<Funding> setupORCIDCRISFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmbNmb(null, "1", "1", "0", "2"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> exportLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(0), "1", "1",
-				"0", "0"));
-		return works;
+	List<Funding> exportLocalFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(0), "1", "1",
+				"0", "2"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> expectedORCIDCRISWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(null, "1", "1", "0", "0"));
-		return works;
+	List<Funding> expectedORCIDCRISFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmbNmb(null, "1", "1", "0", "2"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
@@ -71,12 +71,12 @@ public class Scenario19 extends Scenario {
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> expectedImportedInvalidWorks() {
-		List<Work> works = new ArrayList<Work>();
-		Work work = TestHelper.workDOI(null, "1", "I2");
-		work.setPublicationDate(null);
-		works.add(work);
-		return works;
+	List<Funding> expectedImportedInvalidFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		Funding funding = TestHelper.fundingNmb(null, "1", "I2");
+		funding.setStartDate(null);
+		fundings.add(funding);
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
@@ -90,14 +90,14 @@ public class Scenario19 extends Scenario {
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDWorkHelper(
+		return new ORCIDFundingHelper(
 				TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDWorkHelper(
+		return new ORCIDFundingHelper(
 				TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 

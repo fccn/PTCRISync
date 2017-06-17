@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate;
@@ -32,7 +33,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ORCIDHelper;
-import pt.ptcris.utils.ORCIDHelper.EIdType;
+import pt.ptcris.utils.ORCIDWorkHelper;
 
 public class TestHelper {
 
@@ -108,14 +109,14 @@ public class TestHelper {
 		ExternalId e = new ExternalId();
 		e.setExternalIdRelationship(RelationshipType.SELF);
 		e.setExternalIdValue(eid);
-		e.setExternalIdType(EIdType.OTHER_ID.value);
+		e.setExternalIdType(ORCIDWorkHelper.EIdType.OTHER_ID.value);
 		
 		work.getExternalIds().getExternalId().add(e);
 
 		ExternalId e1 = new ExternalId();
 		e1.setExternalIdRelationship(RelationshipType.SELF);
 		e1.setExternalIdValue(eid2);
-		e1.setExternalIdType(EIdType.OTHER_ID.value);
+		e1.setExternalIdType(ORCIDWorkHelper.EIdType.OTHER_ID.value);
 		
 		work.getExternalIds().getExternalId().add(e1);
 
@@ -281,8 +282,13 @@ public class TestHelper {
 		e1.setExternalIdRelationship(RelationshipType.SELF);
 		e1.setExternalIdValue(doi3);
 		e1.setExternalIdType("grant_number");
-
 		work.getExternalIds().getExternalId().add(e1);
+
+		ExternalId e3 = new ExternalId();
+		e3.setExternalIdRelationship(RelationshipType.PART_OF);
+		e3.setExternalIdValue("11111");
+		e3.setExternalIdType("grant_number");
+		work.getExternalIds().getExternalId().add(e3);
 
 		return work;
 	}
@@ -313,9 +319,8 @@ public class TestHelper {
 		return progressHandler;
 	}
 
-	public static void cleanUp(ORCIDHelper helper) throws Exception {
-		helper.deleteAllSourcedWorks();
-		helper.deleteAllSourcedFundings();
+	public static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> void cleanUp(ORCIDHelper<E, S, G, T> helper) throws Exception {
+		helper.deleteAllSourced();
 	}
 
 }

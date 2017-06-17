@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,13 +25,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
+import org.um.dsi.gavea.orcid.model.activities.FundingGroup;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
+import org.um.dsi.gavea.orcid.model.funding.FundingType;
 
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.test.TestHelper;
+import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
@@ -43,15 +47,17 @@ import pt.ptcris.utils.ORCIDHelper;
  * handled with caution, since modifications are not explicit in the current
  * version of the system.
  * 
- * TODO: Scenarios that consider the promotion/demotion of preferred fundings (10
- * and 11) are not to be tested programmatically as they cannot be selected this
- * way.
+ * TODO: Scenarios that consider the promotion/demotion of preferred fundings
+ * (10 and 11) are not to be tested programmatically as they cannot be selected
+ * this way.
  * 
- * @see <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
+ * @see <a
+ *      href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
  */
 public abstract class ScenarioFunding {
 	private List<Funding> localFundings, exportFundings;
-	private static ORCIDHelper externalClient, crisClient;
+	private static ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> externalClient,
+			crisClient;
 
 	@Before
 	public void setUpClass() throws Exception {
@@ -59,8 +65,8 @@ public abstract class ScenarioFunding {
 		externalClient = externalClient();
 		TestHelper.cleanUp(crisClient);
 		TestHelper.cleanUp(externalClient);
-		externalClient.addFundings(setupORCIDExternalFundings(),null);
-		crisClient.addFundings(setupORCIDCRISFundings(),null);
+		externalClient.add(setupORCIDExternalFundings(), null);
+		crisClient.add(setupORCIDCRISFundings(), null);
 		this.localFundings = setupLocalFundings();
 		this.exportFundings = exportLocalFundings();
 		this.localFundings.addAll(this.exportFundings);
@@ -72,13 +78,16 @@ public abstract class ScenarioFunding {
 
 		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
-//		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.export(crisClient.client, exportFundings, handler);
+		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.exportFunding(crisClient.client, exportFundings, Arrays.asList(FundingType.values()), handler);
 
-		List<Funding> fundingsToImport = PTCRISync.importFundings(crisClient.client, localFundings, handler);
-		List<Funding> fundingsToUpdate = PTCRISync.importFundingUpdates(crisClient.client, localFundings, handler);
-		Map<Funding, Set<String>> fundingsToInvalid = PTCRISync.importFundingInvalid(
-				crisClient.client, localFundings, handler);
-		int fundingsToImportCounter = PTCRISync.importFundingCounter(crisClient.client, localFundings, handler);
+		List<Funding> fundingsToImport = PTCRISync.importWorksFundings(
+				crisClient.client, localFundings, Arrays.asList(FundingType.values()), handler);
+		List<Funding> fundingsToUpdate = PTCRISync.importUpdatesFunding(
+				crisClient.client, localFundings, Arrays.asList(FundingType.values()), handler);
+		Map<Funding, Set<String>> fundingsToInvalid = PTCRISync
+				.importInvalidFunding(crisClient.client, localFundings, Arrays.asList(FundingType.values()), handler);
+		int fundingsToImportCounter = PTCRISync.importCounterFunding(
+				crisClient.client, localFundings, Arrays.asList(FundingType.values()), handler);
 		long time = System.currentTimeMillis() - startTime;
 		handler.setCurrentStatus(this.getClass().getName() + ": " + time + "ms");
 
@@ -89,7 +98,7 @@ public abstract class ScenarioFunding {
 		List<Funding> expectedLocal = expectedImportedFundings();
 		List<Funding> expectedInvalid = expectedImportedInvalidFundings();
 		List<Funding> expectedORCID = expectedORCIDCRISFundings();
-		List<FundingSummary> sourcedORCID = crisClient.getSourcedFundingSummaries();
+		List<FundingSummary> sourcedORCID = crisClient.getSourcedSummaries();
 
 		assertEquals(fundingsToImport.size(), fundingsToImportCounter);
 
@@ -101,7 +110,7 @@ public abstract class ScenarioFunding {
 		assertTrue(correctImports(expectedInvalid, fundingsToInvalid.keySet()));
 
 		assertEquals(expectedORCID.size(), sourcedORCID.size());
-//		assertTrue(correctCodes(codes));
+		assertTrue(correctCodes(codes));
 		assertTrue(correctExport(expectedORCID, sourcedORCID));
 	}
 
@@ -123,9 +132,9 @@ public abstract class ScenarioFunding {
 	}
 
 	/**
-	 * Defines the non CRIS-sourced ORCID fundings for the fixture of the scenario,
-	 * i.e., the fundings that initially exist in the user profile added by other
-	 * external sources.
+	 * Defines the non CRIS-sourced ORCID fundings for the fixture of the
+	 * scenario, i.e., the fundings that initially exist in the user profile
+	 * added by other external sources.
 	 * 
 	 * @return the external fundings for the fixture
 	 */
@@ -146,8 +155,8 @@ public abstract class ScenarioFunding {
 
 	/**
 	 * Defines the local CRIS fundings that are to be exported. The import tests
-	 * will additionally consider those not set to be {@link #setupLocalFundings()
-	 * exported}.
+	 * will additionally consider those not set to be
+	 * {@link #setupLocalFundings() exported}.
 	 * 
 	 * @return the local fundings that is to be exported
 	 */
@@ -167,8 +176,8 @@ public abstract class ScenarioFunding {
 	}
 
 	/**
-	 * The expected outcome for each of the fundings that were to be exported for
-	 * the
+	 * The expected outcome for each of the fundings that were to be exported
+	 * for the
 	 * {@link PTCRISync#export(pt.ptcris.ORCIDClient, List, ProgressHandler)
 	 * export} synchronization procedure.
 	 * 
@@ -225,14 +234,14 @@ public abstract class ScenarioFunding {
 	 * 
 	 * @return the CRIS source client
 	 */
-	abstract ORCIDHelper crisClient();
+	abstract ORCIDHelper<Funding,FundingSummary,FundingGroup,FundingType> crisClient();
 
 	/**
 	 * Sets the client to use as an external ORCID source.
 	 * 
 	 * @return the external source client
 	 */
-	abstract ORCIDHelper externalClient();
+	abstract ORCIDHelper<Funding,FundingSummary,FundingGroup,FundingType> externalClient();
 
 	/**
 	 * Tests whether the effectively exported fundings are the ones expected.
@@ -243,7 +252,8 @@ public abstract class ScenarioFunding {
 	 *            the expected fundings
 	 * @return whether the exported fundings were the expected
 	 */
-	private static boolean correctExport(Collection<Funding> exported, Collection<FundingSummary> expected) {
+	private static boolean correctExport(Collection<Funding> exported,
+			Collection<FundingSummary> expected) {
 		Set<Funding> ws1 = new HashSet<Funding>(exported);
 		Set<FundingSummary> ws2 = new HashSet<FundingSummary>(expected);
 
@@ -252,7 +262,8 @@ public abstract class ScenarioFunding {
 			boolean found = false;
 			while (it.hasNext() && !found) {
 				FundingSummary funding2 = it.next();
-				if (ORCIDHelper.isUpToDate(funding1, funding2)) {
+				if (new ORCIDFundingHelper(null)
+						.isUpToDateS(funding1, funding2)) {
 					ws1.remove(funding1);
 					ws2.remove(funding2);
 					found = true;
@@ -263,8 +274,8 @@ public abstract class ScenarioFunding {
 	}
 
 	/**
-	 * Tests whether the effectively export outcomes are the ones
-	 * expected according to {@link #expectedExportCodes(BigInteger)}.
+	 * Tests whether the effectively export outcomes are the ones expected
+	 * according to {@link #expectedExportCodes(BigInteger)}.
 	 * 
 	 * @param reasons
 	 *            the effectively export outcome
@@ -273,7 +284,7 @@ public abstract class ScenarioFunding {
 	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
 		for (BigInteger id : results.keySet())
 			if (!expectedExportCodes(id).contains(results.get(id).code)) {
-				TestHelper.handler().sendError("Was "+results.get(id).code);
+				TestHelper.handler().sendError("Was " + results.get(id).code);
 				return false;
 			}
 		return true;
@@ -288,7 +299,8 @@ public abstract class ScenarioFunding {
 	 *            the expected fundings
 	 * @return whether the imported fundings were the expected
 	 */
-	private static boolean correctImports(Collection<Funding> expected, Collection<Funding> imported) {
+	private static boolean correctImports(Collection<Funding> expected,
+			Collection<Funding> imported) {
 		Set<Funding> ws1 = new HashSet<Funding>(expected);
 		Set<Funding> ws2 = new HashSet<Funding>(imported);
 
@@ -298,9 +310,12 @@ public abstract class ScenarioFunding {
 			boolean found = false;
 			while (it.hasNext() && !found) {
 				Funding funding2 = it.next();
-				BigInteger localKey2 = ORCIDHelper.getActivityLocalKey(funding2);
-				if (ORCIDHelper.isUpToDate(funding1, funding2)
-						&& ((localKey1 == null && localKey2 == null) || (localKey1.equals(localKey2)))) {
+				BigInteger localKey2 = ORCIDHelper
+						.getActivityLocalKey(funding2);
+				if (new ORCIDFundingHelper(null)
+						.isUpToDateE(funding1, funding2)
+						&& ((localKey1 == null && localKey2 == null) || (localKey1
+								.equals(localKey2)))) {
 					ws1.remove(funding1);
 					ws2.remove(funding2);
 					found = true;
@@ -320,7 +335,8 @@ public abstract class ScenarioFunding {
 	 */
 	private boolean correctInvalids(Map<Funding, Set<String>> codes) {
 		for (Funding funding : codes.keySet())
-			if (!codes.get(funding).equals(expectedInvalidCodes(funding.getPutCode())))
+			if (!codes.get(funding).equals(
+					expectedInvalidCodes(funding.getPutCode())))
 				return false;
 		return true;
 	}

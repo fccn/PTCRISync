@@ -20,6 +20,7 @@ import org.um.dsi.gavea.orcid.model.funding.Funding;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
+import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
 
 /**
@@ -41,7 +42,7 @@ public class ScenarioF01 extends ScenarioFunding {
 	@Override
 	List<Funding> setupORCIDExternalFundings() {
 		List<Funding> works = new ArrayList<Funding>();
-		works.add(TestHelper.fundingNmb(null, "0", "0"));
+		works.add(TestHelper.fundingNmbNmb(null, "0", "0", "2"));
 		return works;
 	}
 
@@ -49,7 +50,7 @@ public class ScenarioF01 extends ScenarioFunding {
 	@Override
 	List<Funding> expectedImportedFundings() {
 		List<Funding> works = new ArrayList<Funding>();
-		works.add(TestHelper.fundingNmbNmb(null, "1", "0","1"));
+		works.add(TestHelper.fundingNmbNmbNmb(null, "1", "0", "2", "1"));
 		return works;
 	}
 	
@@ -72,13 +73,13 @@ public class ScenarioF01 extends ScenarioFunding {
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 
 }

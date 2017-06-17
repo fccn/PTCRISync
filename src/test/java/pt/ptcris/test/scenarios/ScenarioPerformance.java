@@ -22,6 +22,7 @@ import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDWorkHelper;
 
 public class ScenarioPerformance extends Scenario {
 
@@ -95,14 +96,14 @@ public class ScenarioPerformance extends Scenario {
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDHelper(
+		return new ORCIDWorkHelper(
 				TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDHelper(
+		return new ORCIDWorkHelper(
 				TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 

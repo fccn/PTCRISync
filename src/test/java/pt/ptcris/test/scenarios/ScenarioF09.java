@@ -13,13 +13,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.funding.Funding;
 
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
-import pt.ptcris.utils.ORCIDWorkHelper;
+import pt.ptcris.utils.ORCIDFundingHelper;
 
 /**
  * Scenario 9 of the PTCRISync specification v0.4.3, tests export.
@@ -28,56 +28,56 @@ import pt.ptcris.utils.ORCIDWorkHelper;
  * export add
  * 
  * TODO: this scenario does not exactly represent the one from the specification
- * as this would require that the fixture work was set as the preferred, which
+ * as this would require that the fixture funding was set as the preferred, which
  * is impossible programmatically. This does not affect the scenario and one of
  * the user-sourced is selected instead.
  * 
  * @see Scenario
  */
-public class Scenario09 extends Scenario {
+public class ScenarioF09 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupORCIDExternalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEID(BigInteger.valueOf(2), "0", "0", "0"));
-		return works;
+	List<Funding> setupORCIDExternalFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmb(BigInteger.valueOf(2), "0", "0", "3"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> setupLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOI(BigInteger.valueOf(1), "1", "1"));
-		return works;
+	List<Funding> setupLocalFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmb(BigInteger.valueOf(1), "1", "2"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	List<Work> exportLocalWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"0","0","0", "1"));
-		return works;
+	List<Funding> exportLocalFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(2),"0","0","3","1"));
+		return fundings;
 	}
 	
 	/** {@inheritDoc} */
 	@Override
-	List<Work> expectedORCIDCRISWorks() {
-		List<Work> works = new ArrayList<Work>();
-		works.add(TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(2),"0","0","0", "1"));
-		return works;
+	List<Funding> expectedORCIDCRISFundings() {
+		List<Funding> fundings = new ArrayList<Funding>();
+		fundings.add(TestHelper.fundingNmbNmbNmb(BigInteger.valueOf(2),"0","0","3","1"));
+		return fundings;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper crisClient() {
-		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	ORCIDHelper externalClient() {
-		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
+		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
 
 }
