@@ -29,7 +29,9 @@ import org.um.dsi.gavea.orcid.model.error.Error;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 
+import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDWorkHelper;
 
 /**
  * An implementation of the ORCID client interface built over the
@@ -381,9 +383,9 @@ public class ORCIDClientImpl implements ORCIDClient {
 	private static void finalizeGet(ElementSummary full, ElementSummary summary) {
 		// External ids are not inherited...
 		if (summary instanceof WorkSummary)
-			((Work) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((WorkSummary) summary));
+			((Work) full).setExternalIds(new ORCIDWorkHelper(null).getNonNullExternalIdsS((WorkSummary) summary));
 		else if (summary instanceof FundingSummary)
-			((Funding) full).setExternalIds(ORCIDHelper.getNonNullExternalIds((FundingSummary) summary));
+			((Funding) full).setExternalIds(new ORCIDFundingHelper(null).getNonNullExternalIdsS((FundingSummary) summary));
 		ORCIDHelper.cleanWorkLocalKey(full);
 	}
 

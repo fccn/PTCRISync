@@ -11,6 +11,7 @@ package pt.ptcris;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,13 +27,17 @@ import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
+import org.um.dsi.gavea.orcid.model.funding.FundingType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
+import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.exceptions.InvalidWorkException;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ExternalIdsDiff;
+import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDWorkHelper;
 import pt.ptcris.utils.UpdateRecord;
 
 /**
@@ -114,7 +119,12 @@ public final class PTCRISync {
 	 *             if any of the arguments is null	 */
 	public static Map<BigInteger, PTCRISyncResult> export(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
-		return exportBase(client, localWorks, handler, false);
+		return exportWorksBase(client, localWorks, handler, false);
+	}
+	
+	public static Map<BigInteger, PTCRISyncResult> exportFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return exportBase(new ORCIDFundingHelper(client), localWorks, types, handler, false);
 	}
 
 	/**
@@ -150,7 +160,7 @@ public final class PTCRISync {
 	 */
 	public static Map<BigInteger, PTCRISyncResult> exportForce(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
-		return exportBase(client, localWorks, handler, true);
+		return exportWorksBase(client, localWorks, handler, true);
 	}
 
 	/**
@@ -238,31 +248,29 @@ public final class PTCRISync {
 	 * @throws NullPointerException
 	 *             if any of the arguments is null
 	 */
-	private static Map<BigInteger, PTCRISyncResult> exportBase(ORCIDClient client, List<Work> localWorks, ProgressHandler handler, boolean forced)
+	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> Map<BigInteger, PTCRISyncResult> exportBase(ORCIDHelper<E,S,G,T> helper, List<E> localWorks, Collection<T> types, ProgressHandler handler, boolean forced)
 			throws OrcidClientException, NullPointerException {
-		if (client == null || localWorks == null || handler == null)
+		if (helper == null || localWorks == null || handler == null)
 			throw new NullPointerException("Export failed.");
-		
 		
 		int progress = 0;
 		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_STARTED");
 
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<WorkSummary> orcidWorks = helper.getSourcedWorkSummaries();
+		List<S> orcidWorks = helper.getSourcedSummaries();
 
 		Map<BigInteger, PTCRISyncResult> result = new HashMap<BigInteger, PTCRISyncResult>();
 
 		// start by filtering local works that do not pass the quality criteria
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_WORKS_QUALITY");
-		Set<Work> invalidWorks = new HashSet<Work>();
+		Set<E> invalidWorks = new HashSet<E>();
 		for (int c = 0; c != localWorks.size(); c++) {
 			progress = (int) ((double) c / localWorks.size() * 100);
 			handler.setProgress(progress);
-			Work localWork = localWorks.get(c);
+			E localWork = localWorks.get(c);
 
 			try {
-				ORCIDHelper.tryMinimalQuality(localWork,localWorks);
+				helper.tryMinimalQualityE(localWork,localWorks);
 			} catch (InvalidWorkException invalid) {
 				invalidWorks.add(localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
@@ -273,24 +281,24 @@ public final class PTCRISync {
 
 		// detect which remote works should be deleted or updated
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_WORKS_ITERATION");
-		List<UpdateRecord> toUpdate = new LinkedList<UpdateRecord>();
+		List<UpdateRecord<E,S>> toUpdate = new LinkedList<UpdateRecord<E,S>>();
 		for (int c = 0; c != orcidWorks.size(); c++) {
 			progress = (int) ((double) c / orcidWorks.size() * 100);
 			handler.setProgress(progress);
-			WorkSummary orcidWork = orcidWorks.get(c);
+			S orcidWork = orcidWorks.get(c);
 
-			Map<Work, ExternalIdsDiff> worksDiffs = ORCIDHelper.getSelfExternalIdsDiff(orcidWork, localWorks);
+			Map<E, ExternalIdsDiff> worksDiffs = helper.getSelfExternalIdsDiffS(orcidWork, localWorks);
 			// there is no local work matching a CRIS sourced remote work
 			if (worksDiffs.isEmpty()) {
 				// TODO: the delete may fail (the result is returned); how to communicate this to the caller?
-				helper.deleteWork(orcidWork.getPutCode());
+				helper.delete(orcidWork.getPutCode());
 			}
 			// there is at least one local work matching a CRIS sourced remote work
 			else {
-				Work localWork = worksDiffs.keySet().iterator().next();
+				E localWork = worksDiffs.keySet().iterator().next();
 				// if the remote work is not up-to-date or forced updates
-				if (forced || !ORCIDHelper.isUpToDate(localWork, orcidWork))
-					toUpdate.add(new UpdateRecord(localWork, orcidWork, worksDiffs.get(localWork)));
+				if (forced || !helper.isUpToDateS(localWork, orcidWork))
+					toUpdate.add(new UpdateRecord<E,S>(localWork, orcidWork, worksDiffs.get(localWork)));
 				else
 					result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
 							PTCRISyncResult.UPTODATE_RESULT);
@@ -304,17 +312,17 @@ public final class PTCRISync {
 			progress = (int) ((double) c / toUpdate.size() * 100);
 			handler.setProgress(progress);
 
-			UpdateRecord update = toUpdate.get(c);
+			UpdateRecord<E,S> update = toUpdate.get(c);
 			// the remote work has spurious external identifiers
 			if (!update.eidsDiff.more.isEmpty()) {
-				Work localWork = update.preWork;
+				E localWork = update.preWork;
 				ExternalIds weids = new ExternalIds();
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
-				ids.addAll(ORCIDHelper.getPartOfExternalIds(localWork).getExternalId());
+				ids.addAll(helper.getPartOfExternalIdsE(localWork).getExternalId());
 				weids.setExternalId(ids);
-				localWork.setExternalIds(weids);
+				helper.setExternalIds(localWork,weids);
 
-				PTCRISyncResult res = helper.updateWork(update.posWork.getPutCode(), localWork);
+				PTCRISyncResult res = helper.update(update.posWork.getPutCode(), localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
 			}
 		}
@@ -326,17 +334,17 @@ public final class PTCRISync {
 			handler.setProgress(progress);
 
 			// the remote work is missing external identifiers or not updated in the 1st phase
-			UpdateRecord update = toUpdate.get(c);
+			UpdateRecord<E,S> update = toUpdate.get(c);
 			if (!update.eidsDiff.less.isEmpty() || update.eidsDiff.more.isEmpty()) {
-				Work localWork = update.preWork;
+				E localWork = update.preWork;
 				ExternalIds weids = new ExternalIds();
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				ids.addAll(update.eidsDiff.less);
-				ids.addAll(ORCIDHelper.getPartOfExternalIds(localWork).getExternalId());
+				ids.addAll(helper.getPartOfExternalIdsE(localWork).getExternalId());
 				weids.setExternalId(ids);
-				localWork.setExternalIds(weids);
+				helper.setExternalIds(localWork,weids);
 
-				PTCRISyncResult res = helper.updateWork(update.posWork.getPutCode(), localWork);
+				PTCRISyncResult res = helper.update(update.posWork.getPutCode(), localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
 			}
 		}
@@ -344,7 +352,7 @@ public final class PTCRISync {
 		// add the local works that had no match
 		// the progress handler must be moved to the helper due to bulk additions
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING_WORKS");
-		List<PTCRISyncResult> res = helper.addWorks(localWorks,handler);
+		List<PTCRISyncResult> res = helper.add(localWorks,handler);
 
 		int pad = result.size();
 		for (int i = 0; i < res.size(); i++)
@@ -354,6 +362,11 @@ public final class PTCRISync {
 		return result;
 	}
 
+	private static Map<BigInteger, PTCRISyncResult> exportWorksBase(ORCIDClient client, List<Work> localWorks, ProgressHandler handler, boolean forced)
+			throws OrcidClientException, NullPointerException {
+		return exportBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler, forced);
+	}
+	
 	/**
 	 * <p>
 	 * Discovers new valid works in an ORCID profile given a set of known local
@@ -419,41 +432,43 @@ public final class PTCRISync {
 	 * @throws NullPointerException
 	 *             if any of the arguments is null
 	 */
-	public static List<Work> importWorks(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException, NullPointerException {
-		if (client == null || localWorks == null || handler == null)
+	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> List<E> importWorksBase(
+			ORCIDHelper<E, S, G, T> helper, List<E> localWorks,
+			Collection<T> types, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException,
+			NullPointerException {
+		if (helper == null || localWorks == null || handler == null)
 			throw new NullPointerException("Import works failed.");
 
 		int progress = 0;
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
 
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
+		List<S> orcidWorks = helper.getAllSummaries();
 
 		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
 
 		// filter novel works only
-		List<WorkSummary> temp = new ArrayList<WorkSummary>();
+		List<S> temp = new ArrayList<S>();
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
 		for (int c = 0; c != orcidWorks.size(); c++) {
 			progress = (int) ((double) c / orcidWorks.size() * 100);
 			handler.setProgress(progress);
 
-			WorkSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
-			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
+			S mergedOrcidWork = orcidWorks.get(c);
+			Map<E, ExternalIdsDiff> matchingWorks = helper.getSelfExternalIdsDiffS(mergedOrcidWork, localWorks);
+			if (matchingWorks.isEmpty() && helper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				temp.add(mergedOrcidWork);
 			}
 		}
 
-		helper.getFullWorks(temp, worksToImport, handler);
+		helper.getFulls(temp, worksToImport, handler);
 
 		helper.waitWorkers();
 
-		List<Work> results = new ArrayList<Work>();
+		List<E> results = new ArrayList<E>();
 		for (PTCRISyncResult r : worksToImport.values())
 			if (r.act != null)
-				results.add((Work) r.act);
+				results.add((E) r.act);
 			else {
 				// TODO: r instanceof OrcidClientException
 				// meaning that the GET of a particular work failed
@@ -461,7 +476,17 @@ public final class PTCRISync {
 
 		handler.done();
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_FINISHED");
-		return new LinkedList<Work>(results);
+		return new LinkedList<E>(results);
+	}
+
+	public static List<Work> importWorks(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, NullPointerException {
+		return importWorksBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
+	}
+
+	public static List<Funding> importWorksFundings(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, NullPointerException {
+		return importWorksBase(new ORCIDFundingHelper(client), localWorks, types, handler);
 	}
 
 	/**
@@ -494,17 +519,16 @@ public final class PTCRISync {
 	 * @throws NullPointerException
 	 *             if any of the arguments is null
 	 */
-	public static Integer importCounter(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+	private static <E extends ElementSummary,S extends ElementSummary, G, T extends Enum<T>> Integer importCounterBase(ORCIDHelper<E,S,G,T> helper, List<E> localWorks, Collection<T> types, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
-		if (client == null || localWorks == null || handler == null)
+		if (helper == null || localWorks == null || handler == null)
 			throw new NullPointerException("Import counter failed.");
 
 		int progress = 0;
 		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
 
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
+		List<S> orcidWorks = helper.getAllSummaries();
 
 		int counter = 0;
 
@@ -514,15 +538,25 @@ public final class PTCRISync {
 			progress = (int) ((double) c / orcidWorks.size() * 100);
 			handler.setProgress(progress);
 
-			WorkSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
-			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
+			S mergedOrcidWork = orcidWorks.get(c);
+			Map<E, ExternalIdsDiff> matchingWorks = helper.getSelfExternalIdsDiffS(mergedOrcidWork, localWorks);
+			if (matchingWorks.isEmpty() && helper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				counter++;
 			}
 		}
 
 		handler.done();
 		return counter;
+	}
+	
+	public static Integer importCounter(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return importCounterBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
+	}
+
+	public static Integer importCounterFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return importCounterBase(new ORCIDFundingHelper(client), localWorks, types, handler);
 	}
 
 	/**
@@ -543,6 +577,7 @@ public final class PTCRISync {
 	 * only fails if the initial GET fails. Asynchronous workers are used for
 	 * getting the full works.
 	 * </p>
+	 * @param <S>
 	 *
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
 	 *
@@ -564,45 +599,44 @@ public final class PTCRISync {
 	 * @throws NullPointerException
 	 *             if any of the arguments is null
 	 */
-	public static Map<Work, Set<String>> importInvalid(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+	private static <E extends ElementSummary,S extends ElementSummary, G, T extends Enum<T>> Map<E, Set<String>> importInvalidBase(ORCIDHelper<E,S,G,T> helper, List<E> localWorks, Collection<T> types, ProgressHandler handler)
 			throws OrcidClientException, InterruptedException, NullPointerException {
-		if (client == null || localWorks == null || handler == null)
+		if (helper == null || localWorks == null || handler == null)
 			throw new NullPointerException("Import invalid failed.");
 	
 		int progress = 0;
 		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
 	
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
+		List<S> orcidWorks = helper.getAllSummaries();
 	
 		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
 		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
 	
 		// filter invalid works only
-		List<WorkSummary> temp = new ArrayList<WorkSummary>();
+		List<S> temp = new ArrayList<S>();
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_ITERATION");
 		for (int c = 0; c != orcidWorks.size(); c++) {
 			progress = (int) ((double) c / orcidWorks.size() * 100);
 			handler.setProgress(progress);
 	
-			WorkSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
-			Set<String> invalids = ORCIDHelper.testMinimalQuality(mergedOrcidWork);
+			S mergedOrcidWork = orcidWorks.get(c);
+			Map<E, ExternalIdsDiff> matchingWorks = helper.getSelfExternalIdsDiffS(mergedOrcidWork, localWorks);
+			Set<String> invalids = helper.testMinimalQuality(mergedOrcidWork);
 			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);
 			if (matchingWorks.isEmpty() && !invalids.isEmpty()) {
 				temp.add(mergedOrcidWork);
 			}
 		}
 	
-		helper.getFullWorks(temp, worksToImport, handler);
+		helper.getFulls(temp, worksToImport, handler);
 
 		helper.waitWorkers();
 	
-		Map<Work, Set<String>> results = new HashMap<Work, Set<String>>();
+		Map<E, Set<String>> results = new HashMap<E, Set<String>>();
 		for (BigInteger i : worksToImport.keySet())
 			if (worksToImport.get(i).act != null)
-				results.put((Work) worksToImport.get(i).act, invalidsToImport.get(i));
+				results.put((E) worksToImport.get(i).act, invalidsToImport.get(i));
 			else {
 				// TODO: r instanceof OrcidClientException
 				// meaning that the GET of a particular work failed
@@ -610,6 +644,14 @@ public final class PTCRISync {
 	
 		handler.done();
 		return results;
+	}
+	
+	public static Map<Work, Set<String>> importInvalid(ORCIDClient client, List<Work> localWorks, ProgressHandler handler) throws NullPointerException, OrcidClientException, InterruptedException {
+		return importInvalidBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
+	}
+
+	public static Map<Funding, Set<String>> importInvalidFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler) throws NullPointerException, OrcidClientException, InterruptedException {
+		return importInvalidBase(new ORCIDFundingHelper(client), localWorks, types, handler);
 	}
 
 	/**
@@ -653,6 +695,8 @@ public final class PTCRISync {
 	 * This procedure simply performs a GET call to the API to obtain the
 	 * summaries, since the remainder meta-data is irrelevant.
 	 * </p>
+	 * @param <E>
+	 * @param <S>
 	 *
 	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
@@ -671,217 +715,47 @@ public final class PTCRISync {
 	 * @throws NullPointerException
 	 *             if any of the arguments is null
 	 */
+	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> List<E> importUpdatesBase(ORCIDHelper<E,S,G,T> helper, List<E> localWorks, Collection<T> types, ProgressHandler handler)
+			throws OrcidClientException {
+		if (helper == null || localWorks == null || handler == null)
+			throw new NullPointerException("Import updates failed.");
+
+		int progress = 0;
+		handler.setProgress(progress);
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
+
+		List<S> orcidWorks = helper.getAllSummaries();
+
+		List<E> worksToUpdate = new LinkedList<E>();
+
+		// filter already known works only
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
+		for (int c = 0; c != orcidWorks.size(); c++) {
+			progress = (int) ((double) c / orcidWorks.size() * 100);
+			handler.setProgress(progress);
+
+			S orcidWork = orcidWorks.get(c);
+			Map<E, ExternalIdsDiff> matchingLocalWorks = helper.getSelfExternalIdsDiffS(orcidWork, localWorks);
+			if (!matchingLocalWorks.isEmpty()) {
+				for (E mathingLocalWork : matchingLocalWorks.keySet()) {
+					if (!helper.hasNewSelfIDs(mathingLocalWork, orcidWork)) {
+						worksToUpdate.add(helper.createUpdate(mathingLocalWork, matchingLocalWorks.get(mathingLocalWork)));
+					}
+				}
+			}
+		}
+
+		handler.done();
+		return worksToUpdate;
+	}
+	
 	public static List<Work> importUpdates(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException {
-		if (client == null || localWorks == null || handler == null)
-			throw new NullPointerException("Import updates failed.");
-
-		int progress = 0;
-		handler.setProgress(progress);
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
-
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<WorkSummary> orcidWorks = helper.getAllWorkSummaries();
-
-		List<Work> worksToUpdate = new LinkedList<Work>();
-
-		// filter already known works only
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
-		for (int c = 0; c != orcidWorks.size(); c++) {
-			progress = (int) ((double) c / orcidWorks.size() * 100);
-			handler.setProgress(progress);
-
-			WorkSummary orcidWork = orcidWorks.get(c);
-			Map<Work, ExternalIdsDiff> matchingLocalWorks = ORCIDHelper.getSelfExternalIdsDiff(orcidWork, localWorks);
-			if (!matchingLocalWorks.isEmpty()) {
-				for (Work mathingLocalWork : matchingLocalWorks.keySet()) {
-					if (!ORCIDHelper.hasNewSelfIDs(mathingLocalWork, orcidWork)) {
-						Work workUpdate = ORCIDHelper.clone(mathingLocalWork);
-						ExternalIds weids = new ExternalIds();
-						List<ExternalId> neids = new ArrayList<ExternalId>(matchingLocalWorks.get(mathingLocalWork).more);
-						weids.setExternalId(neids);
-						ORCIDHelper.setWorkLocalKey(workUpdate, ORCIDHelper.getActivityLocalKey(mathingLocalWork));
-						workUpdate.setExternalIds(weids);
-						workUpdate.setTitle(null);
-						workUpdate.setType(null);
-						workUpdate.setPublicationDate(null);
-						worksToUpdate.add(workUpdate);
-					}
-				}
-			}
-		}
-
-		handler.done();
-		return worksToUpdate;
+		return importUpdatesBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
 	}
 	
-	public static List<Funding> importFundings(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException, NullPointerException {
-		if (client == null || localWorks == null || handler == null)
-			throw new NullPointerException("Import works failed.");
-
-		int progress = 0;
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
-
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
-
-		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
-
-		// filter novel works only
-		List<FundingSummary> temp = new ArrayList<FundingSummary>();
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
-		for (int c = 0; c != orcidWorks.size(); c++) {
-			progress = (int) ((double) c / orcidWorks.size() * 100);
-			handler.setProgress(progress);
-
-			FundingSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Funding, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
-			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
-				temp.add(mergedOrcidWork);
-			}
-		}
-
-		helper.getFullFundings(temp, worksToImport, handler);
-
-		helper.waitWorkers();
-
-		List<Funding> results = new ArrayList<Funding>();
-		for (PTCRISyncResult r : worksToImport.values())
-			if (r.act != null)
-				results.add((Funding) r.act);
-			else {
-				// TODO: r instanceof OrcidClientException
-				// meaning that the GET of a particular work failed
-			}
-
-		handler.done();
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_FINISHED");
-		return new LinkedList<Funding>(results);
-	}
-	
-	public static Map<Funding, Set<String>> importFundingInvalid(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException, NullPointerException {
-		if (client == null || localWorks == null || handler == null)
-			throw new NullPointerException("Import invalid failed.");
-	
-		int progress = 0;
-		handler.setProgress(progress);
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
-	
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
-	
-		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
-		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
-	
-		// filter invalid works only
-		List<FundingSummary> temp = new ArrayList<FundingSummary>();
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_ITERATION");
-		for (int c = 0; c != orcidWorks.size(); c++) {
-			progress = (int) ((double) c / orcidWorks.size() * 100);
-			handler.setProgress(progress);
-	
-			FundingSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Funding, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
-			Set<String> invalids = ORCIDHelper.testMinimalQuality(mergedOrcidWork);
-			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);
-			if (matchingWorks.isEmpty() && !invalids.isEmpty()) {
-				temp.add(mergedOrcidWork);
-			}
-		}
-	
-		helper.getFullFundings(temp, worksToImport, handler);
-
-		helper.waitWorkers();
-	
-		Map<Funding, Set<String>> results = new HashMap<Funding, Set<String>>();
-		for (BigInteger i : worksToImport.keySet())
-			if (worksToImport.get(i).act != null)
-				results.put((Funding) worksToImport.get(i).act, invalidsToImport.get(i));
-			else {
-				// TODO: r instanceof OrcidClientException
-				// meaning that the GET of a particular work failed
-			}
-	
-		handler.done();
-		return results;
-	}
-	
-	public static Integer importFundingCounter(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
-			throws OrcidClientException, NullPointerException {
-		if (client == null || localWorks == null || handler == null)
-			throw new NullPointerException("Import counter failed.");
-
-		int progress = 0;
-		handler.setProgress(progress);
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
-
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
-
-		int counter = 0;
-
-		// filter novel works only
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
-		for (int c = 0; c != orcidWorks.size(); c++) {
-			progress = (int) ((double) c / orcidWorks.size() * 100);
-			handler.setProgress(progress);
-
-			FundingSummary mergedOrcidWork = orcidWorks.get(c);
-			Map<Funding, ExternalIdsDiff> matchingWorks = ORCIDHelper.getSelfExternalIdsDiff(mergedOrcidWork, localWorks);
-			if (matchingWorks.isEmpty() && ORCIDHelper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
-				counter++;
-			}
-		}
-
-		handler.done();
-		return counter;
-	}
-	
-	public static List<Funding> importFundingUpdates(ORCIDClient client, List<Funding> localWorks, ProgressHandler handler)
+	public static List<Funding> importUpdatesFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
 			throws OrcidClientException {
-		if (client == null || localWorks == null || handler == null)
-			throw new NullPointerException("Import updates failed.");
-
-		int progress = 0;
-		handler.setProgress(progress);
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
-
-		ORCIDHelper helper = new ORCIDHelper(client);
-		List<FundingSummary> orcidWorks = helper.getAllFundingSummaries();
-
-		List<Funding> worksToUpdate = new LinkedList<Funding>();
-
-		// filter already known works only
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
-		for (int c = 0; c != orcidWorks.size(); c++) {
-			progress = (int) ((double) c / orcidWorks.size() * 100);
-			handler.setProgress(progress);
-
-			FundingSummary orcidWork = orcidWorks.get(c);
-			Map<Funding, ExternalIdsDiff> matchingLocalWorks = ORCIDHelper.getSelfExternalIdsDiff(orcidWork, localWorks);
-			if (!matchingLocalWorks.isEmpty()) {
-				for (Funding mathingLocalWork : matchingLocalWorks.keySet()) {
-					if (!ORCIDHelper.hasNewSelfIDs(mathingLocalWork, orcidWork)) {
-						Funding workUpdate = ORCIDHelper.clone(mathingLocalWork);
-						ExternalIds weids = new ExternalIds();
-						List<ExternalId> neids = new ArrayList<ExternalId>(matchingLocalWorks.get(mathingLocalWork).more);
-						weids.setExternalId(neids);
-						ORCIDHelper.setWorkLocalKey(workUpdate, ORCIDHelper.getActivityLocalKey(mathingLocalWork));
-						workUpdate.setExternalIds(weids);
-						workUpdate.setTitle(null);
-						workUpdate.setType(null);
-						workUpdate.setOrganization(null);
-						workUpdate.setStartDate(null);
-						workUpdate.setEndDate(null);
-						worksToUpdate.add(workUpdate);
-					}
-				}
-			}
-		}
-
-		handler.done();
-		return worksToUpdate;
-	}	
+		return importUpdatesBase(new ORCIDFundingHelper(client), localWorks, types, handler);
+	}
 }

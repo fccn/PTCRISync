@@ -9,19 +9,18 @@
  */
 package pt.ptcris.utils;
 
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
-import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 /**
  * An helper class that stores two versions of the same {@link Work work}, as
  * well as the {@link ExternalIdsDiff difference} between their
  * {@link ExternalId external identifiers}.
  */
-public final class UpdateRecord {
+public final class UpdateRecord<E extends ElementSummary, S extends ElementSummary> {
 
-	public final Work preWork;
-	public final WorkSummary posWork;
+	public final E preWork;
+	public final S posWork;
 	public final ExternalIdsDiff eidsDiff;
 
 	/**
@@ -39,7 +38,7 @@ public final class UpdateRecord {
 	 * @throws NullPointerException
 	 *             if any of the parameters is null
 	 */
-	public UpdateRecord(Work preWork, WorkSummary posWork, ExternalIdsDiff eidsDiff) 
+	public UpdateRecord(E preWork, S posWork, ExternalIdsDiff eidsDiff) 
 			throws NullPointerException {
 		if (preWork == null || posWork == null || eidsDiff == null)
 			throw new NullPointerException("Null arguments.");

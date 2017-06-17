@@ -20,8 +20,8 @@ public class TempORCIDClient extends OrcidOAuthClient {
 		Response response = null;
 		try {
 			response = get("/fundings", token, null);
-			
-			return response.readEntity(Fundings.class);
+			Fundings x = response.readEntity(Fundings.class);
+			return x;
 		} finally {
 			if (response != null)
 				response.close();
