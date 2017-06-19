@@ -29,8 +29,8 @@ public class StdWorkComparator extends ActivityComparator<Work> {
 	@Override
 	public float compare(Work w1, Work w2) {
 		ExternalIdsDiff diff = new ExternalIdsDiff(
-				ORCIDHelper.getSelfExternalIds(w1),
-				ORCIDHelper.getSelfExternalIds(w2));
+				ORCIDHelper.factoryStaticWorks().getSelfExternalIdsE(w1),
+				ORCIDHelper.factoryStaticWorks().getSelfExternalIdsE(w2));
 		return diff.same.size();
 	}
 

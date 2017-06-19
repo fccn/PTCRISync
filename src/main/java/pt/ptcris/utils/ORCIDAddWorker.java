@@ -56,7 +56,7 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	 */
 	@Override
 	public void run() {
-		_log.debug("[addWork] " + new ORCIDWorkHelper(null).getWorkTitleE(work));
+		_log.debug("[addWork] " + new ORCIDWorkHelper(null).getTitleE(work));
 		MDC.setContextMap(mdcCtxMap);
 
 		final PTCRISyncResult res = client.addWork(work);

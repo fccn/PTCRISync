@@ -12,19 +12,15 @@ package pt.ptcris.utils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
-import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.work.Work;
@@ -33,7 +29,6 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
-import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -74,282 +69,24 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 		super(orcidClient, 100, 50);
 	}
 
-	/**
-	 * Retrieves the entire set of work summaries from the set ORCID profile
-	 * that have at least an external identifier set. Merges each ORCID group
-	 * into a single summary, following {@link #groupToWork}.
-	 *
-	 * @return the set of work summaries in the set ORCID profile
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
-	 */
 	@Override
-	public List<WorkSummary> getAllSummaries() throws OrcidClientException {
-		_log.debug("[getSummaries]");
-
-		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		final List<WorkGroup> workGroupList = client.getWorksSummary()
-				.getGroup();
-		for (WorkGroup group : workGroupList)
-			workSummaryList.add(group(group));
-		return workSummaryList;
+	protected List<WorkGroup> getSummariesClient() throws OrcidClientException {
+		return client.getWorksSummary().getGroup();
 	}
 
-	/**
-	 * Retrieves the entire set of work summaries in the ORCID profile whose
-	 * source is the Member API id defined in the ORCID client.
-	 *
-	 * @return the set of work summaries in the ORCID profile for the defined
-	 *         source
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
-	 */
 	@Override
-	public List<WorkSummary> getSourcedSummaries() throws OrcidClientException {
-		final String sourceClientID = client.getClientId();
-
-		_log.debug("[getSourcedSummaries] " + sourceClientID);
-
-		final List<WorkSummary> workSummaryList = new LinkedList<WorkSummary>();
-		final List<WorkGroup> workGroupList = client.getWorksSummary()
-				.getGroup();
-
-		for (WorkGroup workGroup : workGroupList) {
-			for (WorkSummary workSummary : workGroup.getWorkSummary()) {
-				final ClientId workClient = workSummary.getSource()
-						.getSourceClientId();
-				// may be null is entry added by the user
-				if (workClient != null
-						&& workClient.getUriPath().equals(sourceClientID)) {
-					workSummaryList.add(workSummary);
-				}
-			}
-		}
-		return workSummaryList;
+	protected PTCRISyncResult getClient(WorkSummary work) {
+		return client.getWork(work);
+	}
+	
+	@Override
+	protected ORCIDWorker readWorker(WorkSummary s, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
+		return new ORCIDGetWorker(s, client, cb, _log);
 	}
 
-	/**
-	 * Gets a full work from an ORCID profile and adds it to a callback map. The
-	 * resulting work contains every external identifier set in the input work
-	 * summary, because the summary resulted from the merging of a group, but
-	 * the retrieved full work is a single work. It also clears the put-code,
-	 * since at this level they represent the local identifier. If possible, the
-	 * process is asynchronous. If the process fails, the exception is embedded
-	 * in a failed {@link PTCRISyncResult}.
-	 *
-	 * @see ORCIDClient#getWork(BigInteger)
-	 * 
-	 * @param mergedWork
-	 *            the work summary representing a merged group
-	 * @param cb
-	 *            the callback object
-	 * @throws NullPointerException
-	 *             if the merged work is null
-	 */
-	@Override
-	public void getFull(WorkSummary mergedWork,
-			Map<BigInteger, PTCRISyncResult> cb) throws NullPointerException {
-		if (mergedWork == null)
-			throw new NullPointerException("Can't get null work.");
 
-		if (client.threads() > 1 && cb != null) {
-			final ORCIDGetWorker worker = new ORCIDGetWorker(mergedWork,
-					client, cb, _log);
-			executor.execute(worker);
-		} else {
-			PTCRISyncResult fullWork;
 
-			_log.debug("[getFullWork] " + mergedWork.getPutCode());
-			fullWork = client.getWork(mergedWork);
-
-			cb.put(mergedWork.getPutCode(), fullWork);
-		}
-	}
-
-	/**
-	 * Gets a list of full works from an ORCID profile and adds them to a
-	 * callback map. The resulting works contain every external identifier set
-	 * in the input work summaries, because the latter resulted from the merging
-	 * of a group, but the retrieved full works are a single work. It also
-	 * clears the put-codes, since at this level they represent the local
-	 * identifier. If possible, the process is asynchronous. If the list is not
-	 * a singleton, a bulk request will be performed. If the process fails of
-	 * for any work, the exceptions are embedded in failed
-	 * {@link PTCRISyncResult}.
-	 *
-	 * @see ORCIDClient#getWorks(List)
-	 * 
-	 * @param mergedWork
-	 *            the work summaries representing the merged groups
-	 * @param cb
-	 *            the callback object
-	 * @throws NullPointerException
-	 *             if the merged work is null
-	 */
-	@Override
-	public void getFulls(List<WorkSummary> mergedWorks,
-			Map<BigInteger, PTCRISyncResult> cb, ProgressHandler handler)
-			throws OrcidClientException, NullPointerException {
-		if (mergedWorks == null)
-			throw new NullPointerException("Can't get null work.");
-		_log.debug("[getFullWorks] " + mergedWorks.size());
-		if (handler != null)
-			handler.setCurrentStatus("ORCID_GET_ITERATION");
-
-		if (client.threads() > 1 && cb != null) {
-			for (int i = 0; i < mergedWorks.size();) {
-				int progress = (int) ((double) i / mergedWorks.size() * 100);
-				if (handler != null)
-					handler.setProgress(progress);
-				if (bulk_size_get > 1) {
-					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
-					for (int j = 0; j < bulk_size_get && i < mergedWorks.size(); j++) {
-						putcodes.add(mergedWorks.get(i));
-						i++;
-					}
-					final ORCIDBulkGetWorker worker = new ORCIDBulkGetWorker(
-							putcodes, client, cb, _log);
-					executor.execute(worker);
-				} else {
-					final ORCIDGetWorker worker = new ORCIDGetWorker(
-							mergedWorks.get(i), client, cb, _log);
-					executor.execute(worker);
-					i++;
-				}
-			}
-		} else {
-			Map<BigInteger, PTCRISyncResult> fullWorks = new HashMap<BigInteger, PTCRISyncResult>();
-			for (int i = 0; i < mergedWorks.size();) {
-				int progress = (int) ((double) i / mergedWorks.size() * 100);
-				if (handler != null)
-					handler.setProgress(progress);
-				if (bulk_size_get > 1) {
-					List<WorkSummary> putcodes = new ArrayList<WorkSummary>();
-					for (int j = 0; j < bulk_size_get && i < mergedWorks.size(); j++) {
-						putcodes.add(mergedWorks.get(i));
-						i++;
-					}
-					fullWorks.putAll(client.getWorks(putcodes));
-				} else {
-					fullWorks.put(mergedWorks.get(i).getPutCode(),
-							client.getWork(mergedWorks.get(i)));
-					i++;
-				}
-			}
-			cb.putAll(fullWorks);
-		}
-
-	}
-
-	/**
-	 * Synchronously adds a work to an ORCID profile. The OK result includes the
-	 * newly assigned put-code. If communication fails, error message is
-	 * included in the result.
-	 *
-	 * @see ORCIDClient#addWork(Work)
-	 * 
-	 * @param work
-	 *            the new work to be added
-	 * @return the result of the ORCID call
-	 * @throws NullPointerException
-	 *             if the work is null
-	 */
-	@Override
-	protected PTCRISyncResult add(Work work) throws NullPointerException {
-		if (work == null)
-			throw new NullPointerException("Can't add null work.");
-
-		_log.debug("[addWork] " + getWorkTitleE(work));
-
-		// remove any put-code otherwise ORCID will throw an error
-		final Work clone = cloneE(work);
-		clone.setPutCode(null);
-
-		return client.addWork(clone);
-	}
-
-	/**
-	 * Synchronously adds a list of works to an ORCID profile. A list of results
-	 * is returned, one for each input work. The OK result includes the newly
-	 * assigned put-code. If communication fails, error message is included in
-	 * the result. If the overall communication fails, the result is replicated
-	 * for each input.
-	 *
-	 * @see ORCIDClient#addWorks(List)
-	 * 
-	 * @param works
-	 *            the new works to be added
-	 * @return the results of the ORCID call for each input work
-	 * @throws NullPointerException
-	 *             if the work is null
-	 */
-	@Override
-	protected List<PTCRISyncResult> add(Collection<Work> works)
-			throws NullPointerException {
-		if (works == null)
-			throw new NullPointerException("Can't add null works.");
-
-		_log.debug("[addWorks] " + works.size());
-
-		List<Work> clones = new ArrayList<Work>();
-		// remove any put-code otherwise ORCID will throw an error
-		for (Work work : works) {
-			final Work clone = cloneE(work);
-			clone.setPutCode(null);
-			clones.add(clone);
-		}
-
-		return client.addWorks(clones);
-	}
-
-	/**
-	 * Synchronously updates a work in an ORCID profile.
-	 * 
-	 * @see ORCIDClient#updateWork(BigInteger, Work)
-	 * 
-	 * @param remotePutcode
-	 *            the put-code of the remote ORCID work that will be updated
-	 * @param updatedWork
-	 *            the new state of the work that will be updated
-	 * @return the result of the ORCID call
-	 * @throws NullPointerException
-	 *             if either parameter is null
-	 */
-	@Override
-	public PTCRISyncResult update(BigInteger remotePutcode, Work updatedWork)
-			throws NullPointerException {
-		if (remotePutcode == null || updatedWork == null)
-			throw new NullPointerException("Can't update null work.");
-
-		_log.debug("[updateWork] " + remotePutcode);
-
-		final Work clone = cloneE(updatedWork);
-		// set the remote put-code
-		clone.setPutCode(remotePutcode);
-
-		return client.updateWork(remotePutcode, clone);
-	}
-
-	/**
-	 * Synchronously deletes a work in an ORCID profile.
-	 * 
-	 * @see ORCIDClient#deleteWork(BigInteger)
-	 * 
-	 * @param putcode
-	 *            the remote put-code of the work to be deleted
-	 * @throws NullPointerException
-	 *             if the put-code is null
-	 */
-	@Override
-	public PTCRISyncResult delete(BigInteger putcode)
-			throws NullPointerException {
-		if (putcode == null)
-			throw new NullPointerException("Can't delete null work.");
-
-		_log.debug("[deleteWork] " + putcode);
-
-		return client.deleteWork(putcode);
-	}
+	
 
 	/**
 	 * Checks whether a work is already up to date regarding another one,
@@ -377,13 +114,13 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
-		res &= identicalEIDs(getPartOfExternalIdsE(preWork),
+		res &= identicalExternalIDs(getPartOfExternalIdsE(preWork),
 				getPartOfExternalIdsS(posWork));
-		res &= getWorkTitleE(preWork).equals(getWorkTitleS(posWork));
-		res &= (getPubYearE(preWork) == null && getPubYearS(posWork) == null)
+		res &= getTitleE(preWork).equals(getTitleS(posWork));
+		res &= (getPubYearE(preWork) == null && getYearS(posWork) == null)
 				|| (getPubYearE(preWork) != null
-						&& getPubYearS(posWork) != null && getPubYearE(preWork)
-						.equals(getPubYearS(posWork)));
+						&& getYearS(posWork) != null && getPubYearE(preWork)
+						.equals(getYearS(posWork)));
 		res &= (preWork.getType() == null && posWork.getType() == null)
 				|| (preWork.getType() != null && posWork.getType() != null && preWork
 						.getType().equals(posWork.getType()));
@@ -423,7 +160,7 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 			res.add(INVALID_EXTERNALIDENTIFIERS);
 		else
 			for (ExternalId eid : getSelfExternalIdsS(work).getExternalId())
-				if (!validEIdType(eid.getExternalIdType()))
+				if (!validExternalIdType(eid.getExternalIdType()))
 					res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
@@ -496,7 +233,7 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 	 * @return the work's title if defined, empty string otherwise
 	 */
 	@Override
-	protected String getWorkTitleS(WorkSummary work) {
+	protected String getTitleS(WorkSummary work) {
 		if (work == null || work.getTitle() == null)
 			return "";
 		return work.getTitle().getTitle();
@@ -510,7 +247,7 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 	 * @return the publication year if defined, null otherwise
 	 */
 	@Override
-	protected String getPubYearS(WorkSummary work) {
+	protected String getYearS(WorkSummary work) {
 		if (work == null || work.getPublicationDate() == null
 				|| work.getPublicationDate().getYear() == null)
 			return null;
@@ -629,7 +366,7 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 	 * @return whether the string is a valid EId type
 	 */
 	@Override
-	protected boolean validEIdType(String eid) {
+	protected boolean validExternalIdType(String eid) {
 		try {
 			EIdType.valueOf(eid.replace('-', '_').toUpperCase());
 			return true;
@@ -654,7 +391,7 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 	}
 
 	@Override
-	public void setExternalIds(Work work, ExternalIds weids) {
+	public void setExternalIdsE(Work work, ExternalIds weids) {
 		work.setExternalIds(weids);
 	}
 
@@ -663,4 +400,45 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 		return work.getType();
 	}
 
+	@Override
+	protected List<WorkSummary> getGroupSummaries(WorkGroup group) {
+		return group.getWorkSummary();
+	}
+
+	@Override
+	protected PTCRISyncResult addClient(Work work) {
+		return client.addWork(work);
+	}
+
+	@Override
+	protected List<PTCRISyncResult> addClient(List<Work> clones) {
+		return client.addWorks(clones);
+	}
+
+	@Override
+	protected PTCRISyncResult updateClient(BigInteger remotePutcode, Work clone) {
+		return client.updateWork(remotePutcode, clone);
+	}
+
+	@Override
+	protected PTCRISyncResult deleteClient(BigInteger putcode) {
+		return client.deleteWork(putcode);
+	}
+
+	@Override
+	protected Map<BigInteger, PTCRISyncResult> getClient(List<WorkSummary> putcodes) {
+		return client.getWorks(putcodes);
+	}
+
+	@Override
+	protected ORCIDWorker readWorker(List<WorkSummary> putcodes,
+			Map<BigInteger, PTCRISyncResult> cb, Logger log) {
+		return new ORCIDBulkGetWorker(putcodes, client, cb, log);
+	}
+
+	@Override
+	public void setExternalIdsS(WorkSummary summary, ExternalIds eids) {
+		summary.setExternalIds(eids);
+	}
+	
 }

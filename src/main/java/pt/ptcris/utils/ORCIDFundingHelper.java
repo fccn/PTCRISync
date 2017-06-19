@@ -12,9 +12,7 @@ package pt.ptcris.utils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.FundingGroup;
-import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
@@ -32,7 +29,6 @@ import org.um.dsi.gavea.orcid.model.funding.FundingType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
-import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -65,99 +61,25 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 	public ORCIDFundingHelper(ORCIDClient orcidClient) {
 		super(orcidClient,0,0);
 	}
-
-	/**
-	 * Retrieves the entire set of funding summaries from the set ORCID profile
-	 * that have at least an external identifier set. Merges each ORCID group
-	 * into a single summary, following {@link #groupToWork}.
-	 *
-	 * @return the set of funding summaries in the set ORCID profile
-	 * @throws OrcidClientException
-	 *             if the communication with ORCID fails
-	 */
-	@Override
-	public List<FundingSummary> getAllSummaries() throws OrcidClientException {
-		_log.debug("[getSummaries]");
-		
-		final List<FundingSummary> fundSummaryList = new LinkedList<FundingSummary>();
-		final List<FundingGroup> fundGroupList = client.getFundingsSummary().getGroup();
-		for (FundingGroup group : fundGroupList)
-			fundSummaryList.add(group(group));
-		return fundSummaryList;
-	}
-
-	@Override
-	public List<FundingSummary> getSourcedSummaries() throws OrcidClientException {
-		final String sourceClientID = client.getClientId();
-		
-		_log.debug("[getSourcedSummaries] " + sourceClientID);
-		
-		final List<FundingSummary> workSummaryList = new LinkedList<FundingSummary>();
-		final List<FundingGroup> workGroupList = client.getFundingsSummary().getGroup();
-		
-		for (FundingGroup workGroup : workGroupList) {
-			for (FundingSummary workSummary : workGroup.getFundingSummary()) {
-				final ClientId workClient = workSummary.getSource().getSourceClientId();
-				// may be null is entry added by the user
-				if (workClient != null && workClient.getUriPath().equals(sourceClientID)) {
-					workSummaryList.add(workSummary);
-				}
-			}
-		}
-		return workSummaryList;
-	}
-
-	@Override
-	public void getFulls(List<FundingSummary> mergedWorks, Map<BigInteger, PTCRISyncResult> cb, ProgressHandler handler)
-			throws OrcidClientException, NullPointerException {
-		if (mergedWorks == null) throw new NullPointerException("Can't get null work.");
-		_log.debug("[getFullWorks] " + mergedWorks.size());
-		if (handler != null) handler.setCurrentStatus("ORCID_GET_ITERATION");
-
-		if (client.threads() > 1 && cb != null) {
-			for (int i = 0; i < mergedWorks.size();) {
-				int progress = (int) ((double) i / mergedWorks.size() * 100);
-				if (handler != null) handler.setProgress(progress);
-			
-				final ORCIDGetWorker2 worker = new ORCIDGetWorker2(mergedWorks.get(i), client, cb, _log);
-				executor.execute(worker);
-				i++;
-			}
-		} else {
-			Map<BigInteger, PTCRISyncResult> fullWorks = new HashMap<BigInteger, PTCRISyncResult>();
-			for (int i = 0; i < mergedWorks.size();) {
-				int progress = (int) ((double) i / mergedWorks.size() * 100);
-				if (handler != null) handler.setProgress(progress);
-				fullWorks.put(mergedWorks.get(i).getPutCode(), client.getFunding(mergedWorks.get(i)));
-				i++;
-			}
-			cb.putAll(fullWorks);
-		}
-
-	}
-
-	@Override
-	protected PTCRISyncResult add(Funding work) throws NullPointerException {
-		if (work == null) throw new NullPointerException("Can't add null work.");
-		
-		_log.debug("[addWork] " + getWorkTitleE(work));
 	
-		// remove any put-code otherwise ORCID will throw an error
-		final Funding clone = cloneE(work);
-		clone.setPutCode(null);
-	
-		return client.addFunding(clone);
+	@Override
+	protected List<FundingGroup> getSummariesClient() throws OrcidClientException {
+		return client.getFundingsSummary().getGroup();
 	}
 
 	@Override
-	public PTCRISyncResult delete(BigInteger putcode) 
-			throws NullPointerException {
-		if (putcode == null) 
-			throw new NullPointerException("Can't delete null work.");
+	public List<FundingSummary> getGroupSummaries(FundingGroup group) {
+		return group.getFundingSummary();
+	}
 
-		_log.debug("[deleteWork] " + putcode);
+	@Override
+	protected PTCRISyncResult getClient(FundingSummary work) {
+		return client.getFunding(work);
+	}
 	
-		return client.deleteFunding(putcode);
+	@Override
+	protected ORCIDWorker readWorker(FundingSummary s, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
+		return new ORCIDGetWorker2(s, client, cb, _log);
 	}
 
 	@Override
@@ -167,13 +89,13 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 			throw new NullPointerException("Can't test null works.");
 
 		boolean res = true;
-		res &= identicalEIDs(
+		res &= identicalExternalIDs(
 				getPartOfExternalIdsE(preWork), 
 				getPartOfExternalIdsS(posWork));
-		res &= getWorkTitleE(preWork).equals(getWorkTitleS(posWork));
-		res &= (getPubYearE(preWork) == null && getPubYearS(posWork) == null)
-				|| (getPubYearE(preWork) != null && getPubYearS(posWork) != null 
-						&& getPubYearE(preWork).equals(getPubYearS(posWork)));
+		res &= getTitleE(preWork).equals(getTitleS(posWork));
+		res &= (getPubYearE(preWork) == null && getYearS(posWork) == null)
+				|| (getPubYearE(preWork) != null && getYearS(posWork) != null 
+						&& getPubYearE(preWork).equals(getYearS(posWork)));
 		res &= (preWork.getType() == null && posWork.getType() == null)
 				|| (preWork.getType() != null && posWork.getType() != null && preWork
 						.getType().equals(posWork.getType()));
@@ -190,7 +112,7 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 		if (getSelfExternalIdsS(work).getExternalId().isEmpty())
 			res.add(INVALID_EXTERNALIDENTIFIERS);
 		else for (ExternalId eid : getSelfExternalIdsS(work).getExternalId())
-				if (!validEIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
+				if (!validExternalIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
 		if (work.getTitle() == null)
 			res.add(INVALID_TITLE);
 		else if (work.getTitle().getTitle() == null)
@@ -222,7 +144,7 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 	 *            a potential EId type
 	 * @return whether the string is a valid EId type
 	 */
-	protected boolean validEIdType(String eid) {
+	protected boolean validExternalIdType(String eid) {
 		try {
 			EIdType.valueOf(eid.replace('-', '_').toUpperCase());
 			return true;
@@ -271,7 +193,7 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 	}
 
 	@Override
-	protected String getWorkTitleS(FundingSummary work) {
+	protected String getTitleS(FundingSummary work) {
 		if (work == null || work.getTitle() == null)
 			return "";
 		return work.getTitle().getTitle();
@@ -371,34 +293,7 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 	}
 
 	@Override
-	public void getFull(FundingSummary mergedWork,
-			Map<BigInteger, PTCRISyncResult> cb) throws NullPointerException {
-		throw new UnsupportedOperationException("");
-	}
-
-	@Override
-	protected List<PTCRISyncResult> add(Collection<Funding> works)
-			throws NullPointerException {
-		throw new UnsupportedOperationException("No support for bulk reading fundings.");
-	}
-
-	@Override
-	public PTCRISyncResult update(BigInteger remotePutcode, Funding updatedWork)
-			throws NullPointerException {
-		if (remotePutcode == null || updatedWork == null)
-			throw new NullPointerException("Can't update null work.");
-
-		_log.debug("[updateWork] " + remotePutcode);
-
-		final Funding clone = cloneE(updatedWork);
-		// set the remote put-code
-		clone.setPutCode(remotePutcode);
-
-		return client.updateFunding(remotePutcode, clone);
-	}
-
-	@Override
-	protected String getPubYearS(FundingSummary work) {
+	protected String getYearS(FundingSummary work) {
 		if (work == null 
 				|| work.getStartDate() == null
 				|| work.getStartDate().getYear() == null)
@@ -423,13 +318,50 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 	}
 
 	@Override
-	public void setExternalIds(Funding work, ExternalIds weids) {
+	public void setExternalIdsE(Funding work, ExternalIds weids) {
 		work.setExternalIds(weids);
 	}
 
 	@Override
 	protected FundingType getTypeS(FundingSummary work) {
 		return work.getType();
+	}
+
+	@Override
+	protected PTCRISyncResult addClient(Funding work) {
+		return client.addFunding(work);
+	}
+
+	@Override
+	protected List<PTCRISyncResult> addClient(List<Funding> clones) {
+		throw new UnsupportedOperationException("No support for bulk reading fundings.");
+	}
+	
+	@Override
+	protected PTCRISyncResult updateClient(BigInteger remotePutcode, Funding clone) {
+		return client.updateFunding(remotePutcode, clone);
+	}
+
+	@Override
+	protected PTCRISyncResult deleteClient(BigInteger putcode) {
+		return client.deleteFunding(putcode);
+	}
+
+	@Override
+	protected Map<BigInteger, PTCRISyncResult> getClient(
+			List<FundingSummary> putcodes) {
+		throw new UnsupportedOperationException("No support for bulk reading fundings.");
+	}
+
+	@Override
+	protected ORCIDWorker readWorker(List<FundingSummary> putcodes,
+			Map<BigInteger, PTCRISyncResult> cb, Logger log) {
+		throw new UnsupportedOperationException("No support for bulk reading fundings.");
+	}
+
+	@Override
+	public void setExternalIdsS(FundingSummary summary, ExternalIds eids) {
+		summary.setExternalIds(eids);
 	}
 	
 	
