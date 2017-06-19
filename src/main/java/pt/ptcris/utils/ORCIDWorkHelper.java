@@ -12,13 +12,12 @@ package pt.ptcris.utils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
@@ -37,7 +36,7 @@ import pt.ptcris.PTCRISyncResult;
  * Provides support for asynchronous communication with ORCID although it is
  * only active for GET requests due to resource limitations.
  */
-public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> {
+public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> {
 
 	public enum EIdType {
 		OTHER_ID("other-id"), AGR("agr"), ARXIV("arxiv"), ASIN("asin"), BIBCODE(
@@ -56,9 +55,6 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 		}
 	}
 
-	private static final Logger _log = LoggerFactory
-			.getLogger(ORCIDWorkHelper.class);
-
 	/**
 	 * Initializes the helper with a given ORCID client.
 	 *
@@ -69,28 +65,202 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 		super(orcidClient, 100, 50);
 	}
 
+	/*
+	 * Client methods instantiated for ORCID work activities.
+	 */
+	
+	/** {@inheritDoc} */
 	@Override
 	protected List<WorkGroup> getSummariesClient() throws OrcidClientException {
+		assert client != null;
 		return client.getWorksSummary().getGroup();
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult getClient(WorkSummary work) {
+	protected PTCRISyncResult readClient(WorkSummary work) {
+		assert client != null;
+		assert work != null;
 		return client.getWork(work);
 	}
 	
+	/** {@inheritDoc} */
 	@Override
-	protected ORCIDWorker readWorker(WorkSummary s, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
-		return new ORCIDGetWorker(s, client, cb, _log);
+	protected Map<BigInteger, PTCRISyncResult> readClient(List<WorkSummary> summaries) {
+		assert client != null;
+		if (summaries == null || summaries.isEmpty())
+			return new HashMap<BigInteger, PTCRISyncResult>();
+		return client.getWorks(summaries);
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	protected ORCIDWorker readWorker(WorkSummary summary, Map<BigInteger, PTCRISyncResult> cb) {
+		assert client != null;
+		assert cb != null;
+		assert summary != null;
+		return new ORCIDGetWorker(summary, client, cb, _log);
+	}
 
+	/** {@inheritDoc} */
+	@Override
+	protected ORCIDWorker readWorker(List<WorkSummary> summaries,
+			Map<BigInteger, PTCRISyncResult> cb) {
+		assert client != null;
+		assert cb != null;
+		if (summaries == null)
+			summaries = new ArrayList<WorkSummary>();
+		return new ORCIDBulkGetWorker(summaries, client, cb, _log);
+	}
 
+	/** {@inheritDoc} */
+	@Override
+	protected PTCRISyncResult addClient(Work work) {
+		assert client != null;
+		return client.addWork(work);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected List<PTCRISyncResult> addClient(List<Work> works) {
+		assert client != null;
+		if (works == null || works.isEmpty())
+			return new ArrayList<PTCRISyncResult>();
+		return client.addWorks(works);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected PTCRISyncResult updateClient(BigInteger remotePutcode, Work work) {
+		assert client != null;
+		assert remotePutcode != null;
+		assert work != null;
+		return client.updateWork(remotePutcode, work);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected PTCRISyncResult deleteClient(BigInteger remotePutcode) {
+		assert client != null;
+		assert remotePutcode != null;
+		return client.deleteWork(remotePutcode);
+	}
+
+	/*
+	 * Static methods instantiated for ORCID work activities.
+	 */
 	
+	/** {@inheritDoc} */
+	@Override
+	public ExternalIds getNonNullExternalIdsE(Work work) {
+		if (work.getExternalIds() == null || work.getExternalIds().getExternalId() == null) {
+			return new ExternalIds(new ArrayList<ExternalId>());
+		} else {
+			return work.getExternalIds();
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public ExternalIds getNonNullExternalIdsS(WorkSummary summary) {
+		if (summary.getExternalIds() == null || summary.getExternalIds().getExternalId() == null) {
+			return new ExternalIds(new ArrayList<ExternalId>());
+		} else {
+			return summary.getExternalIds();
+		}
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public void setExternalIdsE(Work work, ExternalIds eids) {
+		assert work != null;
+		if (eids == null) eids = new ExternalIds(new ArrayList<ExternalId>());
+		work.setExternalIds(eids);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void setExternalIdsS(WorkSummary summary, ExternalIds eids) {
+		assert summary != null;
+		if (eids == null) eids = new ExternalIds(new ArrayList<ExternalId>());
+		summary.setExternalIds(eids);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected WorkType getTypeS(WorkSummary summary) {
+		assert summary != null;
+		return summary.getType();
+	}
 
 	/**
-	 * Checks whether a work is already up to date regarding another one,
-	 * considering meta-data other than the self external identifiers.
+	 * {@inheritDoc}
+	 * 
+	 * Elements of the enum {@link EIdType} take the shape of upper-case valid
+	 * EId types, with slashes replaced by underscores.
+	 */
+	@Override
+	protected boolean validExternalIdType(String eid) {
+		try {
+			EIdType.valueOf(eid.replace('-', '_').toUpperCase());
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
+		protected String getTitleS(WorkSummary summary) {
+		assert summary != null;
+		if (summary.getTitle() == null)
+			return "";
+		return summary.getTitle().getTitle();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected String getYearS(WorkSummary summary) {
+		assert summary != null;
+		if (summary.getPublicationDate() == null
+				|| summary.getPublicationDate().getYear() == null)
+			return null;
+		return summary.getPublicationDate().getYear().getValue();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected List<WorkSummary> getGroupSummaries(WorkGroup group) {
+		assert group != null;
+		return group.getWorkSummary();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected WorkSummary group(WorkGroup group) throws IllegalArgumentException {
+		assert group != null;
+		if (group.getWorkSummary() == null || group.getWorkSummary().isEmpty())
+			throw new IllegalArgumentException("Can't merge empty group.");
+	
+		final WorkSummary preferred = group.getWorkSummary().get(0);
+		final WorkSummary dummy = cloneS(preferred);
+	
+		final List<ExternalId> eids = getPartOfExternalIdsS(dummy)
+				.getExternalId();
+		for (ExternalId id : group.getExternalIds().getExternalId()) {
+			final ExternalId eid = new ExternalId();
+			eid.setExternalIdRelationship(id.getExternalIdRelationship());
+			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
+			eid.setExternalIdValue(id.getExternalIdValue());
+			eids.add(eid);
+		}
+		dummy.setExternalIds(new ExternalIds(eids));
+	
+		return dummy;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * The considered fields are: title, publication date (year), work type and
 	 * part-of external identifiers. All this meta-data is available in work
@@ -98,20 +268,11 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
-	 *
-	 * @param preWork
-	 *            the potentially out of date work
-	 * @param posWork
-	 *            the up to date work
-	 * @return true if the considered meta-data is the same, false otherwise.
-	 * @throws NullPointerException
-	 *             if either work is null
 	 */
 	@Override
-	protected boolean isMetaUpToDate(Work preWork, WorkSummary posWork)
-			throws NullPointerException {
-		if (preWork == null || posWork == null)
-			throw new NullPointerException("Can't test null works.");
+	protected boolean isMetaUpToDate(Work preWork, WorkSummary posWork) {
+		assert preWork != null;
+		assert posWork != null;
 
 		boolean res = true;
 		res &= identicalExternalIDs(getPartOfExternalIdsE(preWork),
@@ -128,32 +289,21 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 	}
 
 	/**
-	 * Tests whether a work summary has minimal quality to be synchronized, by
-	 * inspecting its meta-data and that of coexisting works, and returns the
-	 * detected invalid fields.
+	 * {@inheritDoc}
 	 * 
 	 * The considered fields are: self external identifiers, title, publication
-	 * date (year), work type. The test also checks whether the external
+	 * date (year) and work type. The test also checks whether the external
 	 * identifiers overlap with those of the coexisting works. All this
 	 * meta-data is available in work summaries. The publication date is not
 	 * necessary for data sets and research techniques.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
-	 * 
-	 * @param work
-	 *            the work to test for quality
-	 * @param others
-	 *            other coexisting works
-	 * @return the set of invalid fields
-	 * @throws NullPointerException
-	 *             if the work is null
 	 */
 	@Override
-	public Set<String> testMinimalQuality(WorkSummary work,
-			Collection<Work> others) throws NullPointerException {
-		if (work == null)
-			throw new NullPointerException("Can't test null work.");
+	protected Set<String> testMinimalQuality(WorkSummary work, Collection<Work> others) {
+		assert work != null;
+		if (others == null) others = new ArrayList<Work>();
 
 		final Set<String> res = new HashSet<String>();
 		if (getSelfExternalIdsS(work).getExternalId().isEmpty())
@@ -185,144 +335,43 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 		return res;
 	}
 
-	/**
-	 * Merges a work group into a single work summary. Simply selects the
-	 * meta-data (including part-of external identifiers) from the first work of
-	 * the group (i.e., the preferred one) and assigns it any extra (self)
-	 * external identifiers from the remainder works. These remainder
-	 * identifiers are the ones grouped by ORCID.
-	 *
-	 * @param group
-	 *            the work group to be merged
-	 * @return the resulting work summary
-	 * @throws NullPointerException
-	 *             if the group is null
-	 * @throws IllegalArgumentException
-	 *             if the group is empty
-	 */
+	/** {@inheritDoc} */
 	@Override
-	protected WorkSummary group(WorkGroup group) throws NullPointerException,
-			IllegalArgumentException {
-		if (group == null || group.getWorkSummary() == null)
-			throw new NullPointerException("Can't merge null group");
-		if (group.getWorkSummary().isEmpty())
-			throw new IllegalArgumentException("Can't merge empty group.");
-
-		final WorkSummary preferred = group.getWorkSummary().get(0);
-		final WorkSummary dummy = cloneS(preferred);
-
-		final List<ExternalId> eids = getPartOfExternalIdsS(dummy)
-				.getExternalId();
-		for (ExternalId id : group.getExternalIds().getExternalId()) {
-			final ExternalId eid = new ExternalId();
-			eid.setExternalIdRelationship(id.getExternalIdRelationship());
-			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
-			eid.setExternalIdValue(id.getExternalIdValue());
-			eids.add(eid);
-		}
-		dummy.setExternalIds(new ExternalIds(eids));
-
-		return dummy;
+	public Work createUpdate(Work original, ExternalIdsDiff diff) {
+		assert original != null;
+		assert diff != null;
+		
+		Work workUpdate = cloneE(original);
+		ExternalIds weids = new ExternalIds();
+		List<ExternalId> neids = new ArrayList<ExternalId>(diff.more);
+		weids.setExternalId(neids);
+		ORCIDHelper.setWorkLocalKey(workUpdate,
+				ORCIDHelper.getActivityLocalKey(original));
+		workUpdate.setExternalIds(weids);
+		workUpdate.setTitle(null);
+		workUpdate.setType(null);
+		workUpdate.setPublicationDate(null);
+		return workUpdate;
 	}
 
-	/**
-	 * Retrieves the title from a work summary.
-	 *
-	 * @param work
-	 *            the work summary
-	 * @return the work's title if defined, empty string otherwise
-	 */
+	/** {@inheritDoc} */
 	@Override
-	protected String getTitleS(WorkSummary work) {
-		if (work == null || work.getTitle() == null)
-			return "";
-		return work.getTitle().getTitle();
-	}
-
-	/**
-	 * Retrieves the publication year from a work summary.
-	 *
-	 * @param work
-	 *            the work summary
-	 * @return the publication year if defined, null otherwise
-	 */
-	@Override
-	protected String getYearS(WorkSummary work) {
-		if (work == null || work.getPublicationDate() == null
-				|| work.getPublicationDate().getYear() == null)
-			return null;
-		return work.getPublicationDate().getYear().getValue();
-	}
-
-	/**
-	 * Returns the non-null external identifiers of a work (null becomes empty
-	 * list).
-	 * 
-	 * @param work
-	 *            the work from which to retrieve the external identifiers
-	 * @return the non-null external identifiers
-	 */
-	@Override
-	public ExternalIds getNonNullExternalIdsE(Work work) {
-		if (work.getExternalIds() != null
-				&& work.getExternalIds().getExternalId() != null) {
-			return work.getExternalIds();
-		} else {
-			return new ExternalIds(new ArrayList<ExternalId>());
-		}
-	}
-
-	/**
-	 * Returns the non-null external identifiers of a work summary (null becomes
-	 * empty list).
-	 * 
-	 * @param work
-	 *            the work summary from which to retrieve the external
-	 *            identifiers
-	 * @return the non-null external identifiers
-	 */
-	@Override
-	public ExternalIds getNonNullExternalIdsS(WorkSummary work) {
-		if (work.getExternalIds() != null
-				&& work.getExternalIds().getExternalId() != null) {
-			return work.getExternalIds();
-		} else {
-			return new ExternalIds(new ArrayList<ExternalId>());
-		}
-	}
-
-	/**
-	 * Clones a work summary.
-	 * 
-	 * @param work
-	 *            the summary to be cloned
-	 * @return the clone
-	 */
-	@Override
-	public WorkSummary cloneS(WorkSummary work) {
-		if (work == null)
-			return null;
+	public WorkSummary cloneS(WorkSummary summary) {
+		assert summary != null;
 
 		final WorkSummary dummy = new WorkSummary();
-		copy(work, dummy);
-		dummy.setPublicationDate(work.getPublicationDate());
-		dummy.setTitle(work.getTitle());
-		dummy.setType(work.getType());
-		dummy.setExternalIds(getNonNullExternalIdsS(work));
+		copy(summary, dummy);
+		dummy.setPublicationDate(summary.getPublicationDate());
+		dummy.setTitle(summary.getTitle());
+		dummy.setType(summary.getType());
+		dummy.setExternalIds(getNonNullExternalIdsS(summary));
 		return dummy;
 	}
 
-	/**
-	 * Clones a work.
-	 * 
-	 * @param work
-	 *            the work to be cloned
-	 * @return the clone
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public Work cloneE(Work work) {
-		if (work == null)
-			return null;
+		assert work != null;
 
 		final Work dummy = new Work();
 		copy(work, dummy);
@@ -342,10 +391,10 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 		return dummy;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected WorkSummary summarize(Work work) {
-		if (work == null)
-			return null;
+		assert work != null;
 
 		final WorkSummary dummy = new WorkSummary();
 		copy(work, dummy);
@@ -355,90 +404,4 @@ public class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, W
 		dummy.setExternalIds(getNonNullExternalIdsE(work));
 		return dummy;
 	}
-
-	/**
-	 * Test whether a give external identifiers type is valid. Elements of the
-	 * enum {@link EIdType} take the shape of upper-case valid EId types, with
-	 * slashes replaced by underscores.
-	 * 
-	 * @param eid
-	 *            a potential EId type
-	 * @return whether the string is a valid EId type
-	 */
-	@Override
-	protected boolean validExternalIdType(String eid) {
-		try {
-			EIdType.valueOf(eid.replace('-', '_').toUpperCase());
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	@Override
-	public Work createUpdate(Work original, ExternalIdsDiff diff) {
-		Work workUpdate = cloneE(original);
-		ExternalIds weids = new ExternalIds();
-		List<ExternalId> neids = new ArrayList<ExternalId>(diff.more);
-		weids.setExternalId(neids);
-		ORCIDHelper.setWorkLocalKey(workUpdate,
-				ORCIDHelper.getActivityLocalKey(original));
-		workUpdate.setExternalIds(weids);
-		workUpdate.setTitle(null);
-		workUpdate.setType(null);
-		workUpdate.setPublicationDate(null);
-		return workUpdate;
-	}
-
-	@Override
-	public void setExternalIdsE(Work work, ExternalIds weids) {
-		work.setExternalIds(weids);
-	}
-
-	@Override
-	protected WorkType getTypeS(WorkSummary work) {
-		return work.getType();
-	}
-
-	@Override
-	protected List<WorkSummary> getGroupSummaries(WorkGroup group) {
-		return group.getWorkSummary();
-	}
-
-	@Override
-	protected PTCRISyncResult addClient(Work work) {
-		return client.addWork(work);
-	}
-
-	@Override
-	protected List<PTCRISyncResult> addClient(List<Work> clones) {
-		return client.addWorks(clones);
-	}
-
-	@Override
-	protected PTCRISyncResult updateClient(BigInteger remotePutcode, Work clone) {
-		return client.updateWork(remotePutcode, clone);
-	}
-
-	@Override
-	protected PTCRISyncResult deleteClient(BigInteger putcode) {
-		return client.deleteWork(putcode);
-	}
-
-	@Override
-	protected Map<BigInteger, PTCRISyncResult> getClient(List<WorkSummary> putcodes) {
-		return client.getWorks(putcodes);
-	}
-
-	@Override
-	protected ORCIDWorker readWorker(List<WorkSummary> putcodes,
-			Map<BigInteger, PTCRISyncResult> cb, Logger log) {
-		return new ORCIDBulkGetWorker(putcodes, client, cb, log);
-	}
-
-	@Override
-	public void setExternalIdsS(WorkSummary summary, ExternalIds eids) {
-		summary.setExternalIds(eids);
-	}
-	
 }

@@ -8,7 +8,6 @@
  * the software.
  */
 package pt.ptcris.utils;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.FundingGroup;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
@@ -38,20 +35,8 @@ import pt.ptcris.PTCRISyncResult;
  * although it is only active for GET requests due to resource
  * limitations.
  */
-public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> {
+public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> {
 	
-	public enum EIdType {
-		GRANT_NUMBER("grant-number"); 
-		
-		public final String value;
-
-		private EIdType(String value) {
-			this.value = value;
-		}
-	}
-	
-	private static final Logger _log = LoggerFactory.getLogger(ORCIDFundingHelper.class);
-
 	/**
 	 * Initializes the helper with a given ORCID client.
 	 *
@@ -62,123 +47,170 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 		super(orcidClient,0,0);
 	}
 	
+	/*
+	 * Client methods instantiated for ORCID funding activities.
+	 */
+	
+	/** {@inheritDoc} */
 	@Override
 	protected List<FundingGroup> getSummariesClient() throws OrcidClientException {
+		assert client != null;
 		return client.getFundingsSummary().getGroup();
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public List<FundingSummary> getGroupSummaries(FundingGroup group) {
-		return group.getFundingSummary();
+	protected PTCRISyncResult readClient(FundingSummary summary) {
+		assert client != null;
+		assert summary != null;
+		return client.getFunding(summary);
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult getClient(FundingSummary work) {
-		return client.getFunding(work);
-	}
-	
-	@Override
-	protected ORCIDWorker readWorker(FundingSummary s, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
-		return new ORCIDGetWorker2(s, client, cb, _log);
+	protected Map<BigInteger, PTCRISyncResult> readClient(
+			List<FundingSummary> fundings) {
+		throw new UnsupportedOperationException("No support for bulk reading fundings.");
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	protected boolean isMetaUpToDate(Funding preWork, FundingSummary posWork) 
-			throws NullPointerException {
-		if (preWork == null || posWork == null)
-			throw new NullPointerException("Can't test null works.");
-
-		boolean res = true;
-		res &= identicalExternalIDs(
-				getPartOfExternalIdsE(preWork), 
-				getPartOfExternalIdsS(posWork));
-		res &= getTitleE(preWork).equals(getTitleS(posWork));
-		res &= (getPubYearE(preWork) == null && getYearS(posWork) == null)
-				|| (getPubYearE(preWork) != null && getYearS(posWork) != null 
-						&& getPubYearE(preWork).equals(getYearS(posWork)));
-		res &= (preWork.getType() == null && posWork.getType() == null)
-				|| (preWork.getType() != null && posWork.getType() != null && preWork
-						.getType().equals(posWork.getType()));
-		return res;
+	protected ORCIDWorker readWorker(FundingSummary summary, Map<BigInteger, PTCRISyncResult> cb) {
+		assert client != null;
+		assert summary != null;
+		return new ORCIDGetWorker2(summary, client, cb, _log);
 	}
 
-
+	/** {@inheritDoc} */
 	@Override
-	public Set<String> testMinimalQuality(FundingSummary work, Collection<Funding> others) throws NullPointerException {
-		if (work == null)
-			throw new NullPointerException("Can't test null work.");
-		
-		final Set<String> res = new HashSet<String>();
-		if (getSelfExternalIdsS(work).getExternalId().isEmpty())
-			res.add(INVALID_EXTERNALIDENTIFIERS);
-		else for (ExternalId eid : getSelfExternalIdsS(work).getExternalId())
-				if (!validExternalIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
-		if (work.getTitle() == null)
-			res.add(INVALID_TITLE);
-		else if (work.getTitle().getTitle() == null)
-			res.add(INVALID_TITLE);
-		if (work.getType() == null)
-			res.add(INVALID_TYPE);
-		if (work.getOrganization() == null)
-			res.add(INVALID_ORGANIZATION);
-		if (work.getStartDate() == null)
-			res.add(INVALID_PUBLICATIONDATE);
-		else if (work.getStartDate().getYear() == null)
-			res.add(INVALID_YEAR);
-
-		Map<Funding, ExternalIdsDiff> worksDiffs = getSelfExternalIdsDiffS(work, others);
-		for (Funding match : worksDiffs.keySet())
-			if (match.getPutCode() != work.getPutCode() && !worksDiffs.get(match).same.isEmpty())
-				res.add(OVERLAPPING_EIDs);
-		
-		return res;
+	protected ORCIDWorker readWorker(List<FundingSummary> summaries,
+			Map<BigInteger, PTCRISyncResult> cb) {
+		throw new UnsupportedOperationException("No support for bulk reading fundings.");
 	}
 
-	
-	/**
-	 * Test whether a give external identifiers type is valid. Elements of the
-	 * enum {@link EIdType} take the shape of upper-case valid EId types, with
-	 * slashes replaced by underscores.
-	 * 
-	 * @param eid
-	 *            a potential EId type
-	 * @return whether the string is a valid EId type
+	/** {@inheritDoc} */
+	@Override
+	protected PTCRISyncResult addClient(Funding funding) {
+		assert client != null;
+		assert funding != null;
+		return client.addFunding(funding);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected List<PTCRISyncResult> addClient(List<Funding> fundings) {
+		throw new UnsupportedOperationException("No support for bulk reading fundings.");
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected PTCRISyncResult updateClient(BigInteger remotePutcode, Funding funding) {
+		assert client != null;
+		assert remotePutcode != null;
+		assert funding != null;
+		return client.updateFunding(remotePutcode, funding);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected PTCRISyncResult deleteClient(BigInteger remotePutcode) {
+		assert client != null;
+		assert remotePutcode != null;
+		return client.deleteFunding(remotePutcode);
+	}
+
+	/*
+	 * Static methods instantiated for ORCID funding activities.
 	 */
-	protected boolean validExternalIdType(String eid) {
-		try {
-			EIdType.valueOf(eid.replace('-', '_').toUpperCase());
-			return true;
-		} catch (Exception e) {
-			return false;
+	
+	/** {@inheritDoc} */
+	@Override
+	public ExternalIds getNonNullExternalIdsE (Funding funding) {
+		if (funding.getExternalIds() == null || funding.getExternalIds().getExternalId() == null) {
+			return new ExternalIds(new ArrayList<ExternalId>());
+		} else {
+			return funding.getExternalIds();
 		}
 	}
-	
-	/**
-	 * Merges a work group into a single funding summary. Simply selects the
-	 * meta-data (including part-of external identifiers) from the first funding
-	 * entrey of the group (i.e., the preferred one) and assigns it any extra
-	 * (self) external identifiers from the remainder funding entries. These
-	 * remainder identifiers are the ones grouped by ORCID.
-	 *
-	 * @param group
-	 *            the funding group to be merged
-	 * @return the resulting funding summary
-	 * @throws NullPointerException
-	 *             if the group is null
-	 * @throws IllegalArgumentException
-	 *             if the group is empty
-	 */
+
+	/** {@inheritDoc} */
 	@Override
-	protected FundingSummary group(FundingGroup group) 
-			throws NullPointerException, IllegalArgumentException {
-		if (group == null || group.getFundingSummary() == null)
-			throw new NullPointerException("Can't merge null group");
-		if (group.getFundingSummary().isEmpty())
+	public ExternalIds getNonNullExternalIdsS (FundingSummary funding) {
+		if (funding.getExternalIds() == null || funding.getExternalIds().getExternalId() == null) {
+			return new ExternalIds(new ArrayList<ExternalId>());
+		} else {
+			return funding.getExternalIds();
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void setExternalIdsE(Funding funding, ExternalIds eids) {
+		assert funding != null;
+		if (eids == null) eids = new ExternalIds(new ArrayList<ExternalId>());
+		funding.setExternalIds(eids);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void setExternalIdsS(FundingSummary summary, ExternalIds eids) {
+		assert summary != null;
+		if (eids == null) eids = new ExternalIds(new ArrayList<ExternalId>());
+		summary.setExternalIds(eids);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected FundingType getTypeS(FundingSummary funding) {
+		assert funding != null;
+		return funding.getType();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Funding types are always grant_number.
+	 */
+	protected boolean validExternalIdType(String eid) {
+		return eid.equals("grant_number");
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected String getTitleS(FundingSummary summary) {
+		assert summary != null;
+		if (summary.getTitle() == null)
+			return "";
+		return summary.getTitle().getTitle();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected String getYearS(FundingSummary summary) {
+		assert summary != null;
+		if (summary.getStartDate() == null
+				|| summary.getStartDate().getYear() == null)
+			return null;
+		return summary.getStartDate().getYear().getValue();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected List<FundingSummary> getGroupSummaries(FundingGroup group) {
+		assert group != null;
+		return group.getFundingSummary();
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	protected FundingSummary group(FundingGroup group) throws IllegalArgumentException {
+		assert group != null;
+		if (group.getFundingSummary() == null || group.getFundingSummary().isEmpty())
 			throw new IllegalArgumentException("Can't merge empty group.");
 		
 		final FundingSummary preferred = group.getFundingSummary().get(0);
 		final FundingSummary dummy = cloneS(preferred);
-
+	
 		final List<ExternalId> eids = getPartOfExternalIdsS(dummy).getExternalId();
 		for (ExternalId id : group.getExternalIds().getExternalId()) {
 			final ExternalId eid = new ExternalId();
@@ -188,181 +220,151 @@ public class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, Fun
 			eids.add(eid);
 		}
 		dummy.setExternalIds(new ExternalIds(eids));
-
+	
 		return dummy;
 	}
 
-	@Override
-	protected String getTitleS(FundingSummary work) {
-		if (work == null || work.getTitle() == null)
-			return "";
-		return work.getTitle().getTitle();
-	}
-	
 	/**
-	 * Returns the non-null external identifiers of a funding entry (null
-	 * becomes empty list).
+	 * {@inheritDoc}
+	 *
+	 * The considered fields are: title, start date (year), funding type and
+	 * part-of external identifiers. All this meta-data is available in funding
+	 * summaries.
 	 * 
-	 * @param fund
-	 *            the funding entry from which to retrieve the external
-	 *            identifiers
-	 * @return the non-null external identifiers
+	 * TODO: contributors are not being considered as they are not contained in
+	 * the summaries.
 	 */
 	@Override
-	public ExternalIds getNonNullExternalIdsE (Funding work) {
-		if (work.getExternalIds() != null && work.getExternalIds().getExternalId() != null) {
-			return work.getExternalIds();
-		} else {
-			return new ExternalIds(new ArrayList<ExternalId>());
-		}
+	protected boolean isMetaUpToDate(Funding preFunding, FundingSummary posFunding) {
+		assert preFunding != null;
+		assert posFunding != null;
+
+		boolean res = true;
+		res &= identicalExternalIDs(
+				getPartOfExternalIdsE(preFunding), 
+				getPartOfExternalIdsS(posFunding));
+		res &= getTitleE(preFunding).equals(getTitleS(posFunding));
+		res &= (getPubYearE(preFunding) == null && getYearS(posFunding) == null)
+				|| (getPubYearE(preFunding) != null && getYearS(posFunding) != null 
+						&& getPubYearE(preFunding).equals(getYearS(posFunding)));
+		res &= (preFunding.getType() == null && posFunding.getType() == null)
+				|| (preFunding.getType() != null && posFunding.getType() != null && preFunding
+						.getType().equals(posFunding.getType()));
+		return res;
 	}
-	
+
 	/**
-	 * Returns the non-null external identifiers of a funding summary (null becomes
-	 * empty list).
+	 * {@inheritDoc}
 	 * 
-	 * @param funding
-	 *            the funding summary from which to retrieve the external
-	 *            identifiers
-	 * @return the non-null external identifiers
+	 * The considered fields are: self external identifiers, title, start date
+	 * (year), funding type and funding organization. The test also checks
+	 * whether the external identifiers overlap with those of the coexisting
+	 * funding entries. All this meta-data is available in funding summaries.
+	 * 
+	 * TODO: contributors are not being considered as they are not contained in
+	 * the summaries.
 	 */
 	@Override
-	public ExternalIds getNonNullExternalIdsS (FundingSummary funding) {
-		if (funding.getExternalIds() != null && funding.getExternalIds().getExternalId() != null) {
-			return funding.getExternalIds();
-		} else {
-			return new ExternalIds(new ArrayList<ExternalId>());
-		}
-	}
-	
-	/**
-	 * Clones a funding summary.
-	 * 
-	 * @param fund
-	 *            the summary to be cloned
-	 * @return the clone
-	 */
-	@Override
-	public FundingSummary cloneS(FundingSummary fund) {
-		if (fund == null) return null;
+	protected Set<String> testMinimalQuality(FundingSummary funding, Collection<Funding> others) {
+		assert funding != null;
+		if (others == null) others = new ArrayList<Funding>();
 		
-		final FundingSummary dummy = new FundingSummary();
-		copy(fund, dummy);
-		dummy.setStartDate(fund.getStartDate());
-		dummy.setEndDate(fund.getEndDate());
-		dummy.setOrganization(fund.getOrganization());
-		dummy.setTitle(fund.getTitle());
-		dummy.setType(fund.getType());
-		dummy.setExternalIds(getNonNullExternalIdsS(fund));
-		return dummy;
-	}
-	
-	@Override
-	public Funding cloneE(Funding fund) {
-		if (fund == null) return null;
+		final Set<String> res = new HashSet<String>();
+		if (getSelfExternalIdsS(funding).getExternalId().isEmpty())
+			res.add(INVALID_EXTERNALIDENTIFIERS);
+		else for (ExternalId eid : getSelfExternalIdsS(funding).getExternalId())
+				if (!validExternalIdType(eid.getExternalIdType())) res.add(INVALID_EXTERNALIDENTIFIERS);
+		if (funding.getTitle() == null)
+			res.add(INVALID_TITLE);
+		else if (funding.getTitle().getTitle() == null)
+			res.add(INVALID_TITLE);
+		if (funding.getType() == null)
+			res.add(INVALID_TYPE);
+		if (funding.getOrganization() == null)
+			res.add(INVALID_ORGANIZATION);
+		if (funding.getStartDate() == null)
+			res.add(INVALID_PUBLICATIONDATE);
+		else if (funding.getStartDate().getYear() == null)
+			res.add(INVALID_YEAR);
+
+		Map<Funding, ExternalIdsDiff> fundingsDiffs = getSelfExternalIdsDiffS(funding, others);
+		for (Funding match : fundingsDiffs.keySet())
+			if (match.getPutCode() != funding.getPutCode() && !fundingsDiffs.get(match).same.isEmpty())
+				res.add(OVERLAPPING_EIDs);
 		
-		final Funding dummy = new Funding();
-		copy(fund, dummy);
-		dummy.setStartDate(fund.getStartDate());
-		dummy.setEndDate(fund.getEndDate());
-		dummy.setOrganization(fund.getOrganization());
-		dummy.setTitle(fund.getTitle());
-		dummy.setType(fund.getType());
-		dummy.setAmount(fund.getAmount());
-		dummy.setContributors(fund.getContributors());
-		dummy.setShortDescription(fund.getShortDescription());
-		dummy.setOrganizationDefinedType(fund.getOrganizationDefinedType());
-		dummy.setUrl(fund.getUrl());
-		dummy.setExternalIds(getNonNullExternalIdsE(fund));
-		return dummy;
+		return res;
 	}
 
-	@Override
-	protected FundingSummary summarize(Funding work) {
-		if (work == null) return null;
-		
-		final FundingSummary dummy = new FundingSummary();
-		copy(work, dummy);
-		dummy.setOrganization(work.getOrganization());
-		dummy.setStartDate(work.getStartDate());
-		dummy.setEndDate(work.getEndDate());
-		dummy.setTitle(work.getTitle());
-		dummy.setType(work.getType());
-		dummy.setExternalIds(getNonNullExternalIdsE(work));
-		return dummy;
-	}
-
-	@Override
-	protected String getYearS(FundingSummary work) {
-		if (work == null 
-				|| work.getStartDate() == null
-				|| work.getStartDate().getYear() == null)
-			return null;
-		return work.getStartDate().getYear().getValue();
-	}
-
+	/** {@inheritDoc} */
 	@Override
 	public Funding createUpdate(Funding original, ExternalIdsDiff diff) {
-		Funding workUpdate = cloneE(original);
+		assert original != null;
+		assert diff != null;
+		
+		Funding fundingUpdate = cloneE(original);
 		ExternalIds weids = new ExternalIds();
 		List<ExternalId> neids = new ArrayList<ExternalId>(diff.more);
 		weids.setExternalId(neids);
-		ORCIDHelper.setWorkLocalKey(workUpdate, ORCIDHelper.getActivityLocalKey(original));
-		workUpdate.setExternalIds(weids);
-		workUpdate.setTitle(null);
-		workUpdate.setType(null);
-		workUpdate.setStartDate(null);
-		workUpdate.setEndDate(null);
-		workUpdate.setOrganization(null);
-		return workUpdate;
+		ORCIDHelper.setWorkLocalKey(fundingUpdate, ORCIDHelper.getActivityLocalKey(original));
+		fundingUpdate.setExternalIds(weids);
+		fundingUpdate.setTitle(null);
+		fundingUpdate.setType(null);
+		fundingUpdate.setStartDate(null);
+		fundingUpdate.setEndDate(null);
+		fundingUpdate.setOrganization(null);
+		return fundingUpdate;
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public void setExternalIdsE(Funding work, ExternalIds weids) {
-		work.setExternalIds(weids);
-	}
-
-	@Override
-	protected FundingType getTypeS(FundingSummary work) {
-		return work.getType();
-	}
-
-	@Override
-	protected PTCRISyncResult addClient(Funding work) {
-		return client.addFunding(work);
-	}
-
-	@Override
-	protected List<PTCRISyncResult> addClient(List<Funding> clones) {
-		throw new UnsupportedOperationException("No support for bulk reading fundings.");
+	public FundingSummary cloneS(FundingSummary summary) {
+		assert summary != null;
+		
+		final FundingSummary dummy = new FundingSummary();
+		copy(summary, dummy);
+		dummy.setStartDate(summary.getStartDate());
+		dummy.setEndDate(summary.getEndDate());
+		dummy.setOrganization(summary.getOrganization());
+		dummy.setTitle(summary.getTitle());
+		dummy.setType(summary.getType());
+		dummy.setExternalIds(getNonNullExternalIdsS(summary));
+		return dummy;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult updateClient(BigInteger remotePutcode, Funding clone) {
-		return client.updateFunding(remotePutcode, clone);
+	public Funding cloneE(Funding funding) {
+		assert funding != null;
+		
+		final Funding dummy = new Funding();
+		copy(funding, dummy);
+		dummy.setStartDate(funding.getStartDate());
+		dummy.setEndDate(funding.getEndDate());
+		dummy.setOrganization(funding.getOrganization());
+		dummy.setTitle(funding.getTitle());
+		dummy.setType(funding.getType());
+		dummy.setAmount(funding.getAmount());
+		dummy.setContributors(funding.getContributors());
+		dummy.setShortDescription(funding.getShortDescription());
+		dummy.setOrganizationDefinedType(funding.getOrganizationDefinedType());
+		dummy.setUrl(funding.getUrl());
+		dummy.setExternalIds(getNonNullExternalIdsE(funding));
+		return dummy;
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult deleteClient(BigInteger putcode) {
-		return client.deleteFunding(putcode);
+	protected FundingSummary summarize(Funding funding) {
+		assert funding != null;
+		
+		final FundingSummary dummy = new FundingSummary();
+		copy(funding, dummy);
+		dummy.setOrganization(funding.getOrganization());
+		dummy.setStartDate(funding.getStartDate());
+		dummy.setEndDate(funding.getEndDate());
+		dummy.setTitle(funding.getTitle());
+		dummy.setType(funding.getType());
+		dummy.setExternalIds(getNonNullExternalIdsE(funding));
+		return dummy;
 	}
-
-	@Override
-	protected Map<BigInteger, PTCRISyncResult> getClient(
-			List<FundingSummary> putcodes) {
-		throw new UnsupportedOperationException("No support for bulk reading fundings.");
-	}
-
-	@Override
-	protected ORCIDWorker readWorker(List<FundingSummary> putcodes,
-			Map<BigInteger, PTCRISyncResult> cb, Logger log) {
-		throw new UnsupportedOperationException("No support for bulk reading fundings.");
-	}
-
-	@Override
-	public void setExternalIdsS(FundingSummary summary, ExternalIds eids) {
-		summary.setExternalIds(eids);
-	}
-	
-	
 }

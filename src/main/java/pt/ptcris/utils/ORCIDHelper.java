@@ -45,28 +45,28 @@ import pt.ptcris.exceptions.InvalidWorkException;
 import pt.ptcris.handlers.ProgressHandler;
 
 /**
- * An abstract helper to simplify the use of the low-level ORCID
- * {@link pt.ptcris.ORCIDClient client}. Supports bulk requests when available.
- * The concrete ORCID elements to be managed by the helper are expected to
- * support {@link ExternalIds external identifiers}.
+ * An abstract helper to help manage ORCID activities and simplify the usage of
+ * the low-level ORCID {@link pt.ptcris.ORCIDClient client}. Supports bulk
+ * requests when available. The concrete ORCID activities to be managed by the
+ * helper are expected to support {@link ExternalIds external identifiers}.
  * 
  * Provides support for asynchronous communication with ORCID although it is
  * only active for GET requests due to resource limitations.
  * 
  * @param <E>
- *            The class of ORCID elements being synchronized
+ *            The class of ORCID activities being synchronized
  * @param <S>
- *            The class of ORCID element summaries
+ *            The class of ORCID activity summaries
  * @param <G>
- *            The class of ORCID element groups
+ *            The class of ORCID activity groups
  * @param <T>
- *            The class of ORCID element types
+ *            The class of ORCID activity types
  */
 public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> {
 
 	/**
-	 * Creates a static (i.e., no server connection) ORCID helper for work
-	 * elements.
+	 * Creates a static (i.e., no server connection) ORCID helper to manage work
+	 * activities.
 	 * 
 	 * @return the ORCID work helper
 	 */
@@ -75,8 +75,8 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Creates a static (i.e., no server connection) ORCID helper for funding
-	 * elements.
+	 * Creates a static (i.e., no server connection) ORCID helper to manage
+	 * funding activities.
 	 * 
 	 * @return the ORCID funding helper
 	 */
@@ -95,27 +95,28 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	protected final int bulk_size_add;
 	protected final int bulk_size_get;
 
-	private static final Logger _log = LoggerFactory
+	protected static final Logger _log = LoggerFactory
 			.getLogger(ORCIDHelper.class);
 
 	/**
 	 * The client used to communicate with ORCID. Defines the ORCID user profile
-	 * being managed and the Member API id being user to source elements.
+	 * being managed and the Member API id being user to source activities.
 	 */
 	public final ORCIDClient client;
 
 	protected ExecutorService executor;
 
 	/**
-	 * Initializes the helper with a given ORCID client, and sets whether bulk
-	 * ORCID commands are available and with which size.
+	 * Initializes the helper with a given ORCID client, which defines whether
+	 * asynchronous calls will be performed, and sets whether bulk ORCID
+	 * commands are available and with which size.
 	 *
 	 * @param orcidClient
 	 *            the ORCID client
 	 * @param bulk_size_add
-	 *            number of elements per bulk add request
+	 *            number of activities per bulk add request
 	 * @param bulk_size_get
-	 *            number of elements per bulk get request
+	 *            number of activities per bulk get request
 	 */
 	public ORCIDHelper(ORCIDClient orcidClient, int bulk_size_add,
 			int bulk_size_get) {
@@ -127,120 +128,118 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/*
-	 * Generic client methods to be instantiated for concrete ORCID element
+	 * Generic client methods to be instantiated for concrete ORCID activity
 	 * types.
 	 */
 
 	/**
-	 * Generic method to retrieve all ORCID groups through the ORCID client.
+	 * Retrieve all ORCID activity groups through the ORCID client.
 	 * 
-	 * @return the remote ORCID elements
+	 * @return the remote ORCID activities
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
 	protected abstract List<G> getSummariesClient() throws OrcidClientException;
 
 	/**
-	 * Generic method that retrieves through the ORCID client a single full
-	 * element for which the summary is provided. If the communication with
-	 * ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult}.
+	 * Retrieves through the ORCID client a single full activity for which the
+	 * summary is provided. If the communication with ORCID fails, the exception
+	 * is embedded in a failed {@link PTCRISyncResult}.
 	 * 
 	 * @param summary
-	 *            the summary for which to read the full ORCID element
-	 * @return the remote full ORCID element
+	 *            the ORCID activity summary for which to read the full ORCID
+	 *            activity
+	 * @return the remote full ORCID activity
 	 */
-	protected abstract PTCRISyncResult getClient(S summary);
+	protected abstract PTCRISyncResult readClient(S summary);
 
 	/**
-	 * Generic method that retrieves through the ORCID client every full element
-	 * for which summaries are provided. If the communication with ORCID fails,
-	 * the exception is embedded in a failed {@link PTCRISyncResult}.
+	 * Retrieves through the ORCID client every full activity for which
+	 * summaries are provided. If the communication with ORCID fails, the
+	 * exception is embedded in a failed {@link PTCRISyncResult}. Should generate bulk requests.
 	 * 
 	 * @param summaries
-	 *            the summaries for which to read full ORCID elements
-	 * @return the remote full ORCID elements
+	 *            the ORCID activity summaries for which to read full ORCID
+	 *            activities
+	 * @return the remote full ORCID activities
 	 */
-	protected abstract Map<BigInteger, PTCRISyncResult> getClient(
-			List<S> summaries);
+	protected abstract Map<BigInteger, PTCRISyncResult> readClient(List<S> summaries);
 
 	/**
-	 * Generic method that creates a worker to asynchronously read a single full
-	 * element for which the summary is provided. If the communication with
-	 * ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult}.
+	 * Creates a worker to asynchronously read a single full activity for which
+	 * the summary is provided. If the communication with ORCID fails, the
+	 * exception is embedded in a failed {@link PTCRISyncResult}.
 	 * 
 	 * @param summary
-	 *            the summary for which to read the full ORCID element
+	 *            the ORCID activity summary for which to read the full ORCID
+	 *            activity
 	 * @param cb
 	 *            the callback on which to report results
 	 * @param log
 	 *            the logger
 	 * @return the get worker
 	 */
-	protected abstract ORCIDWorker readWorker(S summary,
-			Map<BigInteger, PTCRISyncResult> cb, Logger log);
+	protected abstract ORCIDWorker readWorker(S summary, Map<BigInteger, PTCRISyncResult> cb);
 
 	/**
-	 * Generic method that creates a worker to asynchronously read a full
-	 * elements for which the summaries are provided. If the communication with
-	 * ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult}.
+	 * Creates a worker to asynchronously read full activities for which the
+	 * summaries are provided. If the communication with ORCID fails, the
+	 * exception is embedded in a failed {@link PTCRISyncResult}. Should
+	 * generate bulk requests.
 	 * 
 	 * @param summaries
-	 *            the summary for which to read the full ORCID element
+	 *            the ORCID activity summaries for which to read the full ORCID
+	 *            activities
 	 * @param cb
 	 *            the callback on which to report results
 	 * @param log
 	 *            the logger
 	 * @return the get worker
 	 */
-	protected abstract ORCIDWorker readWorker(List<S> summaries,
-			Map<BigInteger, PTCRISyncResult> cb, Logger log);
+	protected abstract ORCIDWorker readWorker(List<S> summaries, Map<BigInteger, PTCRISyncResult> cb);
 
 	/**
-	 * Generic method that adds through the ORCID client a new full element. If
-	 * the communication with ORCID fails, the exception is embedded in a failed
+	 * Adds through the ORCID client a new full activity. If the communication
+	 * with ORCID fails, the exception is embedded in a failed
 	 * {@link PTCRISyncResult}.
 	 * 
-	 * @param element
-	 *            the full ORCID element to be added
+	 * @param activity
+	 *            the full ORCID activity to be added
 	 * @return the result of the operation
 	 */
-	protected abstract PTCRISyncResult addClient(E element);
+	protected abstract PTCRISyncResult addClient(E activity);
 
 	/**
-	 * Generic method that adds through the ORCID client a set of new full
-	 * elements. If the communication with ORCID fails, the exception is
-	 * embedded in a failed {@link PTCRISyncResult}.
-	 * 
-	 * @param elements
-	 *            the full ORCID elements to be added
-	 * @return the result of the operation
-	 */
-	protected abstract List<PTCRISyncResult> addClient(List<E> elements);
-
-	/**
-	 * Generic method that updates through the ORCID client a remote element. If
-	 * the communication with ORCID fails, the exception is embedded in a failed
+	 * Adds through the ORCID client a set of new full activities. If the
+	 * communication with ORCID fails, the exception is embedded in a failed
 	 * {@link PTCRISyncResult}.
 	 * 
-	 * @param remotePutcode
-	 *            the put-code of the remote ORCID element
-	 * @param element
-	 *            the new state of the ORCID element
+	 * @param activities
+	 *            the full ORCID activities to be added
 	 * @return the result of the operation
 	 */
-	protected abstract PTCRISyncResult updateClient(BigInteger remotePutcode,
-			E element);
+	protected abstract List<PTCRISyncResult> addClient(List<E> activities);
 
 	/**
-	 * Generic method that deletes through the ORCID client a remote element. If
-	 * the communication with ORCID fails, the exception is embedded in a failed
+	 * Updates through the ORCID client a remote activity. If the communication
+	 * with ORCID fails, the exception is embedded in a failed
 	 * {@link PTCRISyncResult}.
 	 * 
 	 * @param remotePutcode
-	 *            the put-code of the remote ORCID element
+	 *            the put-code of the remote ORCID activity
+	 * @param activity
+	 *            the new state of the ORCID activity
+	 * @return the result of the operation
+	 */
+	protected abstract PTCRISyncResult updateClient(BigInteger remotePutcode, E activity);
+
+	/**
+	 * Deletes through the ORCID client a remote activity. If the communication
+	 * with ORCID fails, the exception is embedded in a failed
+	 * {@link PTCRISyncResult}.
+	 * 
+	 * @param remotePutcode
+	 *            the put-code of the remote ORCID activity
 	 * @return the result of the operation
 	 */
 	protected abstract PTCRISyncResult deleteClient(BigInteger remotePutcode);
@@ -250,11 +249,11 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 */
 
 	/**
-	 * Retrieves the entire set of element summaries from the set ORCID profile
+	 * Retrieves the entire set of activity summaries from the set ORCID profile
 	 * that have at least an external identifier set. Merges each ORCID group
 	 * into a single summary, following {@link #group(Object)}.
 	 *
-	 * @return the set of ORCID element summaries in the defined ORCID profile
+	 * @return the set of ORCID activity summaries in the defined ORCID profile
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
@@ -269,17 +268,17 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Retrieves the entire set of element summaries of given types from the set
-	 * ORCID profile that have at least an external identifier set. Merges each
-	 * ORCID group into a single summary, following {@link #group(Object)}.
+	 * Retrieves the entire set of activity summaries of given types from the
+	 * set ORCID profile that have at least an external identifier set. Merges
+	 * each ORCID group into a single summary, following {@link #group(Object)}.
 	 * 
 	 * @param types
-	 *            the ORCID types of the elements to be retrieved
-	 * @return the set of ORCID element summaries in the defined ORCID profile
+	 *            the ORCID types of the activities to be retrieved (may be null)
+	 * @return the set of ORCID activity summaries in the defined ORCID profile
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	public final List<S> getAllTypedSummaries(Collection<T> types)
+	public final List<S> getAllTypedSummaries(Collection<T> types) 
 			throws OrcidClientException {
 		List<S> res = new ArrayList<S>();
 		if (types != null)
@@ -290,11 +289,11 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Retrieves the entire set (i.e., not merged) of element summaries in the
+	 * Retrieves the entire set (i.e., not merged) of activity summaries in the
 	 * ORCID profile whose source is the Member API id defined in the ORCID
 	 * client.
 	 *
-	 * @return the set of ORCID element summaries in the ORCID profile for the
+	 * @return the set of ORCID activity summaries in the ORCID profile for the
 	 *         defined source
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
@@ -321,36 +320,36 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Reads a full ORCID element from an ORCID profile and adds it to a
-	 * callback map. The resulting element contains every external identifier
-	 * set in the input element summary, because the summary resulted from the
-	 * merging of a group, but the retrieved full element is a single element.
+	 * Reads a full ORCID activity from an ORCID profile and adds it to a
+	 * callback map. The resulting activity contains every external identifier
+	 * set in the input activity summary, because the summary resulted from the
+	 * merging of a group, but the retrieved full activity is a single activity.
 	 * It also clears the put-code, since at this level they represent the local
 	 * identifier. If possible the number of threads is higher than 1, process
 	 * is asynchronous. If the list is not a singleton, a bulk request will be
-	 * performed if supported for the concrete ORCID element type. If the
-	 * communication with ORCID fails for any element, the exceptions are
+	 * performed if supported for the concrete ORCID activity type. If the
+	 * communication with ORCID fails for any activity, the exceptions are
 	 * embedded in failed {@link PTCRISyncResult}.
 	 *
-	 * @see #getClient(List)
+	 * @see #readClient(List)
 	 * 
 	 * @param summaries
-	 *            the ORCID element summaries representing the merged groups
+	 *            the ORCID activity summaries representing the merged groups
 	 * @param cb
 	 *            the callback object
 	 * @param handler
 	 *            the handler to report progress
-	 * @throws NullPointerException
-	 *             if the merged element is null
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
 	 */
 	public final void getFulls(List<S> summaries,
 			Map<BigInteger, PTCRISyncResult> cb, ProgressHandler handler)
-			throws OrcidClientException, NullPointerException,
-			InterruptedException {
-		if (summaries == null)
-			throw new NullPointerException("Can't get null element.");
+			throws InterruptedException {
+		if (cb == null)
+			throw new IllegalArgumentException("Null callback map.");
+		if (summaries == null || summaries.isEmpty())
+			return;
+		
 		_log.debug("[getBulk] " + summaries.size());
 		if (handler != null)
 			handler.setCurrentStatus("ORCID_GET_ITERATION");
@@ -366,11 +365,10 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 						putcodes.add(summaries.get(i));
 						i++;
 					}
-					final ORCIDWorker worker = readWorker(putcodes, cb, _log);
+					final ORCIDWorker worker = readWorker(putcodes, cb);
 					executor.execute(worker);
 				} else {
-					final ORCIDWorker worker = readWorker(summaries.get(i), cb,
-							_log);
+					final ORCIDWorker worker = readWorker(summaries.get(i), cb);
 					executor.execute(worker);
 					i++;
 				}
@@ -387,10 +385,10 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 						putcodes.add(summaries.get(i));
 						i++;
 					}
-					fulls.putAll(getClient(putcodes));
+					fulls.putAll(readClient(putcodes));
 				} else {
 					fulls.put(summaries.get(i).getPutCode(),
-							getClient(summaries.get(i)));
+							readClient(summaries.get(i)));
 					i++;
 				}
 			}
@@ -400,57 +398,50 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Synchronously adds an element to an ORCID profile. The OK result includes
-	 * the newly assigned put-code. If the communication with ORCID fails, the
-	 * exception is embedded in a failed {@link PTCRISyncResult}.
+	 * Synchronously adds an activity to an ORCID profile. The OK result
+	 * includes the newly assigned put-code. If the communication with ORCID
+	 * fails, the exception is embedded in a failed {@link PTCRISyncResult}.
 	 *
 	 * @see #addClient(ElementSummary)
 	 * 
-	 * @param element
-	 *            the ORCID element to be added
+	 * @param activity
+	 *            the ORCID activity to be added
 	 * @return the result of the ORCID call
-	 * @throws NullPointerException
-	 *             if the element is null
 	 */
-	private final PTCRISyncResult add(E element) throws NullPointerException {
-		if (element == null)
-			throw new NullPointerException("Can't add null element.");
+	private final PTCRISyncResult add(E activity) {
+		assert activity != null;
 
-		_log.debug("[add] " + getTitleE(element));
+		_log.debug("[add] " + getTitleE(activity));
 
 		// remove any put-code otherwise ORCID will throw an error
-		final E clone = cloneE(element);
+		final E clone = cloneE(activity);
 		clone.setPutCode(null);
 
 		return addClient(clone);
 	}
 
 	/**
-	 * Synchronously adds a list of elements to an ORCID profile. A list of
-	 * results is returned, one for each input element. The OK result includes
+	 * Synchronously adds a list of activities to an ORCID profile. A list of
+	 * results is returned, one for each input activity. The OK result includes
 	 * the newly assigned put-code. If the communication with ORCID fails, the
 	 * exception is embedded in a failed {@link PTCRISyncResult}. If the overall
 	 * communication fails, the result is replicated for each input.
 	 *
 	 * @see #addClient(List)
 	 * 
-	 * @param elements
-	 *            the new ORCID elements to be added
-	 * @return the results of the ORCID call for each input element
-	 * @throws NullPointerException
-	 *             if the element is null
+	 * @param activities
+	 *            the new ORCID activities to be added
+	 * @return the results of the ORCID call for each input activity
 	 */
-	private final List<PTCRISyncResult> add(Collection<E> elements)
-			throws NullPointerException {
-		if (elements == null)
-			throw new NullPointerException("Can't add null elements.");
-
-		_log.debug("[addBulk] " + elements.size());
+	private final List<PTCRISyncResult> add(Collection<E> activities) {
+		assert activities != null;
+		
+		_log.debug("[addBulk] " + activities.size());
 
 		List<E> clones = new ArrayList<E>();
 		// remove any put-code otherwise ORCID will throw an error
-		for (E element : elements) {
-			final E clone = cloneE(element);
+		for (E activity : activities) {
+			final E clone = cloneE(activity);
 			clone.setPutCode(null);
 			clones.add(clone);
 		}
@@ -459,39 +450,39 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Synchronously adds a list of elements to an ORCID profile, either through
-	 * atomic or bulk calls if available. A list of results is returned, one for
-	 * each input element. The OK result includes the newly assigned put-code.
-	 * If the communication with ORCID fails, the exception is embedded in a
-	 * failed {@link PTCRISyncResult}. If the overall communication fails, the
-	 * result is replicated for each input.
+	 * Synchronously adds a list of activities to an ORCID profile, either
+	 * through atomic or bulk calls if available. A list of results is returned,
+	 * one for each input activity. The OK result includes the newly assigned
+	 * put-code. If the communication with ORCID fails, the exception is
+	 * embedded in a failed {@link PTCRISyncResult}. If the overall
+	 * communication fails, the result is replicated for each input.
 	 *
-	 * @param elements
-	 *            the new ORCID elements to be added
-	 * @return the results of the ORCID call for each input element
-	 * @throws NullPointerException
-	 *             if an element is null
+	 * @param activities
+	 *            the new ORCID activities to be added
+	 * @return the results of the ORCID call for each input activity
 	 */
-	public final List<PTCRISyncResult> add(List<E> elements,
-			ProgressHandler handler) throws NullPointerException {
+	public final List<PTCRISyncResult> add(List<E> activities, ProgressHandler handler) {
 		List<PTCRISyncResult> res = new ArrayList<PTCRISyncResult>();
+		if (activities == null || activities.isEmpty())
+			return new ArrayList<PTCRISyncResult>();
+		
 		if (handler != null)
 			handler.setCurrentStatus("ORCID_ADDING_WORKS");
 
-		for (int c = 0; c != elements.size();) {
-			int progress = (int) ((double) c / elements.size() * 100);
+		for (int c = 0; c != activities.size();) {
+			int progress = (int) ((double) c / activities.size() * 100);
 			if (handler != null)
 				handler.setProgress(progress);
 
 			if (bulk_size_add > 1) {
 				List<E> tmp = new ArrayList<E>();
-				for (int j = 0; j < bulk_size_add && c < elements.size(); j++) {
-					tmp.add(elements.get(c));
+				for (int j = 0; j < bulk_size_add && c < activities.size(); j++) {
+					tmp.add(activities.get(c));
 					c++;
 				}
 				res.addAll(this.add(tmp));
 			} else {
-				E local = elements.get(c);
+				E local = activities.get(c);
 				res.add(this.add(local));
 				c++;
 			}
@@ -500,24 +491,21 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Synchronously updates an element to an ORCID profile. If the
+	 * Synchronously updates an activity to an ORCID profile. If the
 	 * communication with ORCID fails, the exception is embedded in a failed
 	 * {@link PTCRISyncResult}.
 	 * 
 	 * @see #updateClient(BigInteger, ElementSummary)
 	 * 
 	 * @param remotePutcode
-	 *            the put-code of the remote ORCID element that will be updated
+	 *            the put-code of the remote ORCID activity that will be updated
 	 * @param updated
-	 *            the new state of the element that will be updated
+	 *            the new state of the activity that will be updated
 	 * @return the result of the ORCID call
-	 * @throws NullPointerException
-	 *             if either parameter is null
 	 */
-	public final PTCRISyncResult update(BigInteger remotePutcode, E updated)
-			throws NullPointerException {
+	public final PTCRISyncResult update(BigInteger remotePutcode, E updated) {
 		if (remotePutcode == null || updated == null)
-			throw new NullPointerException("Can't update null element.");
+			throw new IllegalArgumentException("Can't update null activity.");
 
 		_log.debug("[update] " + remotePutcode);
 
@@ -529,21 +517,18 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Synchronously deletes an element from an ORCID profile. If the
+	 * Synchronously deletes an activity from an ORCID profile. If the
 	 * communication with ORCID fails, the exception is embedded in a failed
 	 * {@link PTCRISyncResult}.
 	 * 
 	 * @see #deleteClient(BigInteger)
 	 * 
 	 * @param putcode
-	 *            the remote put-code of the ORCID element to be deleted
-	 * @throws NullPointerException
-	 *             if the put-code is null
+	 *            the remote put-code of the ORCID activity to be deleted
 	 */
-	public final PTCRISyncResult delete(BigInteger putcode)
-			throws NullPointerException {
+	public final PTCRISyncResult delete(BigInteger putcode) {
 		if (putcode == null)
-			throw new NullPointerException("Can't delete null element.");
+			throw new IllegalArgumentException("Can't delete null activity.");
 
 		_log.debug("[delete] " + putcode);
 
@@ -551,7 +536,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Deletes the entire set of element summaries in the ORCID profile whose
+	 * Deletes the entire set of activity summaries in the ORCID profile whose
 	 * source is the Member API id defined in the ORCID client.
 	 *
 	 * @throws OrcidClientException
@@ -587,49 +572,49 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/*
-	 * Generic static methods to be instantiated for concrete ORCID element
+	 * Generic static methods to be instantiated for concrete ORCID activity
 	 * types.
 	 */
 
 	/**
-	 * Returns the non-null external identifiers of an element (null becomes
+	 * Returns the non-null external identifiers of an activity (null becomes
 	 * empty list). Cannot rely on
 	 * {@link #getNonNullExternalIdsS(ElementSummary)} because
 	 * {@link #summarize(ElementSummary)} itself calls this method.
 	 * 
-	 * @param element
-	 *            the ORCID element from which to retrieve the external
+	 * @param activity
+	 *            the ORCID activity from which to retrieve the external
 	 *            identifiers
 	 * @return the non-null external identifiers
 	 */
-	protected abstract ExternalIds getNonNullExternalIdsE(E element);
+	public abstract ExternalIds getNonNullExternalIdsE(E activity);
 
 	/**
-	 * Returns the non-null external identifiers of an element summary (null
+	 * Returns the non-null external identifiers of an activity summary (null
 	 * becomes empty list).
 	 * 
 	 * @param summary
-	 *            the ORCID element summary from which to retrieve the external
+	 *            the ORCID activity summary from which to retrieve the external
 	 *            identifiers
 	 * @return the non-null external identifiers
 	 */
-	protected abstract ExternalIds getNonNullExternalIdsS(S summary);
+	public abstract ExternalIds getNonNullExternalIdsS(S summary);
 
 	/**
-	 * Assigns a set of external identifiers to an element.
+	 * Assigns a set of external identifiers to an activity.
 	 * 
-	 * @param element
-	 *            the ORCID element to which to assign the external identifiers
+	 * @param activity
+	 *            the ORCID activity to which to assign the external identifiers
 	 * @param eids
 	 *            the external identifiers to be assigned
 	 */
-	public abstract void setExternalIdsE(E element, ExternalIds eids);
+	public abstract void setExternalIdsE(E activity, ExternalIds eids);
 
 	/**
-	 * Assigns a set of external identifiers to an element summary.
+	 * Assigns a set of external identifiers to an activity summary.
 	 * 
 	 * @param summary
-	 *            the ORCID element summary to which to assign the external
+	 *            the ORCID activity summary to which to assign the external
 	 *            identifiers
 	 * @param eids
 	 *            the external identifiers to be assigned
@@ -637,10 +622,10 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	public abstract void setExternalIdsS(S summary, ExternalIds eids);
 
 	/**
-	 * Retrieves the type of an element summary.
+	 * Retrieves the type of an activity summary.
 	 *
 	 * @param summary
-	 *            the ORCID element summary
+	 *            the ORCID activity summary
 	 * @return the summary's type
 	 */
 	protected abstract T getTypeS(S sumary);
@@ -655,170 +640,154 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	protected abstract boolean validExternalIdType(String eid);
 
 	/**
-	 * Retrieves the title of an element summary.
+	 * Retrieves the title of an activity summary.
 	 *
 	 * @param summary
-	 *            the ORCID element summary
+	 *            the ORCID activity summary
 	 * @return the summary's title if defined, empty string otherwise
 	 */
 	protected abstract String getTitleS(S summary);
 
 	/**
-	 * Retrieves the publication year of an element summary.
+	 * Retrieves the publication year of an activity summary.
 	 *
 	 * @param summary
-	 *            the ORCID element summary
+	 *            the ORCID activity summary
 	 * @return the summary's publication year, may be null
 	 */
 	protected abstract String getYearS(S summary);
 
 	/**
-	 * Retrieve the element summaries that compose an element group.
+	 * Retrieve the activity summaries that compose an activity group.
 	 * 
 	 * @param group
-	 *            the ORCID group from which to retrieve the ORCID element
+	 *            the ORCID group from which to retrieve the ORCID activity
 	 *            summaries
-	 * @return the OCRID element summaries contained in the group
+	 * @return the OCRID activity summaries contained in the group
 	 */
 	protected abstract List<S> getGroupSummaries(G group);
 
 	/**
-	 * Merges an element group into a single element summary. Simply selects the
-	 * meta-data (including part-of external identifiers) from the first element
-	 * of the group (i.e., the preferred one) and assigns it any extra (self)
-	 * external identifiers from the remainder elements. These remainder
-	 * identifiers are the ones grouped by ORCID.
+	 * Merges an activity group into a single activity summary. Simply selects
+	 * the meta-data (including part-of external identifiers) from the first
+	 * activity of the group (i.e., the preferred one) and assigns it any extra
+	 * (self) external identifiers from the remainder activities. These
+	 * remainder identifiers are the ones grouped by ORCID.
 	 *
 	 * @param group
-	 *            the element group to be merged
-	 * @return the resulting element summary
-	 * @throws NullPointerException
-	 *             if the group is null
+	 *            the activity group to be merged
+	 * @return the resulting activity summary
 	 * @throws IllegalArgumentException
 	 *             if the group is empty
 	 */
-	protected abstract S group(G group) throws NullPointerException,
-			IllegalArgumentException;
+	protected abstract S group(G group) throws IllegalArgumentException;
 
 	/**
-	 * Checks whether an element is already up to date regarding another one,
+	 * Checks whether an activity is already up to date regarding another one,
 	 * considering meta-data other than the self external identifiers. Uses only
-	 * meta-data is available in element summaries.
-	 * 
-	 * TODO: contributors are not being considered as they are not contained in
-	 * the summaries.
+	 * meta-data is available in activity summaries.
 	 *
 	 * @param preElement
-	 *            the potentially out of date ORCID element
+	 *            the potentially out of date ORCID activity
 	 * @param posElement
-	 *            the up to date ORCID element
+	 *            the up to date ORCID activity
 	 * @return true if the considered meta-data is the same, false otherwise.
-	 * @throws NullPointerException
-	 *             if either element is null
 	 */
-	protected abstract boolean isMetaUpToDate(E preElement, S posElement)
-			throws NullPointerException;
+	protected abstract boolean isMetaUpToDate(E preElement, S posElement);
 
 	/**
-	 * Tests whether an element summary has minimal quality to be synchronized,
-	 * by inspecting its meta-data and that of coexisting elements, and returns
-	 * the detected invalid fields. Only uses meta-data available in element
-	 * summaries. Coexisting element may be used to test for overlaps.
+	 * Tests whether an activity summary has minimal quality to be synchronized,
+	 * by inspecting its meta-data and that of coexisting activities, and
+	 * returns the detected invalid fields. Only uses meta-data available in
+	 * activity summaries. Coexisting activity may be used to test for overlaps.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
 	 * 
 	 * @param summary
-	 *            the ORCID element summary to test for quality
+	 *            the ORCID activity summary to test for quality
 	 * @param others
-	 *            other coexisting elements
+	 *            other coexisting activities
 	 * @return the set of invalid meta-data, empty if valid
-	 * @throws NullPointerException
-	 *             if the element is null
 	 */
-	protected abstract Set<String> testMinimalQuality(S summary,
-			Collection<E> others) throws NullPointerException;
-
+	protected abstract Set<String> testMinimalQuality(S summary, Collection<E> others);
+	
 	/**
-	 * Creates an update to an element given the difference on meta-data.
-	 * Essentially creates an element with the same put-code as the original
-	 * element and with the new meta-data that must be assigned to it.
+	 * Creates an update to an activity given the difference on meta-data.
+	 * Essentially creates an activity with the same put-code as the original
+	 * activity and with the new meta-data that must be assigned to it.
 	 * Currently, only new external identifiers are considered.
 	 * 
 	 * @param original
-	 *            the original ORCID element
+	 *            the original ORCID activity
 	 * @param diff
 	 *            the difference on external identifiers
-	 * @return the update to be applied to the ORCID element
+	 * @return the update to be applied to the ORCID activity
 	 */
 	public abstract E createUpdate(E original, ExternalIdsDiff diff);
 
 	/**
-	 * Clones an element summary.
+	 * Clones an activity summary.
 	 * 
 	 * @param summary
-	 *            the ORCID element summary to be cloned
-	 * @return the cloned ORCID element summary
+	 *            the ORCID activity summary to be cloned
+	 * @return the cloned ORCID activity summary
 	 */
 	protected abstract S cloneS(S summary);
 
 	/**
-	 * Clones an element.
+	 * Clones an activity.
 	 * 
-	 * @param element
-	 *            the ORCID element to be cloned
-	 * @return the cloned ORCID element
+	 * @param activity
+	 *            the ORCID activity to be cloned
+	 * @return the cloned ORCID activity
 	 */
-	protected abstract E cloneE(E element);
+	protected abstract E cloneE(E activity);
 
 	/**
-	 * Summarizes an element into an element summary. Most methods on elements
-	 * rely on this to re-use methods on element summaries.
+	 * Summarizes an activity into an activity summary. Most methods on
+	 * activities rely on this to re-use methods on activity summaries.
 	 * 
-	 * @param element
-	 *            the ORCID element to be summarized
-	 * @return the corresponding ORCID element summary
+	 * @param activity
+	 *            the ORCID activity to be summarized
+	 * @return the corresponding ORCID activity summary
 	 */
-	protected abstract S summarize(E element);
+	protected abstract S summarize(E activity);
 
 	/*
 	 * Helper static methods that build on the generic methods.
 	 */
 
 	/**
-	 * Retrieves the local key of an element, currently assumed to be stored in
+	 * Retrieves the local key of an activity, currently assumed to be stored in
 	 * the put-code field.
 	 *
-	 * @param element
-	 *            the ORCID element from which to get the local key
+	 * @param activity
+	 *            the ORCID activity from which to get the local key
 	 * @return the local key
-	 * @throws NullPointerException
-	 *             if the element is null
 	 */
-	public static BigInteger getActivityLocalKey(ElementSummary element)
-			throws NullPointerException {
-		if (element == null)
-			throw new NullPointerException("Can't get local key from null.");
+	public static BigInteger getActivityLocalKey(ElementSummary activity) {
+		if (activity == null)
+			throw new IllegalArgumentException("Null element.");
 
-		return element.getPutCode();
+		return activity.getPutCode();
 	}
 
 	/**
-	 * Retrieves the local key of an element, currently assumed to be stored in
+	 * Retrieves the local key of an activity, currently assumed to be stored in
 	 * the put-code field. If empty, returns a default value.
 	 *
-	 * @param element
-	 *            the ORCID element from which to get the local key
+	 * @param activity
+	 *            the ORCID activity from which to get the local key
 	 * @param defaultValue
 	 *            a default value in case the put-code is empty
 	 * @return the local key
-	 * @throws NullPointerException
-	 *             if the element is null
 	 */
-	public static BigInteger getActivityLocalKey(ElementSummary element,
-			BigInteger defaultValue) throws NullPointerException {
-
-		BigInteger putCode = getActivityLocalKey(element);
+	public static BigInteger getActivityLocalKey(ElementSummary activity, BigInteger defaultValue) {
+		if (activity == null)
+			throw new IllegalArgumentException("Null element.");
+		
+		BigInteger putCode = getActivityLocalKey(activity);
 		if (putCode == null)
 			putCode = defaultValue;
 
@@ -826,56 +795,47 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Assign a local key to an element, currently assumed to be stored in the
+	 * Assign a local key to an activity, currently assumed to be stored in the
 	 * put-code field.
 	 *
-	 * @param element
-	 *            the element to which to set the local key
+	 * @param activity
+	 *            the activity to which to set the local key
 	 * @param key
 	 *            the local key
-	 * @throws NullPointerException
-	 *             if the element is null
 	 */
-	protected static void setWorkLocalKey(ElementSummary element, BigInteger key)
-			throws NullPointerException {
-		if (element == null)
-			throw new NullPointerException("Can't set local key to null.");
+	protected static void setWorkLocalKey(ElementSummary activity, BigInteger key) {
+		if (activity == null)
+			throw new IllegalArgumentException("Null element.");
 
-		element.setPutCode(key);
+		activity.setPutCode(key);
 	}
 
 	/**
-	 * Clears (sets to null) the local key of an element, currently assumed to
+	 * Clears (sets to null) the local key of an activity, currently assumed to
 	 * be stored in the put-code field.
 	 *
-	 * @param element
-	 *            the element to which to clear the local key
-	 * @throws NullPointerException
-	 *             if the element is null
+	 * @param activity
+	 *            the activity to which to clear the local key
 	 */
-	public static void cleanWorkLocalKey(ElementSummary element)
-			throws NullPointerException {
-		if (element == null)
-			throw new NullPointerException("Can't clear local key from null.");
+	public static void cleanWorkLocalKey(ElementSummary activity) {
+		if (activity == null)
+			throw new IllegalArgumentException("Null element.");
 
-		element.setPutCode(null);
+		activity.setPutCode(null);
 	}
 
 	/**
-	 * Copies all meta-data from an element summary into another.
+	 * Copies all meta-data from an activity summary into another.
 	 * 
 	 * @param from
 	 *            the source summary
 	 * @param to
 	 *            the target summary
-	 * @throws NullPointerException
-	 *             if either argument is null
 	 */
-	protected static void copy(ElementSummary from, ElementSummary to)
-			throws NullPointerException {
-		if (from == null || to == null)
-			throw new NullPointerException("Can't copy null works.");
-	
+	protected static void copy(ElementSummary from, ElementSummary to) {
+		assert from != null;
+		assert to != null;
+
 		to.setCreatedDate(from.getCreatedDate());
 		to.setDisplayIndex(from.getDisplayIndex());
 		to.setLastModifiedDate(from.getLastModifiedDate());
@@ -886,51 +846,54 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Retrieves the type of an element. Build on
+	 * Retrieves the type of an activity. Build on
 	 * {@link #getTypeS(ElementSummary)}.
 	 *
-	 * @param element
-	 *            the ORCID element
-	 * @return the element's type
+	 * @param activity
+	 *            the ORCID activity
+	 * @return the activity's type
 	 */
-	public final T getTypeE(E element) {
-		return getTypeS(summarize(element));
+	public final T getTypeE(E activity) {
+		return getTypeS(summarize(activity));
 	}
 
 	/**
-	 * Retrieves the title of an element. Builds on
+	 * Retrieves the title of an activity. Builds on
 	 * {@link #getTitleS(ElementSummary)}.
 	 *
-	 * @param element
-	 *            the ORCID element
-	 * @return the element's title if defined, empty string otherwise
+	 * @param activity
+	 *            the ORCID activity
+	 * @return the activity's title if defined, empty string otherwise
 	 */
-	protected final String getTitleE(E element) {
-		return getTitleS(summarize(element));
+	protected final String getTitleE(E activity) {
+		return getTitleS(summarize(activity));
 	}
 
 	/**
-	 * Retrieves the publication year of an element. Builds on
+	 * Retrieves the publication year of an activity. Builds on
 	 * {@link #getYearS(ElementSummary)}.
 	 *
-	 * @param element
-	 *            the ORCID element
-	 * @return the element's publication year, may be null
+	 * @param activity
+	 *            the ORCID activity
+	 * @return the activity's publication year, may be null
 	 */
-	protected final String getPubYearE(E element) {
-		return getYearS(summarize(element));
+	protected final String getPubYearE(E activity) {
+		return getYearS(summarize(activity));
 	}
 
 	/**
-	 * Returns the non-null part-of external identifiers of an element summary
+	 * Returns the non-null part-of external identifiers of an activity summary
 	 * (null becomes empty list).
 	 * 
 	 * @param summary
-	 *            the ORCID element summary from which to retrieve the external
+	 *            the ORCID activity summary from which to retrieve the external
 	 *            identifiers
 	 * @return the non-null part-of external identifiers
 	 */
 	protected final ExternalIds getPartOfExternalIdsS(S summary) {
+		if (summary == null)
+			throw new IllegalArgumentException("Null element.");
+		
 		List<ExternalId> res = new ArrayList<ExternalId>();
 		for (ExternalId eid : getNonNullExternalIdsS(summary).getExternalId())
 			if (eid.getExternalIdRelationship() == RelationshipType.PART_OF)
@@ -939,29 +902,32 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Returns the non-null part-of external identifiers of an element (null
+	 * Returns the non-null part-of external identifiers of an activity (null
 	 * becomes empty list). Builds on
 	 * {@link #getPartOfExternalIdsS(ElementSummary)}.
 	 * 
-	 * @param element
-	 *            the ORCID element from which to retrieve the external
+	 * @param activity
+	 *            the ORCID activity from which to retrieve the external
 	 *            identifiers
 	 * @return the non-null part-of external identifiers
 	 */
-	public final ExternalIds getPartOfExternalIdsE(E element) {
-		return getPartOfExternalIdsS(summarize(element));
+	public final ExternalIds getPartOfExternalIdsE(E activity) {
+		return getPartOfExternalIdsS(summarize(activity));
 	}
 
 	/**
-	 * Returns the non-null self external identifiers of an element summary
+	 * Returns the non-null self external identifiers of an activity summary
 	 * (null becomes empty list).
 	 * 
 	 * @param summary
-	 *            the ORCID element summary from which to retrieve the external
+	 *            the ORCID activity summary from which to retrieve the external
 	 *            identifiers
 	 * @return the non-null self external identifiers
 	 */
 	protected final ExternalIds getSelfExternalIdsS(S summary) {
+		if (summary == null)
+			throw new IllegalArgumentException("Null element.");
+		
 		List<ExternalId> res = new ArrayList<ExternalId>();
 		for (ExternalId eid : getNonNullExternalIdsS(summary).getExternalId())
 			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
@@ -970,41 +936,40 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Returns the non-null self external identifiers of an element (null
+	 * Returns the non-null self external identifiers of an activity (null
 	 * becomes empty list). Builds on
 	 * {@link #getSelfExternalIdsS(ElementSummary)}.
 	 * 
-	 * @param element
-	 *            the ORCID element from which to retrieve the external
+	 * @param activity
+	 *            the ORCID activity from which to retrieve the external
 	 *            identifiers
 	 * @return the non-null self external identifiers
 	 */
-	public final ExternalIds getSelfExternalIdsE(E element) {
-		return getSelfExternalIdsS(summarize(element));
+	public final ExternalIds getSelfExternalIdsE(E activity) {
+		return getSelfExternalIdsS(summarize(activity));
 	}
 
 	/**
 	 * Calculates the symmetric difference of self {@link ExternalId external
-	 * identifiers} between an element summary and a set of elements. Elements
-	 * that do not match (i.e., no identifier is common) are ignored.
+	 * identifiers} between an activity summary and a set of activities.
+	 * Elements that do not match (i.e., no identifier is common) are ignored.
 	 *
 	 * @param summary
-	 *            the element summary to be compared with other elements
-	 * @param elements
-	 *            the set of elements against which the element summary is
+	 *            the activity summary to be compared with other activities
+	 * @param activities
+	 *            the set of activities against which the activity summary is
 	 *            compared
 	 * @return The symmetric difference of self external identifiers between the
-	 *         summary and other elements
-	 * @throws NullPointerException
-	 *             if either of the parameters is null
+	 *         summary and other activities
 	 */
-	public final Map<E, ExternalIdsDiff> getSelfExternalIdsDiffS(S summary,
-			Collection<E> elements) throws NullPointerException {
-		if (summary == null || elements == null)
-			throw new NullPointerException("Can't get external ids.");
+	public final Map<E, ExternalIdsDiff> getSelfExternalIdsDiffS(S summary, Collection<E> activities) {
+		if (summary == null)
+			throw new IllegalArgumentException("Null element.");
+		if (activities == null)
+			activities = new HashSet<E>();
 
 		final Map<E, ExternalIdsDiff> matches = new HashMap<E, ExternalIdsDiff>();
-		for (E match : elements) {
+		for (E match : activities) {
 			final ExternalIdsDiff diff = new ExternalIdsDiff(
 					getSelfExternalIdsE(match), getSelfExternalIdsS(summary));
 			if (!diff.same.isEmpty())
@@ -1025,25 +990,31 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 */
 	protected static boolean identicalExternalIDs(ExternalIds eids1,
 			ExternalIds eids2) {
+		assert eids1 != null;
+		assert eids2 != null;
+		
 		final ExternalIdsDiff diff = new ExternalIdsDiff(eids1, eids2);
 		return diff.more.isEmpty() && diff.less.isEmpty();
 	}
 
 	/**
-	 * Checks whether an element is already up to date regarding another one
+	 * Checks whether an activity is already up to date regarding another one
 	 * regarding self {@link ExternalId external identifiers}.
 	 *
 	 * This test is expected to be used by the import algorithms, where only new
 	 * self external identifiers are to be considered.
 	 *
 	 * @param preElement
-	 *            the potentially out of date ORCID element
+	 *            the potentially out of date ORCID activity
 	 * @param posElement
-	 *            the up to date ORCID element
+	 *            the up to date ORCID activity
 	 * @return true if all the self external identifiers between the two
-	 *         elements are the same, false otherwise
+	 *         activities are the same, false otherwise
 	 */
 	public final boolean hasNewSelfIDs(E preElement, S posElement) {
+		if (preElement == null || posElement == null)
+			throw new IllegalArgumentException("Null element.");
+		
 		final ExternalIdsDiff diff = new ExternalIdsDiff(
 				getSelfExternalIdsE(preElement),
 				getSelfExternalIdsS(posElement));
@@ -1052,113 +1023,117 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
-	 * Checks whether an element is already up to date regarding another one,
+	 * Checks whether an activity is already up to date regarding another one,
 	 * considering the self {@link ExternalIdentifier external identifiers}.
 	 *
 	 * @param preElement
-	 *            the potentially out of date ORCID element
+	 *            the potentially out of date ORCID activity
 	 * @param posElement
-	 *            the up to date ORCID element
+	 *            the up to date ORCID activity
 	 * @return true if all the self external identifiers are the same, false
 	 *         otherwise.
-	 * @throws NullPointerException
-	 *             if either element is null
 	 */
-	private final boolean isSelfExternalIDsUpToDate(E preElement, S posElement)
-			throws NullPointerException {
-		if (preElement == null || posElement == null)
-			throw new NullPointerException("Can't test null works.");
+	private final boolean isSelfExternalIDsUpToDate(E preElement, S posElement) {
+		assert preElement != null;
+		assert posElement != null;
 
 		return identicalExternalIDs(getSelfExternalIdsE(preElement),
 				getSelfExternalIdsS(posElement));
 	}
 
 	/**
-	 * Checks whether an element is already up to date regarding another one,
+	 * Checks whether an activity is already up to date regarding another one,
 	 * considering the self {@link ExternalId external identifiers} and
-	 * additional meta-data. Only meta-data existent in the element summaries is
-	 * conside
+	 * additional meta-data. Only meta-data existent in the activity summaries
+	 * is conside
 	 *
 	 * This test is expected to be used by the export algorithms, where the
 	 * meta-data is expected to be up-to-date on the remote profile.
 	 *
 	 * @param preElement
-	 *            the potentially out of date ORCID element
+	 *            the potentially out of date ORCID activity
 	 * @param posElement
-	 *            the up to date ORCID element
+	 *            the up to date ORCID activity
 	 * @return true if all the self external identifiers and the meta-data
-	 *         between the two elements are the same, false otherwise
+	 *         between the two activities are the same, false otherwise
 	 */
 	public final boolean isUpToDateS(E preElement, S posElement) {
+		if (preElement == null || posElement == null)
+			throw new IllegalArgumentException("Null element.");
+		
 		return isSelfExternalIDsUpToDate(preElement, posElement)
 				&& isMetaUpToDate(preElement, posElement);
 	}
 
 	/**
-	 * Checks whether an element is already up to date regarding another one,
+	 * Checks whether an activity is already up to date regarding another one,
 	 * considering the self {@link ExternalId external identifiers} and
-	 * additional meta-data. Only meta-data existent in the element summaries is
-	 * considered. Builds on {@link #isUpToDateS(ElementSummary, ElementSummary)}.
+	 * additional meta-data. Only meta-data existent in the activity summaries
+	 * is considered. Builds on
+	 * {@link #isUpToDateS(ElementSummary, ElementSummary)}.
 	 *
 	 * This test is expected to be used by the export algorithms, where the
 	 * meta-data is expected to be up-to-date on the remote profile.
 	 *
 	 * @param preElement
-	 *            the potentially out of date ORCID element
+	 *            the potentially out of date ORCID activity
 	 * @param posElement
-	 *            the up to date ORCID element
+	 *            the up to date ORCID activity
 	 * @return true if all the self external identifiers and the meta-data
-	 *         between the two elements are the same, false otherwise
+	 *         between the two activities are the same, false otherwise
 	 */
 	public final boolean isUpToDateE(E preElement, E posElement) {
+		if (preElement == null || posElement == null)
+			throw new IllegalArgumentException("Null element.");
+		
 		return isUpToDateS(preElement, summarize(posElement));
 	}
 
 	/**
-	 * Tests whether an element has minimal quality to be synchronized, by
+	 * Tests whether an activity has minimal quality to be synchronized, by
 	 * inspecting its meta-data. Throws an exception if the test fails. Only
-	 * meta-data available in element summaries is considered.
+	 * meta-data available in activity summaries is considered.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
 	 * 
-	 * @param element
-	 *            the element to test for quality
+	 * @param activity
+	 *            the activity to test for quality
 	 * @param others
-	 *            other coexisting elements
+	 *            other coexisting activities
 	 * @throws InvalidWorkException
 	 *             if the quality test fails, containing the reasons for failing
-	 * @throws NullPointerException
-	 *             if the element is null
 	 */
-	public final void tryMinimalQualityE(E element, Collection<E> others)
+	public final void tryMinimalQualityE(E activity, Collection<E> others)
 			throws InvalidWorkException {
-		Set<String> invs = testMinimalQuality(summarize(element), others);
+		if (activity == null)
+			throw new IllegalArgumentException("Null activity.");
+		if (others == null)
+			others = new HashSet<E>();
+
+		Set<String> invs = testMinimalQuality(summarize(activity), others);
 		if (!invs.isEmpty()) {
 			throw new InvalidWorkException(invs);
 		}
 	}
 
 	/**
-	 * Tests whether an element summary has minimal quality to be synchronized,
-	 * by inspecting its meta-data and that of coexisting elements, and returns
-	 * the detected invalid fields. Only uses meta-data available in element
-	 * summaries. Builds on
+	 * Tests whether an activity summary has minimal quality to be synchronized,
+	 * by inspecting its meta-data and that of coexisting activities, and
+	 * returns the detected invalid fields. Only uses meta-data available in
+	 * activity summaries. Builds on
 	 * {@link #testMinimalQuality(ElementSummary, Collection)}.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
 	 * 
 	 * @param summary
-	 *            the ORCID element summary to test for quality
+	 *            the ORCID activity summary to test for quality
 	 * @param others
-	 *            other coexisting elements
+	 *            other coexisting activities
 	 * @return the set of invalid meta-data, empty if valid
-	 * @throws NullPointerException
-	 *             if the element is null
 	 */
-	public final Set<String> testMinimalQuality(S work)
-			throws NullPointerException {
+	public final Set<String> testMinimalQuality(S work) {
 		return testMinimalQuality(work, new HashSet<E>());
 	}
 
