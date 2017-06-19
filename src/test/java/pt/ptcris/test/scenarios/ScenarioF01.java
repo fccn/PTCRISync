@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+r * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
  * Licensed under MIT License
  * http://ptcris.pt
  *

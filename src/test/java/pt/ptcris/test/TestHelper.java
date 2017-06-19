@@ -237,7 +237,7 @@ public class TestHelper {
 			work.setOrganization(new Organization("Agency", new OrganizationAddress("Braga",null,Iso3166Country.PT), null));
 			
 			if (meta.equals("0"))
-				work.setType(FundingType.AWARD);
+				work.setType(FundingType.CONTRACT);
 			else
 				work.setType(FundingType.GRANT);
 
@@ -303,6 +303,38 @@ public class TestHelper {
 
 		work.getExternalIds().getExternalId().add(e1);
 
+		return work;
+	}
+	
+	public static Funding fundingIgn(BigInteger key, String meta, String nmb) {
+		Funding work = new Funding();
+
+		ExternalIds uids = new ExternalIds();
+		work.setExternalIds(uids);
+
+		work.setPutCode(key);
+
+		if (meta != null) {
+			FundingTitle title = new FundingTitle();
+			title.setTitle("Meta-data " + meta);
+			work.setTitle(title);
+
+			work.setOrganization(new Organization("Agency", new OrganizationAddress("Braga",null,Iso3166Country.PT), null));
+			
+			if (meta.equals("0"))
+				work.setType(FundingType.AWARD);
+
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
+			work.setStartDate(date);
+
+		}
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(nmb);
+		e1.setExternalIdType("grant_number");
+		work.getExternalIds().getExternalId().add(e1);
+		
 		return work;
 	}
 
