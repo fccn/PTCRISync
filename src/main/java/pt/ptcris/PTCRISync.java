@@ -85,6 +85,12 @@ import pt.ptcris.utils.UpdateRecord;
  * @see <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
  */
 public final class PTCRISync {
+	
+	
+	public static Map<BigInteger, PTCRISyncResult> exportWorks(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return exportBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler, false);
+	}
 
 	/**
 	 * <p>
@@ -110,22 +116,25 @@ public final class PTCRISync {
 	 *            the progress handler responsible for receiving progress
 	 *            updates
 	 * @return the result of the synchronization of each of the provided local
-	 *          works.
+	 *         works.
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
 	 * @throws NullPointerException
-	 *             if any of the arguments is null	 */
+	 *             if any of the arguments is null
+	 * @deprecated Replaced by {@link #exportWorks(ORCIDClient, List, ProgressHandler)}
+	 */
+	@Deprecated
 	public static Map<BigInteger, PTCRISyncResult> export(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
-		return exportWorksBase(client, localWorks, handler, false);
+		return exportWorks(client, localWorks, handler);
 	}
 	
-	public static Map<BigInteger, PTCRISyncResult> exportFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+	public static Map<BigInteger, PTCRISyncResult> exportWorksForced(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
-		return exportBase(new ORCIDFundingHelper(client), localWorks, types, handler, false);
+		return exportBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler, true);
 	}
-
+	
 	/**
 	 * <p>
 	 * A version of the export procedure that forces the update of the CRIS
@@ -156,10 +165,17 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws NullPointerException
 	 *             if any of the arguments is null
+	 * @deprecated Replaced by {@link #exportWorksForced(ORCIDClient, List, ProgressHandler)
 	 */
+	@Deprecated
 	public static Map<BigInteger, PTCRISyncResult> exportForce(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
-		return exportWorksBase(client, localWorks, handler, true);
+		return exportWorksForced(client, localWorks, handler);
+	}
+
+	public static Map<BigInteger, PTCRISyncResult> exportFundings(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return exportBase(new ORCIDFundingHelper(client), localWorks, types, handler, false);
 	}
 
 	/**
@@ -366,11 +382,17 @@ public final class PTCRISync {
 		return result;
 	}
 
-	private static Map<BigInteger, PTCRISyncResult> exportWorksBase(ORCIDClient client, List<Work> localWorks, ProgressHandler handler, boolean forced)
-			throws OrcidClientException, NullPointerException {
-		return exportBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler, forced);
-	}
 	
+	public static List<Work> importWorks(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, NullPointerException {
+		return importWorksBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
+	}
+
+	public static List<Funding> importFundings(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, NullPointerException {
+		return importWorksBase(new ORCIDFundingHelper(client), localWorks, types, handler);
+	}
+
 	/**
 	 * <p>
 	 * Discovers new valid works in an ORCID profile given a set of known local
@@ -481,14 +503,30 @@ public final class PTCRISync {
 		return new LinkedList<E>(results);
 	}
 
-	public static List<Work> importWorks(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException, NullPointerException {
-		return importWorksBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
+	public static Integer importWorkCounter(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return importCounterBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
 	}
 
-	public static List<Funding> importWorksFundings(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException, NullPointerException {
-		return importWorksBase(new ORCIDFundingHelper(client), localWorks, types, handler);
+	/**
+	 * 
+	 * @param client
+	 * @param localWorks
+	 * @param handler
+	 * @return
+	 * @throws OrcidClientException
+	 * @throws NullPointerException
+	 * @deprecated Replaced by {@link #importWorkCounter(ORCIDClient, List, ProgressHandler)}
+	 */
+	@Deprecated
+	public static Integer importCounter(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return importWorkCounter(client, localWorks, handler);
+	}
+
+	public static Integer importFundingCounter(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, NullPointerException {
+		return importCounterBase(new ORCIDFundingHelper(client), localWorks, types, handler);
 	}
 
 	/**
@@ -551,14 +589,28 @@ public final class PTCRISync {
 		return counter;
 	}
 	
-	public static Integer importCounter(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
-			throws OrcidClientException, NullPointerException {
-		return importCounterBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
+	public static Map<Work, Set<String>> importInvalidWorks(ORCIDClient client, List<Work> localWorks, ProgressHandler handler) throws NullPointerException, OrcidClientException, InterruptedException {
+		return importInvalidBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
 	}
 
-	public static Integer importCounterFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException, NullPointerException {
-		return importCounterBase(new ORCIDFundingHelper(client), localWorks, types, handler);
+	/**
+	 * 
+	 * @param client
+	 * @param localWorks
+	 * @param handler
+	 * @return
+	 * @throws NullPointerException
+	 * @throws OrcidClientException
+	 * @throws InterruptedException
+	 * @deprecated Replaced by {@link #importInvalidWorks(ORCIDClient, List, ProgressHandler)}
+	 */
+	@Deprecated
+	public static Map<Work, Set<String>> importInvalid(ORCIDClient client, List<Work> localWorks, ProgressHandler handler) throws NullPointerException, OrcidClientException, InterruptedException {
+		return importInvalidWorks(client, localWorks, handler);
+	}
+
+	public static Map<Funding, Set<String>> importInvalidFundings(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler) throws NullPointerException, OrcidClientException, InterruptedException {
+		return importInvalidBase(new ORCIDFundingHelper(client), localWorks, types, handler);
 	}
 
 	/**
@@ -646,12 +698,29 @@ public final class PTCRISync {
 		return results;
 	}
 	
-	public static Map<Work, Set<String>> importInvalid(ORCIDClient client, List<Work> localWorks, ProgressHandler handler) throws NullPointerException, OrcidClientException, InterruptedException {
-		return importInvalidBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
+	public static List<Work> importWorkUpdates(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException {
+		return importUpdatesBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
 	}
 
-	public static Map<Funding, Set<String>> importInvalidFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler) throws NullPointerException, OrcidClientException, InterruptedException {
-		return importInvalidBase(new ORCIDFundingHelper(client), localWorks, types, handler);
+	/**
+	 * 
+	 * @param client
+	 * @param localWorks
+	 * @param handler
+	 * @return
+	 * @throws OrcidClientException
+	 * @deprecated Replaced by {@link #importWorkUpdates(ORCIDClient, List, ProgressHandler)}
+	 */
+	@Deprecated
+	public static List<Work> importUpdates(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
+			throws OrcidClientException {
+		return importWorkUpdates(client, localWorks, handler);
+	}
+
+	public static List<Funding> importFundingUpdates(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException {
+		return importUpdatesBase(new ORCIDFundingHelper(client), localWorks, types, handler);
 	}
 
 	/**
@@ -747,15 +816,5 @@ public final class PTCRISync {
 
 		handler.done();
 		return worksToUpdate;
-	}
-	
-	public static List<Work> importUpdates(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
-			throws OrcidClientException {
-		return importUpdatesBase(new ORCIDWorkHelper(client), localWorks, Arrays.asList(WorkType.values()), handler);
-	}
-	
-	public static List<Funding> importUpdatesFunding(ORCIDClient client, List<Funding> localWorks, Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException {
-		return importUpdatesBase(new ORCIDFundingHelper(client), localWorks, types, handler);
 	}
 }
