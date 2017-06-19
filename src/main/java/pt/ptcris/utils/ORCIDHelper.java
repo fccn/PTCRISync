@@ -41,7 +41,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
-import pt.ptcris.exceptions.InvalidWorkException;
+import pt.ptcris.exceptions.InvalidActivityException;
 import pt.ptcris.handlers.ProgressHandler;
 
 /**
@@ -1085,11 +1085,11 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the activity to test for quality
 	 * @param others
 	 *            other coexisting activities
-	 * @throws InvalidWorkException
+	 * @throws InvalidActivityException
 	 *             if the quality test fails, containing the reasons for failing
 	 */
 	public final void tryMinimalQualityE(E activity, Collection<E> others)
-			throws InvalidWorkException {
+			throws InvalidActivityException {
 		if (activity == null)
 			throw new IllegalArgumentException("Null activity.");
 		if (others == null)
@@ -1097,7 +1097,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 
 		Set<String> invs = testMinimalQuality(summarize(activity), others);
 		if (!invs.isEmpty()) {
-			throw new InvalidWorkException(invs);
+			throw new InvalidActivityException(invs);
 		}
 	}
 

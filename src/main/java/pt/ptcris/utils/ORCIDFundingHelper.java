@@ -55,7 +55,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	@Override
 	protected List<FundingGroup> getSummariesClient() throws OrcidClientException {
 		assert client != null;
-		_log.debug("[getFundingSummaries]"+client.getClientId());
+		_log.debug("[getFundingSummaries]"+client.getUserId());
 		return client.getFundingsSummary().getGroup();
 	}
 

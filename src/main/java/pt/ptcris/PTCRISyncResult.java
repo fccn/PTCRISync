@@ -14,11 +14,11 @@ import java.math.BigInteger;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 
-import pt.ptcris.exceptions.InvalidWorkException;
+import pt.ptcris.exceptions.InvalidActivityException;
 
 /**
  * A class that encapsulates the result of the synchronization procedures for a
- * particular work. Currently only the
+ * particular activity. Currently only the
  * {@link PTCRISync#export(ORCIDClient, java.util.List, pt.ptcris.handlers.ProgressHandler)
  * export} methods report these results.
  */
@@ -73,13 +73,13 @@ public final class PTCRISyncResult {
 	}
 
 	/**
-	 * Creates message reporting an invalid work.
+	 * Creates message reporting an invalid activity.
 	 *
 	 * @param exception
 	 *            the reasons for invalidity
 	 * @return the resulting message
 	 */
-	public static PTCRISyncResult invalid(InvalidWorkException exception) {
+	public static PTCRISyncResult invalid(InvalidActivityException exception) {
 		return new PTCRISyncResult(INVALID, exception);
 	}
 
@@ -89,19 +89,21 @@ public final class PTCRISyncResult {
 	public final ElementSummary act;
 
 	/**
-	 * Constructs a PTCRISync result with a result code, possible exception and
-	 * possible assigned put-code.
+	 * Constructs a PTCRISync result with a result code, possible exception,
+	 * possible assigned put-code and possible read activity.
 	 *
 	 * @param code
 	 *            the code that defines the outcome
 	 * @param exception
 	 *            the exception containing additional information if
-	 *            unsuccessful
+	 *            unsuccessful (may be null)
 	 * @param putcode
-	 *            the assigned put-code, if successful add
-	 * @param act TODO
+	 *            the assigned put-code, if successful add (may be null)
+	 * @param act
+	 *            a read activity (may be null)
 	 */
-	private PTCRISyncResult(int code, Exception exception, BigInteger putcode, ElementSummary act) {
+	private PTCRISyncResult(int code, Exception exception, BigInteger putcode,
+			ElementSummary act) {
 		this.code = code;
 		this.exception = exception;
 		this.putcode = putcode;
@@ -145,6 +147,15 @@ public final class PTCRISyncResult {
 		this(code, null, null, null);
 	}
 	
+	/**
+	 * Constructs a PTCRISync result with a result code and an activity,, used
+	 * for readings.
+	 *
+	 * @param code
+	 *            the code that defines the outcome
+	 * @param activity
+	 *            the returned activity, if successfull read
+	 */
 	private PTCRISyncResult(int code, ElementSummary act) {
 		this(code, null, null, act);
 	}

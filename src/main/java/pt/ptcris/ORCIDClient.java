@@ -40,6 +40,13 @@ public interface ORCIDClient {
 	public String getClientId();
 
 	/**
+	 * Returns the user ORCID to whose profiles the changes will be commited.
+	 *
+	 * @return the user ORCID
+	 */
+	public String getUserId();
+	
+	/**
 	 * Retrieves every activity summary from the ORCID profile.
 	 *
 	 * @return the activities summary of the ORCID profile
@@ -177,5 +184,6 @@ public interface ORCIDClient {
 	 * @return the number of ORCID worker threads
 	 */
 	public int threads();
+
 
 }

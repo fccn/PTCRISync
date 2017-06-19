@@ -73,7 +73,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	@Override
 	protected List<WorkGroup> getSummariesClient() throws OrcidClientException {
 		assert client != null;
-		_log.debug("[getWorkSummaries] "+client.getClientId());
+		_log.debug("[getWorkSummaries] "+client.getUserId());
 		return client.getWorksSummary().getGroup();
 	}
 

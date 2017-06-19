@@ -7,6 +7,11 @@ import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.Fundings;
 
+/**
+ * TODO: temporary class to be deleted once getFundingSummaries is added to the
+ * ORCID client.
+ *
+ */
 public class TempORCIDClient extends OrcidOAuthClient {
 
 	private static final long serialVersionUID = 1L;
@@ -16,7 +21,8 @@ public class TempORCIDClient extends OrcidOAuthClient {
 		super(loginUri, apiUri, clientId, clientSecret, redirectUri, debugMode);
 	}
 
-	public Fundings readFundingsSummary(final OrcidAccessToken token) throws OrcidClientException {
+	public Fundings readFundingsSummary(final OrcidAccessToken token)
+			throws OrcidClientException {
 		Response response = null;
 		try {
 			response = get("/fundings", token, null);
@@ -28,5 +34,3 @@ public class TempORCIDClient extends OrcidOAuthClient {
 		}
 	}
 }
-
-

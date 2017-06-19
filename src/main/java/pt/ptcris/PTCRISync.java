@@ -31,7 +31,7 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
-import pt.ptcris.exceptions.InvalidWorkException;
+import pt.ptcris.exceptions.InvalidActivityException;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ExternalIdsDiff;
 import pt.ptcris.utils.ORCIDFundingHelper;
@@ -273,7 +273,7 @@ public final class PTCRISync {
 			} else {
 				try {
 					helper.tryMinimalQualityE(localWork, localWorks);
-				} catch (InvalidWorkException invalid) {
+				} catch (InvalidActivityException invalid) {
 					invalidWorks.add(localWork);
 					result.put(ORCIDHelper.getActivityLocalKey(localWork,
 							BigInteger.valueOf(c)), PTCRISyncResult
