@@ -79,14 +79,14 @@ public abstract class ScenarioFunding {
 		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
 		FundingType[] types = {FundingType.CONTRACT, FundingType.GRANT};
-		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.exportFunding(crisClient.client, exportFundings, Arrays.asList(types), handler);
-		List<Funding> fundingsToImport = PTCRISync.importWorksFundings(
+		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.exportFundings(crisClient.client, exportFundings, Arrays.asList(types), handler);
+		List<Funding> fundingsToImport = PTCRISync.importFundings(
 				crisClient.client, localFundings, Arrays.asList(types), handler);
-		List<Funding> fundingsToUpdate = PTCRISync.importUpdatesFunding(
+		List<Funding> fundingsToUpdate = PTCRISync.importFundingUpdates(
 				crisClient.client, localFundings, Arrays.asList(types), handler);
 		Map<Funding, Set<String>> fundingsToInvalid = PTCRISync
-				.importInvalidFunding(crisClient.client, localFundings, Arrays.asList(types), handler);
-		int fundingsToImportCounter = PTCRISync.importCounterFunding(
+				.importInvalidFundings(crisClient.client, localFundings, Arrays.asList(types), handler);
+		int fundingsToImportCounter = PTCRISync.importFundingCounter(
 				crisClient.client, localFundings, Arrays.asList(types), handler);
 		long time = System.currentTimeMillis() - startTime;
 		handler.setCurrentStatus(this.getClass().getName() + ": " + time + "ms");

@@ -24,11 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.activities.FundingGroup;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
-import org.um.dsi.gavea.orcid.model.funding.Funding;
-import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
-import org.um.dsi.gavea.orcid.model.funding.FundingType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
@@ -79,13 +75,13 @@ public abstract class Scenario {
 
 		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
-		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.export(crisClient.client, exportWorks, handler);
+		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.exportWorks(crisClient.client, exportWorks, handler);
 
 		List<Work> worksToImport = PTCRISync.importWorks(crisClient.client, localWorks, handler);
-		List<Work> worksToUpdate = PTCRISync.importUpdates(crisClient.client, localWorks, handler);
-		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalid(
+		List<Work> worksToUpdate = PTCRISync.importWorkUpdates(crisClient.client, localWorks, handler);
+		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalidWorks(
 				crisClient.client, localWorks, handler);
-		int worksToImportCounter = PTCRISync.importCounter(crisClient.client, localWorks, handler);
+		int worksToImportCounter = PTCRISync.importWorkCounter(crisClient.client, localWorks, handler);
 		long time = System.currentTimeMillis() - startTime;
 		handler.setCurrentStatus(this.getClass().getName() + ": " + time + "ms");
 

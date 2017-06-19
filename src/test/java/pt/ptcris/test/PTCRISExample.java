@@ -78,16 +78,16 @@ public class PTCRISExample {
 		exportWorks.add(work2());
 
 		// export the local works that are to by synchronized
-		Map<BigInteger, PTCRISyncResult> exportResult = PTCRISync.export(crisClient, localWorks, progressHandler);
+		Map<BigInteger, PTCRISyncResult> exportResult = PTCRISync.exportWorks(crisClient, localWorks, progressHandler);
 		// import new valid works found in the user profile
 		List<Work> worksToImport = PTCRISync.importWorks(crisClient, localWorks, progressHandler);
 		// import work updates found in the user profile
-		List<Work> updatesToImport = PTCRISync.importUpdates(crisClient, localWorks, progressHandler);
+		List<Work> updatesToImport = PTCRISync.importWorkUpdates(crisClient, localWorks, progressHandler);
 
 		// count the new works found in the user profile
-		int worksToImportCount = PTCRISync.importCounter(crisClient, localWorks, progressHandler);
+		int worksToImportCount = PTCRISync.importWorkCounter(crisClient, localWorks, progressHandler);
 		// import new invalid works found in the user profile
-		Map<Work, Set<String>> worksToImportInvalid = PTCRISync.importInvalid(crisClient, localWorks, progressHandler);
+		Map<Work, Set<String>> worksToImportInvalid = PTCRISync.importInvalidWorks(crisClient, localWorks, progressHandler);
 
 		progressHandler.setCurrentStatus(PTCRISExample.class.getName()+" end");
 
