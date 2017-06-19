@@ -24,7 +24,7 @@ import pt.ptcris.PTCRISyncResult;
  * with the Member API, including the user profile being managed and the Member
  * API id being user to source activities. Communication is performed via callback.
  */
-public abstract class ORCIDWorker extends Thread {
+abstract class ORCIDWorker extends Thread {
 
 	protected final Logger _log;
 	protected final Map<BigInteger, PTCRISyncResult> cb;
@@ -40,17 +40,16 @@ public abstract class ORCIDWorker extends Thread {
 	 *            the ORCID communication client
 	 * @param cb
 	 *            the callback object to return results
-	 * @param log
+	 * @param _log
 	 *            a logger
-	 * @throws NullPointerException
-	 *             if cb or client are null
 	 */
-	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
-		if (cb == null || client == null)
-			throw new IllegalArgumentException("Client and callback must not be null.");
+	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger _log) {
+		assert client != null;
+		assert cb != null;
+		
 		this.client = client;
 		this.cb = cb;
-		this._log = log;
+		this._log = _log;
 		this.mdcCtxMap = MDC.getCopyOfContextMap();
 	}
 

@@ -95,8 +95,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	protected final int bulk_size_add;
 	protected final int bulk_size_get;
 
-	protected static final Logger _log = LoggerFactory
-			.getLogger(ORCIDHelper.class);
+	protected static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
 	/**
 	 * The client used to communicate with ORCID. Defines the ORCID user profile
@@ -258,8 +257,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *             if the communication with ORCID fails
 	 */
 	private final List<S> getAllSummaries() throws OrcidClientException {
-		_log.debug("[getSummaries]");
-
 		final List<S> fundSummaryList = new LinkedList<S>();
 		final List<G> fundGroupList = getSummariesClient();
 		for (G group : fundGroupList)
@@ -300,8 +297,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 */
 	public final List<S> getSourcedSummaries() throws OrcidClientException {
 		final String sourceClientID = client.getClientId();
-
-		_log.debug("[getSourcedSummaries] " + sourceClientID);
 
 		final List<S> summaryList = new LinkedList<S>();
 		final List<G> groupList = getSummariesClient();
@@ -350,7 +345,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		if (summaries == null || summaries.isEmpty())
 			return;
 		
-		_log.debug("[getBulk] " + summaries.size());
 		if (handler != null)
 			handler.setCurrentStatus("ORCID_GET_ITERATION");
 
@@ -411,8 +405,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	private final PTCRISyncResult add(E activity) {
 		assert activity != null;
 
-		_log.debug("[add] " + getTitleE(activity));
-
 		// remove any put-code otherwise ORCID will throw an error
 		final E clone = cloneE(activity);
 		clone.setPutCode(null);
@@ -436,8 +428,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	private final List<PTCRISyncResult> add(Collection<E> activities) {
 		assert activities != null;
 		
-		_log.debug("[addBulk] " + activities.size());
-
 		List<E> clones = new ArrayList<E>();
 		// remove any put-code otherwise ORCID will throw an error
 		for (E activity : activities) {
@@ -507,8 +497,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		if (remotePutcode == null || updated == null)
 			throw new IllegalArgumentException("Can't update null activity.");
 
-		_log.debug("[update] " + remotePutcode);
-
 		final E clone = cloneE(updated);
 		// set the remote put-code
 		clone.setPutCode(remotePutcode);
@@ -530,8 +518,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		if (putcode == null)
 			throw new IllegalArgumentException("Can't delete null activity.");
 
-		_log.debug("[delete] " + putcode);
-
 		return deleteClient(putcode);
 	}
 
@@ -543,8 +529,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *             if the communication with ORCID fails
 	 */
 	public final void deleteAllSourced() throws OrcidClientException {
-		_log.debug("[deleteSourced] " + client.getClientId());
-
 		final List<S> summaryList = getSourcedSummaries();
 
 		for (S summary : summaryList) {

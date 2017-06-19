@@ -10,7 +10,6 @@
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
-import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-public final class ORCIDGetFundingWorker extends ORCIDWorker {
+final class ORCIDGetFundingWorker extends ORCIDWorker {
 
 	private final FundingSummary funding;
 
@@ -45,18 +44,12 @@ public final class ORCIDGetFundingWorker extends ORCIDWorker {
 	 *            the callback object to return results
 	 * @param log
 	 *            a logger
-	 * @throws NullPointerException
-	 *             if the funding is null
-	 * @throws InvalidParameterException
-	 *             if the funding's put-code is undefined
 	 */
-	public ORCIDGetFundingWorker(FundingSummary funding, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
-			throws InvalidParameterException, NullPointerException {
+	public ORCIDGetFundingWorker(FundingSummary funding, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
 		super(client, cb, log);
-		if (funding == null)
-			throw new NullPointerException("GET: Funding must not be null.");
-		if (funding.getPutCode() == null)
-			throw new InvalidParameterException("GET: Funding must have a put-code defined.");
+		assert funding != null;
+		assert funding.getPutCode() != null;
+				
 		this.funding = funding;
 	}
 
@@ -69,7 +62,8 @@ public final class ORCIDGetFundingWorker extends ORCIDWorker {
 			MDC.setContextMap(mdcCtxMap);
 		} catch (Exception e) {} // if the context is empty
 		
-		_log.debug("[getFull] " + funding.getPutCode());
+		_log.debug("[getFullFunding] "+funding.getPutCode());
+		
 		final PTCRISyncResult full = client.getFunding(funding);
 
 		callback(funding.getPutCode(), full);

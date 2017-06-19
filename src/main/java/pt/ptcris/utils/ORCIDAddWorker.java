@@ -24,7 +24,8 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-public class ORCIDAddWorker extends ORCIDWorker {
+@Deprecated
+class ORCIDAddWorker extends ORCIDWorker {
 
 	private final Work work;
 

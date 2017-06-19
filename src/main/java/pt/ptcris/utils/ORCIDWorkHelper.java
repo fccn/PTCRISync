@@ -73,6 +73,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	@Override
 	protected List<WorkGroup> getSummariesClient() throws OrcidClientException {
 		assert client != null;
+		_log.debug("[getWorkSummaries] "+client.getClientId());
 		return client.getWorksSummary().getGroup();
 	}
 
@@ -81,6 +82,8 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	protected PTCRISyncResult readClient(WorkSummary work) {
 		assert client != null;
 		assert work != null;
+		assert work.getPutCode() != null;
+		_log.debug("[getFullWork] "+work.getPutCode());
 		return client.getWork(work);
 	}
 	
@@ -90,6 +93,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 		assert client != null;
 		if (summaries == null || summaries.isEmpty())
 			return new HashMap<BigInteger, PTCRISyncResult>();
+		_log.debug("[getFullBulkWork] "+summaries.size());
 		return client.getWorks(summaries);
 	}
 
@@ -110,13 +114,14 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 		assert cb != null;
 		if (summaries == null)
 			summaries = new ArrayList<WorkSummary>();
-		return new ORCIDBulkGetWorker(summaries, client, cb, _log);
+		return new ORCIDGetBulkWorkWorker(summaries, client, cb, _log);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	protected PTCRISyncResult addClient(Work work) {
 		assert client != null;
+		_log.debug("[addWork] "+work.getTitle());
 		return client.addWork(work);
 	}
 
@@ -124,6 +129,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	@Override
 	protected List<PTCRISyncResult> addClient(List<Work> works) {
 		assert client != null;
+		_log.debug("[addBulkWork] "+works.size());
 		if (works == null || works.isEmpty())
 			return new ArrayList<PTCRISyncResult>();
 		return client.addWorks(works);
@@ -135,6 +141,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 		assert client != null;
 		assert remotePutcode != null;
 		assert work != null;
+		_log.debug("[updateWork] "+remotePutcode);
 		return client.updateWork(remotePutcode, work);
 	}
 
@@ -143,6 +150,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	protected PTCRISyncResult deleteClient(BigInteger remotePutcode) {
 		assert client != null;
 		assert remotePutcode != null;
+		_log.debug("[deleteWork] "+remotePutcode);
 		return client.deleteWork(remotePutcode);
 	}
 

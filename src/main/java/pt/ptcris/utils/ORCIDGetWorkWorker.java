@@ -10,7 +10,6 @@
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
-import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-public final class ORCIDGetWorkWorker extends ORCIDWorker {
+final class ORCIDGetWorkWorker extends ORCIDWorker {
 
 	private final WorkSummary work;
 
@@ -44,18 +43,12 @@ public final class ORCIDGetWorkWorker extends ORCIDWorker {
 	 *            the callback object to return results
 	 * @param log
 	 *            a logger
-	 * @throws NullPointerException
-	 *             if the work is null
-	 * @throws InvalidParameterException
-	 *             if the work's put-code is undefined
 	 */
-	public ORCIDGetWorkWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
-			throws InvalidParameterException, NullPointerException {
+	public ORCIDGetWorkWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
 		super(client, cb, log);
-		if (work == null)
-			throw new NullPointerException("GET: Work must not be null.");
-		if (work.getPutCode() == null)
-			throw new InvalidParameterException("GET: Work must have a put-code defined.");
+		assert work != null;
+		assert work.getPutCode() != null;
+		
 		this.work = work;
 	}
 
@@ -68,7 +61,8 @@ public final class ORCIDGetWorkWorker extends ORCIDWorker {
 			MDC.setContextMap(mdcCtxMap);
 		} catch (Exception e) {} // if the context is empty
 		
-		_log.debug("[getFull] " + work.getPutCode());
+		_log.debug("[getFullWork] " + work.getPutCode());
+		
 		final PTCRISyncResult full = client.getWork(work);
 
 		callback(work.getPutCode(), full);

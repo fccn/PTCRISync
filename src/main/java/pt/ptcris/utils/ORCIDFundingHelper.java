@@ -55,6 +55,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	@Override
 	protected List<FundingGroup> getSummariesClient() throws OrcidClientException {
 		assert client != null;
+		_log.debug("[getFundingSummaries]"+client.getClientId());
 		return client.getFundingsSummary().getGroup();
 	}
 
@@ -63,6 +64,8 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	protected PTCRISyncResult readClient(FundingSummary summary) {
 		assert client != null;
 		assert summary != null;
+		assert summary.getPutCode() != null;
+		_log.debug("[getFullFunding] "+summary.getPutCode());
 		return client.getFunding(summary);
 	}
 
@@ -93,6 +96,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	protected PTCRISyncResult addClient(Funding funding) {
 		assert client != null;
 		assert funding != null;
+		_log.debug("[addFunding] "+funding.getTitle());
 		return client.addFunding(funding);
 	}
 
@@ -108,6 +112,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 		assert client != null;
 		assert remotePutcode != null;
 		assert funding != null;
+		_log.debug("[updateFunding] "+remotePutcode);
 		return client.updateFunding(remotePutcode, funding);
 	}
 
@@ -116,6 +121,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	protected PTCRISyncResult deleteClient(BigInteger remotePutcode) {
 		assert client != null;
 		assert remotePutcode != null;
+		_log.debug("[deleteFunding] "+remotePutcode);
 		return client.deleteFunding(remotePutcode);
 	}
 

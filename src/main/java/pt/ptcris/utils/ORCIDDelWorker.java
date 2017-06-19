@@ -23,7 +23,8 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-public class ORCIDDelWorker extends ORCIDWorker {
+@Deprecated
+class ORCIDDelWorker extends ORCIDWorker {
 
 	private final BigInteger putcode;
 
