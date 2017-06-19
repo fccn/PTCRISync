@@ -269,12 +269,17 @@ public final class PTCRISync {
 			handler.setProgress(progress);
 			E localWork = localWorks.get(c);
 
-			try {
-				helper.tryMinimalQualityE(localWork,localWorks);
-			} catch (InvalidWorkException invalid) {
+			if (!types.contains(helper.getTypeE(localWork))) {
 				invalidWorks.add(localWork);
-				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),
-						PTCRISyncResult.invalid(invalid));
+			} else {
+				try {
+					helper.tryMinimalQualityE(localWork, localWorks);
+				} catch (InvalidWorkException invalid) {
+					invalidWorks.add(localWork);
+					result.put(ORCIDHelper.getActivityLocalKey(localWork,
+							BigInteger.valueOf(c)), PTCRISyncResult
+							.invalid(invalid));
+				}
 			}
 		}
 		localWorks.removeAll(invalidWorks);
@@ -320,7 +325,7 @@ public final class PTCRISync {
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				ids.addAll(helper.getPartOfExternalIdsE(localWork).getExternalId());
 				weids.setExternalId(ids);
-				helper.setExternalIds(localWork,weids);
+				helper.setExternalIdsE(localWork,weids);
 
 				PTCRISyncResult res = helper.update(update.posWork.getPutCode(), localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
@@ -342,7 +347,7 @@ public final class PTCRISync {
 				ids.addAll(update.eidsDiff.less);
 				ids.addAll(helper.getPartOfExternalIdsE(localWork).getExternalId());
 				weids.setExternalId(ids);
-				helper.setExternalIds(localWork,weids);
+				helper.setExternalIdsE(localWork,weids);
 
 				PTCRISyncResult res = helper.update(update.posWork.getPutCode(), localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
@@ -443,7 +448,7 @@ public final class PTCRISync {
 		int progress = 0;
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
 
-		List<S> orcidWorks = helper.getAllSummaries();
+		List<S> orcidWorks = helper.getAllTypedSummaries(types);
 
 		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
 
@@ -462,8 +467,6 @@ public final class PTCRISync {
 		}
 
 		helper.getFulls(temp, worksToImport, handler);
-
-		helper.waitWorkers();
 
 		List<E> results = new ArrayList<E>();
 		for (PTCRISyncResult r : worksToImport.values())
@@ -528,7 +531,7 @@ public final class PTCRISync {
 		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
 
-		List<S> orcidWorks = helper.getAllSummaries();
+		List<S> orcidWorks = helper.getAllTypedSummaries(types);
 
 		int counter = 0;
 
@@ -608,7 +611,7 @@ public final class PTCRISync {
 		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
 	
-		List<S> orcidWorks = helper.getAllSummaries();
+		List<S> orcidWorks = helper.getAllTypedSummaries(types);
 	
 		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
 		Map<BigInteger, PTCRISyncResult> worksToImport = new HashMap<BigInteger, PTCRISyncResult>();
@@ -630,8 +633,6 @@ public final class PTCRISync {
 		}
 	
 		helper.getFulls(temp, worksToImport, handler);
-
-		helper.waitWorkers();
 	
 		Map<E, Set<String>> results = new HashMap<E, Set<String>>();
 		for (BigInteger i : worksToImport.keySet())
@@ -724,7 +725,7 @@ public final class PTCRISync {
 		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
 
-		List<S> orcidWorks = helper.getAllSummaries();
+		List<S> orcidWorks = helper.getAllTypedSummaries(types);
 
 		List<E> worksToUpdate = new LinkedList<E>();
 
