@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2016, 2017 PTCRIS - FCT|FCCN and others.
+ * Licensed under MIT License
+ * http://ptcris.pt
+ *
+ * This copyright and license information (including a link to the full license)
+ * shall be included in its entirety in all copies or substantial portion of
+ * the software.
+ */
+package pt.ptcris.utils;
+
+import java.math.BigInteger;
+import java.security.InvalidParameterException;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.MDC;
+import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
+
+import pt.ptcris.ORCIDClient;
+import pt.ptcris.PTCRISyncResult;
+
+/**
+ * A worker thread that can be used to GET funding entries from ORCID.
+ *
+ * @see ORCIDWorker
+ */
+public final class ORCIDGetFundingWorker extends ORCIDWorker {
+
+	private final FundingSummary funding;
+
+	/**
+	 * A threaded worker that can be launched in parallel to GET funding
+	 * activities with the ORCID API. The provided {@link ORCIDClient client}
+	 * defines the communication channel.
+	 * 
+	 * @see ORCIDHelper#readWorker(org.um.dsi.gavea.orcid.model.common.ElementSummary,
+	 *      Map)
+	 *
+	 * @param funding
+	 *            the summary specifying the full funding to be retrieved
+	 * @param client
+	 *            the ORCID communication client
+	 * @param cb
+	 *            the callback object to return results
+	 * @param log
+	 *            a logger
+	 * @throws NullPointerException
+	 *             if the funding is null
+	 * @throws InvalidParameterException
+	 *             if the funding's put-code is undefined
+	 */
+	public ORCIDGetFundingWorker(FundingSummary funding, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
+			throws InvalidParameterException, NullPointerException {
+		super(client, cb, log);
+		if (funding == null)
+			throw new NullPointerException("GET: Funding must not be null.");
+		if (funding.getPutCode() == null)
+			throw new InvalidParameterException("GET: Funding must have a put-code defined.");
+		this.funding = funding;
+	}
+
+	/**
+	 * Retrieves a full funding activity from an ORCID profile.
+	 */
+	@Override
+	public void run() {
+		try {
+			MDC.setContextMap(mdcCtxMap);
+		} catch (Exception e) {} // if the context is empty
+		
+		_log.debug("[getFull] " + funding.getPutCode());
+		final PTCRISyncResult full = client.getFunding(funding);
+
+		callback(funding.getPutCode(), full);
+	}
+
+}

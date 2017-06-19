@@ -26,7 +26,6 @@ import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
-import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 import org.um.dsi.gavea.orcid.model.funding.FundingType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
@@ -320,14 +319,14 @@ public final class PTCRISync {
 			UpdateRecord<E,S> update = toUpdate.get(c);
 			// the remote work has spurious external identifiers
 			if (!update.eidsDiff.more.isEmpty()) {
-				E localWork = update.preWork;
+				E localWork = update.preElement;
 				ExternalIds weids = new ExternalIds();
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				ids.addAll(helper.getPartOfExternalIdsE(localWork).getExternalId());
 				weids.setExternalId(ids);
 				helper.setExternalIdsE(localWork,weids);
 
-				PTCRISyncResult res = helper.update(update.posWork.getPutCode(), localWork);
+				PTCRISyncResult res = helper.update(update.posElement.getPutCode(), localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
 			}
 		}
@@ -341,7 +340,7 @@ public final class PTCRISync {
 			// the remote work is missing external identifiers or not updated in the 1st phase
 			UpdateRecord<E,S> update = toUpdate.get(c);
 			if (!update.eidsDiff.less.isEmpty() || update.eidsDiff.more.isEmpty()) {
-				E localWork = update.preWork;
+				E localWork = update.preElement;
 				ExternalIds weids = new ExternalIds();
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				ids.addAll(update.eidsDiff.less);
@@ -349,7 +348,7 @@ public final class PTCRISync {
 				weids.setExternalId(ids);
 				helper.setExternalIdsE(localWork,weids);
 
-				PTCRISyncResult res = helper.update(update.posWork.getPutCode(), localWork);
+				PTCRISyncResult res = helper.update(update.posElement.getPutCode(), localWork);
 				result.put(ORCIDHelper.getActivityLocalKey(localWork, BigInteger.valueOf(c)),res);
 			}
 		}

@@ -78,7 +78,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	protected ORCIDWorker readWorker(FundingSummary summary, Map<BigInteger, PTCRISyncResult> cb) {
 		assert client != null;
 		assert summary != null;
-		return new ORCIDGetWorker2(summary, client, cb, _log);
+		return new ORCIDGetFundingWorker(summary, client, cb, _log);
 	}
 
 	/** {@inheritDoc} */

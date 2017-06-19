@@ -25,7 +25,7 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-public final class ORCIDGetWorker extends ORCIDWorker {
+public final class ORCIDGetWorkWorker extends ORCIDWorker {
 
 	private final WorkSummary work;
 
@@ -34,7 +34,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * ORCID API. The provided {@link ORCIDClient client} defines the
 	 * communication channel.
 	 * 
-	 * @see ORCIDHelper#getFullWork(WorkSummary)
+	 * @see ORCIDHelper#readWorker(org.um.dsi.gavea.orcid.model.common.ElementSummary, Map)
 	 *
 	 * @param work
 	 *            the summary specifying the full work to be retrieved
@@ -49,7 +49,7 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work's put-code is undefined
 	 */
-	public ORCIDGetWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
+	public ORCIDGetWorkWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
 			throws InvalidParameterException, NullPointerException {
 		super(client, cb, log);
 		if (work == null)
@@ -68,10 +68,10 @@ public final class ORCIDGetWorker extends ORCIDWorker {
 			MDC.setContextMap(mdcCtxMap);
 		} catch (Exception e) {} // if the context is empty
 		
-		_log.debug("[getFullWork] " + work.getPutCode());
-		final PTCRISyncResult fullWork = client.getWork(work);
+		_log.debug("[getFull] " + work.getPutCode());
+		final PTCRISyncResult full = client.getWork(work);
 
-		callback(work.getPutCode(), fullWork);
+		callback(work.getPutCode(), full);
 	}
 
 }

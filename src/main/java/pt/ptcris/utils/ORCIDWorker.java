@@ -10,7 +10,6 @@
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
-import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ import pt.ptcris.PTCRISyncResult;
  * An abstract worker that can be used to parallelize calls to the ORCID API. A
  * {@link ORCIDClient client} should be provided to establish the communication
  * with the Member API, including the user profile being managed and the Member
- * API id being user to source works. Communication is performed via callback.
+ * API id being user to source activities. Communication is performed via callback.
  */
 public abstract class ORCIDWorker extends Thread {
 
@@ -46,10 +45,9 @@ public abstract class ORCIDWorker extends Thread {
 	 * @throws NullPointerException
 	 *             if cb or client are null
 	 */
-	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
-			throws InvalidParameterException {
+	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
 		if (cb == null || client == null)
-			throw new NullPointerException("Client and callback must not be null.");
+			throw new IllegalArgumentException("Client and callback must not be null.");
 		this.client = client;
 		this.cb = cb;
 		this._log = log;

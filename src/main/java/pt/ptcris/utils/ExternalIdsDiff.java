@@ -20,7 +20,7 @@ import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 /**
  * Calculates and stores the symmetric difference between two sets of
  * {@link ExternalId external identifiers}. Useful to detect matching
- * works and potential updates.
+ * activities and potential updates.
  */
 public final class ExternalIdsDiff {
 
@@ -52,11 +52,13 @@ public final class ExternalIdsDiff {
 		List<ExternalId> eids1 = new LinkedList<ExternalId>();
 		List<ExternalId> eids2 = new LinkedList<ExternalId>();
 
-		for (ExternalId eid : weids1.getExternalId())
-			eids1.add(eid);
+		if (weids1 != null)
+			for (ExternalId eid : weids1.getExternalId())
+				eids1.add(eid);
 
-		for (ExternalId eid : weids2.getExternalId())
-			eids2.add(eid);	
+		if (weids2 != null)
+			for (ExternalId eid : weids2.getExternalId())
+				eids2.add(eid);	
 		
 		calculateDifference(eids1, eids2);
 	}

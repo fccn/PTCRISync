@@ -99,7 +99,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 		assert client != null;
 		assert cb != null;
 		assert summary != null;
-		return new ORCIDGetWorker(summary, client, cb, _log);
+		return new ORCIDGetWorkWorker(summary, client, cb, _log);
 	}
 
 	/** {@inheritDoc} */
