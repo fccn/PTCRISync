@@ -61,7 +61,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult readClient(FundingSummary summary) {
+	protected PTCRISyncResult<Funding> readClient(FundingSummary summary) {
 		assert client != null;
 		assert summary != null;
 		assert summary.getPutCode() != null;
@@ -71,14 +71,14 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected Map<BigInteger, PTCRISyncResult> readClient(
+	protected Map<BigInteger, PTCRISyncResult<Funding>> readClient(
 			List<FundingSummary> fundings) {
 		throw new UnsupportedOperationException("No support for bulk reading fundings.");
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected ORCIDWorker readWorker(FundingSummary summary, Map<BigInteger, PTCRISyncResult> cb) {
+	protected ORCIDWorker<Funding> readWorker(FundingSummary summary, Map<BigInteger, PTCRISyncResult<Funding>> cb) {
 		assert client != null;
 		assert summary != null;
 		return new ORCIDGetFundingWorker(summary, client, cb, _log);
@@ -86,14 +86,14 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected ORCIDWorker readWorker(List<FundingSummary> summaries,
-			Map<BigInteger, PTCRISyncResult> cb) {
+	protected ORCIDWorker<Funding> readWorker(List<FundingSummary> summaries,
+			Map<BigInteger, PTCRISyncResult<Funding>> cb) {
 		throw new UnsupportedOperationException("No support for bulk reading fundings.");
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult addClient(Funding funding) {
+	protected PTCRISyncResult<Funding> addClient(Funding funding) {
 		assert client != null;
 		assert funding != null;
 		_log.debug("[addFunding] "+funding.getTitle());
@@ -102,13 +102,13 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected List<PTCRISyncResult> addClient(List<Funding> fundings) {
+	protected List<PTCRISyncResult<Funding>> addClient(List<Funding> fundings) {
 		throw new UnsupportedOperationException("No support for bulk reading fundings.");
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult updateClient(BigInteger remotePutcode, Funding funding) {
+	protected PTCRISyncResult<Funding> updateClient(BigInteger remotePutcode, Funding funding) {
 		assert client != null;
 		assert remotePutcode != null;
 		assert funding != null;
@@ -118,7 +118,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected PTCRISyncResult deleteClient(BigInteger remotePutcode) {
+	protected PTCRISyncResult<Funding> deleteClient(BigInteger remotePutcode) {
 		assert client != null;
 		assert remotePutcode != null;
 		_log.debug("[deleteFunding] "+remotePutcode);

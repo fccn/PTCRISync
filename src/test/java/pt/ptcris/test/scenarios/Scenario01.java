@@ -72,13 +72,13 @@ public class Scenario01 extends Scenario {
 	
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
+	ORCIDWorkHelper crisClient() {
 		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
+	ORCIDWorkHelper externalClient() {
 		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 

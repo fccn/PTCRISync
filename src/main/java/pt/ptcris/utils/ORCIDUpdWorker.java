@@ -26,7 +26,7 @@ import pt.ptcris.PTCRISyncResult;
  * @see ORCIDWorker
  */
 @Deprecated
-class ORCIDUpdWorker extends ORCIDWorker {
+class ORCIDUpdWorker extends ORCIDWorker<Work> {
 
 	private final Work work;
 
@@ -48,7 +48,7 @@ class ORCIDUpdWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work is null
 	 */
-	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
+	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log)
 			throws NullPointerException, InvalidParameterException {
 		super(client, cb, log);
 		if (work == null)
@@ -66,7 +66,7 @@ class ORCIDUpdWorker extends ORCIDWorker {
 		_log.debug("[updateWork] " + work.getPutCode());
 		MDC.setContextMap(mdcCtxMap);
 
-		final PTCRISyncResult res = client.updateWork(work.getPutCode(), work);
+		final PTCRISyncResult<Work> res = client.updateWork(work.getPutCode(), work);
 		
 		callback(work.getPutCode(), res);
 	}

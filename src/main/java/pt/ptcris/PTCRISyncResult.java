@@ -22,7 +22,7 @@ import pt.ptcris.exceptions.InvalidActivityException;
  * {@link PTCRISync#export(ORCIDClient, java.util.List, pt.ptcris.handlers.ProgressHandler)
  * export} methods report these results.
  */
-public final class PTCRISyncResult {
+public final class PTCRISyncResult<E extends ElementSummary> {
 
 	public static final int GETOK = -1;
 	public static final int ADDOK = -5;
@@ -35,31 +35,37 @@ public final class PTCRISyncResult {
 	/**
 	 * Creates a successful "add" message with the assigned put-code.
 	 */
-	public static PTCRISyncResult ok(BigInteger putcode) {
-		return new PTCRISyncResult(ADDOK, putcode);
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_add(BigInteger putcode) {
+		return new PTCRISyncResult<E>(ADDOK, putcode);
 	}
 	
 	/**
 	 * Creates a successful "get" message with the assigned put-code.
 	 */
-	public static PTCRISyncResult got(BigInteger putcode, ElementSummary act) {
-		return new PTCRISyncResult(GETOK, act);
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_get(BigInteger putcode, E act) {
+		return new PTCRISyncResult<E>(GETOK, act);
 	}
 	
 	/**
 	 * Creates a successful "update" message.
 	 */
-	public static final PTCRISyncResult OK_UPD_RESULT = new PTCRISyncResult(UPDATEOK);
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_upd() {
+		return new PTCRISyncResult<E>(UPDATEOK);
+	}
 
 	/**
 	 * Creates a successful "delete" message.
 	 */
-	public static final PTCRISyncResult OK_DEL_RESULT = new PTCRISyncResult(DELETEOK);
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_del() {
+		return new PTCRISyncResult<E>(DELETEOK);
+	}
 
 	/**
 	 * Creates an "already up-to-date" message.
 	 */
-	public static final PTCRISyncResult UPTODATE_RESULT = new PTCRISyncResult(UPTODATE);
+	public static <E extends ElementSummary> PTCRISyncResult<E> uptodate() {
+		return new PTCRISyncResult<E>(UPTODATE);
+	}
 
 	/**
 	 * Creates message reporting a failure at the ORCID API level.
@@ -68,8 +74,8 @@ public final class PTCRISyncResult {
 	 *            the ORCID client exception
 	 * @return the resulting message
 	 */
-	public static PTCRISyncResult fail(OrcidClientException exception) {
-		return new PTCRISyncResult(CLIENTERROR, exception);
+	public static <E extends ElementSummary> PTCRISyncResult<E> fail(OrcidClientException exception) {
+		return new PTCRISyncResult<E>(CLIENTERROR, exception);
 	}
 
 	/**
@@ -79,14 +85,14 @@ public final class PTCRISyncResult {
 	 *            the reasons for invalidity
 	 * @return the resulting message
 	 */
-	public static PTCRISyncResult invalid(InvalidActivityException exception) {
-		return new PTCRISyncResult(INVALID, exception);
+	public static <E extends ElementSummary> PTCRISyncResult<E> invalid(InvalidActivityException exception) {
+		return new PTCRISyncResult<E>(INVALID, exception);
 	}
 
 	public final int code;
 	public final Exception exception;
 	public final BigInteger putcode;
-	public final ElementSummary act;
+	public final E act;
 
 	/**
 	 * Constructs a PTCRISync result with a result code, possible exception,
@@ -103,7 +109,7 @@ public final class PTCRISyncResult {
 	 *            a read activity (may be null)
 	 */
 	private PTCRISyncResult(int code, Exception exception, BigInteger putcode,
-			ElementSummary act) {
+			E act) {
 		this.code = code;
 		this.exception = exception;
 		this.putcode = putcode;
@@ -156,7 +162,7 @@ public final class PTCRISyncResult {
 	 * @param activity
 	 *            the returned activity, if successfull read
 	 */
-	private PTCRISyncResult(int code, ElementSummary act) {
+	private PTCRISyncResult(int code, E act) {
 		this(code, null, null, act);
 	}
 

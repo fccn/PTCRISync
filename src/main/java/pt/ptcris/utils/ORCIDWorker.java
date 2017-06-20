@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
@@ -24,10 +25,10 @@ import pt.ptcris.PTCRISyncResult;
  * with the Member API, including the user profile being managed and the Member
  * API id being user to source activities. Communication is performed via callback.
  */
-abstract class ORCIDWorker extends Thread {
+abstract class ORCIDWorker<E extends ElementSummary> extends Thread {
 
 	protected final Logger _log;
-	protected final Map<BigInteger, PTCRISyncResult> cb;
+	protected final Map<BigInteger, PTCRISyncResult<E>> cb;
 	protected final ORCIDClient client;
 	protected final Map<String, String> mdcCtxMap;
 
@@ -43,7 +44,7 @@ abstract class ORCIDWorker extends Thread {
 	 * @param _log
 	 *            a logger
 	 */
-	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger _log) {
+	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult<E>> cb, Logger _log) {
 		assert client != null;
 		assert cb != null;
 		
@@ -59,7 +60,7 @@ abstract class ORCIDWorker extends Thread {
 	 * @param res
 	 *            the result to return
 	 */
-	protected void callback(BigInteger id, PTCRISyncResult res) {
+	protected void callback(BigInteger id, PTCRISyncResult<E> res) {
 		cb.put(id, res);
 	}
 

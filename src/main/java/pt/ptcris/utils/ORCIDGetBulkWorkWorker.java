@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
@@ -25,7 +26,7 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-final class ORCIDGetBulkWorkWorker extends ORCIDWorker {
+final class ORCIDGetBulkWorkWorker extends ORCIDWorker<Work> {
 
 	private final List<WorkSummary> works;
 
@@ -46,7 +47,7 @@ final class ORCIDGetBulkWorkWorker extends ORCIDWorker {
 	 * @param log
 	 *            a logger
 	 */
-	public ORCIDGetBulkWorkWorker(List<WorkSummary> works, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
+	public ORCIDGetBulkWorkWorker(List<WorkSummary> works, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log) {
 		super(client, cb, log);
 		
 		assert works != null && !works.isEmpty();
@@ -65,12 +66,12 @@ final class ORCIDGetBulkWorkWorker extends ORCIDWorker {
 		
 		_log.debug("[getFullBulkWork] "+works.size());
 		
-		final Map<BigInteger,PTCRISyncResult> fulls = client.getWorks(works);
+		final Map<BigInteger,PTCRISyncResult<Work>> fulls = client.getWorks(works);
 		
 		for (WorkSummary w : works) {
 			assert w.getPutCode() != null;
 			
-			PTCRISyncResult wrk = fulls.get(w.getPutCode());
+			PTCRISyncResult<Work> wrk = fulls.get(w.getPutCode());
 			callback(w.getPutCode(), wrk);
 		}
 	}

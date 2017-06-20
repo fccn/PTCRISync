@@ -79,7 +79,7 @@ public abstract class ScenarioFunding {
 		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
 		FundingType[] types = {FundingType.CONTRACT, FundingType.GRANT};
-		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.exportFundings(crisClient.client, exportFundings, Arrays.asList(types), handler);
+		Map<BigInteger, PTCRISyncResult<Funding>> codes = PTCRISync.exportFundings(crisClient.client, exportFundings, Arrays.asList(types), handler);
 		List<Funding> fundingsToImport = PTCRISync.importFundings(
 				crisClient.client, localFundings, Arrays.asList(types), handler);
 		List<Funding> fundingsToUpdate = PTCRISync.importFundingUpdates(
@@ -281,7 +281,7 @@ public abstract class ScenarioFunding {
 	 *            the effectively export outcome
 	 * @return whether the export outcome was the expected
 	 */
-	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
+	private boolean correctCodes(Map<BigInteger, PTCRISyncResult<Funding>> results) {
 		for (BigInteger id : results.keySet())
 			if (!expectedExportCodes(id).contains(results.get(id).code)) {
 				TestHelper.handler().sendError("Was " + results.get(id).code);

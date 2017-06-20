@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
@@ -24,7 +25,7 @@ import pt.ptcris.PTCRISyncResult;
  * @see ORCIDWorker
  */
 @Deprecated
-class ORCIDDelWorker extends ORCIDWorker {
+class ORCIDDelWorker extends ORCIDWorker<Work> {
 
 	private final BigInteger putcode;
 
@@ -44,7 +45,7 @@ class ORCIDDelWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
-	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
+	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log)
 			throws NullPointerException {
 		super(client, cb, log);
 		if (putcode == null)
@@ -60,7 +61,7 @@ class ORCIDDelWorker extends ORCIDWorker {
 		_log.debug("[deleteWork] " + putcode);
 		MDC.setContextMap(mdcCtxMap);
 
-		PTCRISyncResult res = client.deleteWork(putcode);
+		PTCRISyncResult<Work> res = client.deleteWork(putcode);
 
 		callback(putcode, res);
 	}

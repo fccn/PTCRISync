@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
@@ -24,7 +25,7 @@ import pt.ptcris.PTCRISyncResult;
  *
  * @see ORCIDWorker
  */
-final class ORCIDGetWorkWorker extends ORCIDWorker {
+final class ORCIDGetWorkWorker extends ORCIDWorker<Work> {
 
 	private final WorkSummary work;
 
@@ -44,7 +45,7 @@ final class ORCIDGetWorkWorker extends ORCIDWorker {
 	 * @param log
 	 *            a logger
 	 */
-	public ORCIDGetWorkWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
+	public ORCIDGetWorkWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log) {
 		super(client, cb, log);
 		assert work != null;
 		assert work.getPutCode() != null;
@@ -63,7 +64,7 @@ final class ORCIDGetWorkWorker extends ORCIDWorker {
 		
 		_log.debug("[getFullWork] " + work.getPutCode());
 		
-		final PTCRISyncResult full = client.getWork(work);
+		final PTCRISyncResult<Work> full = client.getWork(work);
 
 		callback(work.getPutCode(), full);
 	}

@@ -62,14 +62,14 @@ public class ScenarioInvalidLocal1 extends Scenario {
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
+	ORCIDWorkHelper crisClient() {
 		return new ORCIDWorkHelper(
 				TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
+	ORCIDWorkHelper externalClient() {
 		return new ORCIDWorkHelper(
 				TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}

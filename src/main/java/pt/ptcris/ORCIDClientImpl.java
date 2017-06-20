@@ -113,8 +113,6 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 *            the access token to the user ORCID profile
 	 * @param debugMode
 	 *            Enter debug mode
-	 * @param threads
-	 *            the number of ORCID worker threads
 	 */
 	public ORCIDClientImpl(String loginUri, String apiUri, String clientId,
 			String clientSecret, String redirectUri,
@@ -197,13 +195,13 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult getWork(WorkSummary putcode) {
-		PTCRISyncResult res;
+	public PTCRISyncResult<Work> getWork(WorkSummary putcode) {
+		PTCRISyncResult<Work> res;
 		try {
 			Work fund = orcidClient.readWork(orcidToken, putcode.getPutCode()
 					.toString());
 			finalizeGet(fund, putcode);
-			res = PTCRISyncResult.got(putcode.getPutCode(), fund);
+			res = PTCRISyncResult.ok_get(putcode.getPutCode(), fund);
 		} catch (OrcidClientException e) {
 			res = PTCRISyncResult.fail(e);
 		}
@@ -214,13 +212,13 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult getFunding(FundingSummary putcode) {
-		PTCRISyncResult res;
+	public PTCRISyncResult<Funding> getFunding(FundingSummary putcode) {
+		PTCRISyncResult<Funding> res;
 		try {
 			Funding fund = orcidClient.readFunding(orcidToken, putcode
 					.getPutCode().toString());
 			finalizeGet(fund, putcode);
-			res = PTCRISyncResult.got(putcode.getPutCode(), fund);
+			res = PTCRISyncResult.ok_get(putcode.getPutCode(), fund);
 		} catch (OrcidClientException e) {
 			res = PTCRISyncResult.fail(e);
 		}
@@ -231,11 +229,11 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<BigInteger, PTCRISyncResult> getWorks(List<WorkSummary> summaries) {
+	public Map<BigInteger, PTCRISyncResult<Work>> getWorks(List<WorkSummary> summaries) {
 		List<String> pcs = new ArrayList<String>();
 		for (ElementSummary i : summaries)
 			pcs.add(i.getPutCode().toString());
-		Map<BigInteger, PTCRISyncResult> res = new HashMap<BigInteger, PTCRISyncResult>();
+		Map<BigInteger, PTCRISyncResult<Work>> res = new HashMap<BigInteger, PTCRISyncResult<Work>>();
 		try {
 			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs)
 					.getWorkOrError();
@@ -243,20 +241,20 @@ public class ORCIDClientImpl implements ORCIDClient {
 				Serializable w = bulk.get(i);
 				if (w instanceof Work) {
 					finalizeGet((Work) w, summaries.get(i));
-					res.put(summaries.get(i).getPutCode(), PTCRISyncResult.got(
-							summaries.get(i).getPutCode(), (ElementSummary) w));
+					res.put(summaries.get(i).getPutCode(), PTCRISyncResult.ok_get(
+							summaries.get(i).getPutCode(), (Work) w));
 				} else {
 					Error err = (Error) w;
 					OrcidClientException e = new OrcidClientException(
 							err.getResponseCode(), err.getUserMessage(),
 							err.getErrorCode(), err.getDeveloperMessage());
 					res.put(summaries.get(i).getPutCode(),
-							PTCRISyncResult.fail(e));
+							PTCRISyncResult.<Work>fail(e));
 				}
 			}
 		} catch (OrcidClientException e1) {
 			for (int i = 0; i < summaries.size(); i++)
-				res.put(summaries.get(i).getPutCode(), PTCRISyncResult.fail(e1));
+				res.put(summaries.get(i).getPutCode(), PTCRISyncResult.<Work>fail(e1));
 		}
 		return res;
 	}
@@ -265,12 +263,12 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult addWork(Work work) {
-		PTCRISyncResult res;
+	public PTCRISyncResult<Work> addWork(Work work) {
+		PTCRISyncResult<Work> res;
 		try {
 			BigInteger putcode = new BigInteger(orcidClient.addWork(orcidToken,
 					work));
-			res = PTCRISyncResult.ok(putcode);
+			res = PTCRISyncResult.ok_add(putcode);
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
 		}
@@ -281,12 +279,12 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult addFunding(Funding fund) {
-		PTCRISyncResult res;
+	public PTCRISyncResult<Funding> addFunding(Funding fund) {
+		PTCRISyncResult<Funding> res;
 		try {
 			BigInteger putcode = new BigInteger(orcidClient.addFunding(
 					orcidToken, fund));
-			res = PTCRISyncResult.ok(putcode);
+			res = PTCRISyncResult.ok_add(putcode);
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
 		}
@@ -297,27 +295,27 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<PTCRISyncResult> addWorks(List<Work> works) {
+	public List<PTCRISyncResult<Work>> addWorks(List<Work> works) {
 		Bulk bulk = new Bulk();
-		List<PTCRISyncResult> res = new ArrayList<PTCRISyncResult>();
+		List<PTCRISyncResult<Work>> res = new ArrayList<PTCRISyncResult<Work>>();
 		for (Work work : works)
 			bulk.getWorkOrError().add(work);
 		try {
 			Bulk res_bulk = orcidClient.addWorks(orcidToken, bulk);
 			for (Serializable r : res_bulk.getWorkOrError()) {
 				if (r instanceof Work)
-					res.add(PTCRISyncResult.ok(((Work) r).getPutCode()));
+					res.add(PTCRISyncResult.<Work>ok_add(((Work) r).getPutCode()));
 				else {
 					Error err = (Error) r;
 					OrcidClientException e = new OrcidClientException(
 							err.getResponseCode(), err.getUserMessage(),
 							err.getErrorCode(), err.getDeveloperMessage());
-					res.add(PTCRISyncResult.fail(e));
+					res.add(PTCRISyncResult.<Work>fail(e));
 				}
 			}
 		} catch (OrcidClientException e) {
 			for (int i = 0; i < works.size(); i++)
-				res.add(PTCRISyncResult.fail(e));
+				res.add(PTCRISyncResult.<Work>fail(e));
 		}
 		return res;
 	}
@@ -326,10 +324,10 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult deleteWork(BigInteger putcode) {
+	public PTCRISyncResult<Work> deleteWork(BigInteger putcode) {
 		try {
 			orcidClient.deleteWork(orcidToken, putcode.toString());
-			return PTCRISyncResult.OK_DEL_RESULT;
+			return PTCRISyncResult.ok_del();
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
 		}
@@ -339,10 +337,10 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult deleteFunding(BigInteger putcode) {
+	public PTCRISyncResult<Funding> deleteFunding(BigInteger putcode) {
 		try {
 			orcidClient.deleteFunding(orcidToken, putcode.toString());
-			return PTCRISyncResult.OK_DEL_RESULT;
+			return PTCRISyncResult.ok_del();
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
 		}
@@ -352,11 +350,11 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult updateWork(BigInteger putcode, Work work) {
-		PTCRISyncResult res;
+	public PTCRISyncResult<Work> updateWork(BigInteger putcode, Work work) {
+		PTCRISyncResult<Work> res;
 		try {
 			orcidClient.updateWork(orcidToken, putcode.toString(), work);
-			res = PTCRISyncResult.OK_UPD_RESULT;
+			res = PTCRISyncResult.ok_upd();
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
 		}
@@ -367,11 +365,11 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PTCRISyncResult updateFunding(BigInteger putcode, Funding work) {
-		PTCRISyncResult res;
+	public PTCRISyncResult<Funding> updateFunding(BigInteger putcode, Funding work) {
+		PTCRISyncResult<Funding> res;
 		try {
 			orcidClient.updateFunding(orcidToken, putcode.toString(), work);
-			res = PTCRISyncResult.OK_UPD_RESULT;
+			res = PTCRISyncResult.ok_upd();
 		} catch (OrcidClientException e) {
 			return PTCRISyncResult.fail(e);
 		}

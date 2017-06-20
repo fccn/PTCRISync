@@ -44,6 +44,7 @@ public class PTCRISGrouper {
 	 * Groups a list of local activities into groups of matching activities,
 	 * according to the provided comparator.
 	 * 
+	 * @param <E> the type of entries being grouped
 	 * @param locals
 	 *            the local activities to be grouped
 	 * @param comparator

@@ -69,13 +69,13 @@ public class ScenarioF15 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
+	ORCIDFundingHelper crisClient() {
 		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
+	ORCIDFundingHelper externalClient() {
 		return new ORCIDFundingHelper(TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 

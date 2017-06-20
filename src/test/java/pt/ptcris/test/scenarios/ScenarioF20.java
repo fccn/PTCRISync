@@ -11,7 +11,6 @@ package pt.ptcris.test.scenarios;
 
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
-import pt.ptcris.utils.ORCIDHelper;
 import pt.ptcris.utils.ORCIDFundingHelper;
 
 /**
@@ -25,13 +24,13 @@ public class ScenarioF20 extends ScenarioFunding {
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
+	ORCIDFundingHelper crisClient() {
 		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.EMPTYWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
+	ORCIDFundingHelper externalClient() {
 		return new ORCIDFundingHelper(
 				TestClients.getExternalClient(Profile.EMPTYWORKS));
 	}

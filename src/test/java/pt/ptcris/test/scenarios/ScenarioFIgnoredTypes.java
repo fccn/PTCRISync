@@ -18,7 +18,6 @@ import org.um.dsi.gavea.orcid.model.funding.Funding;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients.Profile;
-import pt.ptcris.utils.ORCIDHelper;
 import pt.ptcris.utils.ORCIDFundingHelper;
 
 /**
@@ -42,13 +41,13 @@ public class ScenarioFIgnoredTypes extends ScenarioFunding {
 	
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
+	ORCIDFundingHelper crisClient() {
 		return new ORCIDFundingHelper(TestClients.getCRISClient(Profile.EMPTYWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
+	ORCIDFundingHelper externalClient() {
 		return new ORCIDFundingHelper(
 				TestClients.getExternalClient(Profile.EMPTYWORKS));
 	}

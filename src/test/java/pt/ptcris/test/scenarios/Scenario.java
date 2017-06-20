@@ -75,7 +75,7 @@ public abstract class Scenario {
 
 		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
-		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.exportWorks(crisClient.client, exportWorks, handler);
+		Map<BigInteger, PTCRISyncResult<Work>> codes = PTCRISync.exportWorks(crisClient.client, exportWorks, handler);
 
 		List<Work> worksToImport = PTCRISync.importWorks(crisClient.client, localWorks, handler);
 		List<Work> worksToUpdate = PTCRISync.importWorkUpdates(crisClient.client, localWorks, handler);
@@ -273,7 +273,7 @@ public abstract class Scenario {
 	 *            the effectively export outcome
 	 * @return whether the export outcome was the expected
 	 */
-	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
+	private boolean correctCodes(Map<BigInteger, PTCRISyncResult<Work>> results) {
 		for (BigInteger id : results.keySet())
 			if (!expectedExportCodes(id).contains(results.get(id).code)) {
 				TestHelper.handler().sendError("Was "+results.get(id).code);

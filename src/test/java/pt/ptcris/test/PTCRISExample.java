@@ -78,7 +78,7 @@ public class PTCRISExample {
 		exportWorks.add(work2());
 
 		// export the local works that are to by synchronized
-		Map<BigInteger, PTCRISyncResult> exportResult = PTCRISync.exportWorks(crisClient, localWorks, progressHandler);
+		Map<BigInteger, PTCRISyncResult<Work>> exportResult = PTCRISync.exportWorks(crisClient, localWorks, progressHandler);
 		// import new valid works found in the user profile
 		List<Work> worksToImport = PTCRISync.importWorks(crisClient, localWorks, progressHandler);
 		// import work updates found in the user profile

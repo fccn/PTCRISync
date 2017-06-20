@@ -25,7 +25,7 @@ import pt.ptcris.PTCRISyncResult;
  * @see ORCIDWorker
  */
 @Deprecated
-class ORCIDAddWorker extends ORCIDWorker {
+class ORCIDAddWorker extends ORCIDWorker<Work> {
 
 	private final Work work;
 
@@ -45,7 +45,7 @@ class ORCIDAddWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
+	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log) {
 		super(client, cb, log);
 		if (work == null)
 			throw new NullPointerException("UPDATE: arguments must not be null.");
@@ -60,7 +60,7 @@ class ORCIDAddWorker extends ORCIDWorker {
 		_log.debug("[addWork] " + new ORCIDWorkHelper(null).getTitleE(work));
 		MDC.setContextMap(mdcCtxMap);
 
-		final PTCRISyncResult res = client.addWork(work);
+		final PTCRISyncResult<Work> res = client.addWork(work);
 		if (res.putcode == null)
 			callback(BigInteger.valueOf(0), res);
 		else

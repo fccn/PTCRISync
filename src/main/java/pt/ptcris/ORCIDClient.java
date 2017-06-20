@@ -81,7 +81,7 @@ public interface ORCIDClient {
 	 *            the summary of the work to be retrieved
 	 * @return the complete work
 	 */
-	public PTCRISyncResult getWork(WorkSummary summary);
+	public PTCRISyncResult<Work> getWork(WorkSummary summary);
 
 	/**
 	 * Retrieves a complete funding entry from the ORCID profile (as opposed to
@@ -91,7 +91,7 @@ public interface ORCIDClient {
 	 *            the summary of the funding entry to be retrieved
 	 * @return the complete funding entry
 	 */
-	public PTCRISyncResult getFunding(FundingSummary summary);
+	public PTCRISyncResult<Funding> getFunding(FundingSummary summary);
 
 	/**
 	 * Retrieves a list of complete work from the ORCID profile (as opposed to
@@ -103,7 +103,7 @@ public interface ORCIDClient {
 	 *            the summaries of the works to be retrieved
 	 * @return the complete works
 	 */
-	public Map<BigInteger, PTCRISyncResult> getWorks(List<WorkSummary> summaries);
+	public Map<BigInteger, PTCRISyncResult<Work>> getWorks(List<WorkSummary> summaries);
 
 	/**
 	 * Adds a new work to the ORCID profile. Exceptions are embedded in the
@@ -113,7 +113,7 @@ public interface ORCIDClient {
 	 *            the work to be added to the ORCID profile
 	 * @return the put-code assigned by ORCID to the newly created work
 	 */
-	public PTCRISyncResult addWork(Work work);
+	public PTCRISyncResult<Work> addWork(Work work);
 
 	/**
 	 * Adds a new funding entry to the ORCID profile. Exceptions are embedded in
@@ -123,7 +123,7 @@ public interface ORCIDClient {
 	 *            the funding entry to be added to the ORCID profile
 	 * @return the put-code assigned by ORCID to the newly created funding entry
 	 */
-	public PTCRISyncResult addFunding(Funding funding);
+	public PTCRISyncResult<Funding> addFunding(Funding funding);
 
 	/**
 	 * Adds a list of new works to the ORCID profile. Exceptions are embedded in
@@ -135,7 +135,7 @@ public interface ORCIDClient {
 	 * @return the put-codes assigned by ORCID to each of the newly created
 	 *         works
 	 */
-	public List<PTCRISyncResult> addWorks(List<Work> works);
+	public List<PTCRISyncResult<Work>> addWorks(List<Work> works);
 
 	/**
 	 * Deletes a work from the ORCID profile. Exceptions are embedded in
@@ -143,8 +143,9 @@ public interface ORCIDClient {
 	 *
 	 * @param putcode
 	 *            the put-code of the work to be deleted
+	 * @return the outcome of the delete request
 	 */
-	public PTCRISyncResult deleteWork(BigInteger putcode);
+	public PTCRISyncResult<Work> deleteWork(BigInteger putcode);
 
 	/**
 	 * Deletes a funding entry from the ORCID profile. Exceptions are embedded
@@ -152,8 +153,9 @@ public interface ORCIDClient {
 	 *
 	 * @param putcode
 	 *            the put-code of the funding entry to be deleted
+	 * @return the outcome of the delete request
 	 */
-	public PTCRISyncResult deleteFunding(BigInteger putcode);
+	public PTCRISyncResult<Funding> deleteFunding(BigInteger putcode);
 
 	/**
 	 * Updates a work in the ORCID profile. Exceptions are embedded in
@@ -163,8 +165,9 @@ public interface ORCIDClient {
 	 *            the put-code of the work to be updated
 	 * @param work
 	 *            the new state of the work
+	 * @return the outcome of the update request
 	 */
-	public PTCRISyncResult updateWork(BigInteger putcode, Work work);
+	public PTCRISyncResult<Work> updateWork(BigInteger putcode, Work work);
 
 	/**
 	 * Updates a funding entry in the ORCID profile. Exceptions are embedded in
@@ -174,8 +177,9 @@ public interface ORCIDClient {
 	 *            the put-code of the funding entry to be updated
 	 * @param funding
 	 *            the new state of the funding entry
+	 * @return the outcome of the update request
 	 */
-	public PTCRISyncResult updateFunding(BigInteger putcode, Funding funding);
+	public PTCRISyncResult<Funding> updateFunding(BigInteger putcode, Funding funding);
 
 	/**
 	 * The number of worker threads that will be used to communicate with the

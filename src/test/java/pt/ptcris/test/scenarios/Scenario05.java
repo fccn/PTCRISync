@@ -18,7 +18,6 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
-import pt.ptcris.utils.ORCIDHelper;
 import pt.ptcris.utils.ORCIDWorkHelper;
 
 /**
@@ -62,13 +61,13 @@ public class Scenario05 extends Scenario {
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
+	ORCIDWorkHelper crisClient() {
 		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
+	ORCIDWorkHelper externalClient() {
 		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
 }
