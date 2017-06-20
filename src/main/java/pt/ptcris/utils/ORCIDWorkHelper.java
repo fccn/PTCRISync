@@ -28,6 +28,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -99,22 +100,22 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 
 	/** {@inheritDoc} */
 	@Override
-	protected ORCIDWorker<Work> readWorker(WorkSummary summary, Map<BigInteger, PTCRISyncResult<Work>> cb) {
+	protected ORCIDWorker<Work> readWorker(WorkSummary summary, Map<BigInteger, PTCRISyncResult<Work>> cb, ProgressHandler handler) {
 		assert client != null;
 		assert cb != null;
 		assert summary != null;
-		return new ORCIDGetWorkWorker(summary, client, cb, _log);
+		return new ORCIDGetWorkWorker(summary, client, cb, _log, handler);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	protected ORCIDWorker<Work> readWorker(List<WorkSummary> summaries,
-			Map<BigInteger, PTCRISyncResult<Work>> cb) {
+			Map<BigInteger, PTCRISyncResult<Work>> cb, ProgressHandler handler) {
 		assert client != null;
 		assert cb != null;
 		if (summaries == null)
 			summaries = new ArrayList<WorkSummary>();
-		return new ORCIDGetBulkWorkWorker(summaries, client, cb, _log);
+		return new ORCIDGetBulkWorkWorker(summaries, client, cb, _log, handler);
 	}
 
 	/** {@inheritDoc} */

@@ -18,6 +18,7 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * A worker thread that can be used to DELETE works from ORCID.
@@ -45,9 +46,9 @@ class ORCIDDelWorker extends ORCIDWorker<Work> {
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
-	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log)
+	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log, ProgressHandler handler)
 			throws NullPointerException {
-		super(client, cb, log);
+		super(client, cb, log, handler);
 		if (putcode == null)
 			throw new NullPointerException("DELETE: arguments must not be null.");
 		this.putcode = putcode;

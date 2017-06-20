@@ -20,6 +20,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * A worker thread that can be used to read bulk works from ORCID.
@@ -47,8 +48,8 @@ final class ORCIDGetBulkWorkWorker extends ORCIDWorker<Work> {
 	 * @param log
 	 *            a logger
 	 */
-	public ORCIDGetBulkWorkWorker(List<WorkSummary> works, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log) {
-		super(client, cb, log);
+	public ORCIDGetBulkWorkWorker(List<WorkSummary> works, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log, ProgressHandler handler) {
+		super(client, cb, log, handler);
 		
 		assert works != null && !works.isEmpty();
 				
@@ -67,7 +68,7 @@ final class ORCIDGetBulkWorkWorker extends ORCIDWorker<Work> {
 		_log.debug("[getFullBulkWork] "+works.size());
 		
 		final Map<BigInteger,PTCRISyncResult<Work>> fulls = client.getWorks(works);
-		
+		handler.step(works.size());
 		for (WorkSummary w : works) {
 			assert w.getPutCode() != null;
 			

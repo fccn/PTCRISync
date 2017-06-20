@@ -20,7 +20,9 @@ import pt.ptcris.handlers.ProgressHandler;
  */
 public class Tester implements ProgressHandler {
 	private static Logger logger = Logger.getLogger(Tester.class.getName());
-
+	private int max;
+	private int step;
+	
 	/** {@inheritDoc} */
 	@Override
 	public void setProgress(int progress) {
@@ -31,6 +33,15 @@ public class Tester implements ProgressHandler {
 	@Override
 	public void setCurrentStatus(String message) {
 		logger.fine("Task: " + message);
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public void setCurrentStatus(String message, int n) {
+		max = n;
+		step = 0;
+		logger.fine("Task: " + message + " (" + n + ")");
+		progress();
 	}
 
 	/** {@inheritDoc} */
@@ -44,5 +55,22 @@ public class Tester implements ProgressHandler {
 	public void done() {
 		logger.fine("Done.");
 	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public void step() {
+		step++;
+		progress();
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public void step(int s) {
+		step+=s;
+		progress();
+	}
 
+	private void progress() {
+		setProgress((step*100)/max);
+	}
 }

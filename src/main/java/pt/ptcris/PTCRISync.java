@@ -28,7 +28,6 @@ import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingType;
 import org.um.dsi.gavea.orcid.model.person.externalidentifier.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.exceptions.InvalidActivityException;
@@ -84,9 +83,6 @@ import pt.ptcris.utils.UpdateRecord;
  *
  * See <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>.
  * 
- * 
- * TODO: mention bulks in doc
- * TODO: review logging
  * TODO: invalid parameter handling
  */
 public final class PTCRISync {
@@ -107,14 +103,14 @@ public final class PTCRISync {
 	 * Finally, for local entries without any matching ORCID activity, new ones
 	 * are created. The matching is performed by detecting shared
 	 * {@link ExternalIdentifier external identifiers} (see
-	 * {@link ORCIDWorkHelper#getSelfExternalIdsDiffS(WorkSummary, Collection)}
+	 * {@link ORCIDWorkHelper#getSelfExternalIdsDiffS(ElementSummary, Collection)}
 	 * ).
 	 * </p>
 	 *
 	 * <p>
 	 * Activities are only updated if the meta-data is not up-to-date.
 	 * Currently, the title, the publication year and the publication are
-	 * considered (see {@link ORCIDWorkHelper#isUpToDateE(Work, Work)}).
+	 * considered (see {@link ORCIDWorkHelper#isUpToDateE(ElementSummary, ElementSummary)}).
 	 * </p>
 	 *
 	 * <p>
@@ -132,7 +128,7 @@ public final class PTCRISync {
 	 * The provided local activities must pass a quality criteria to be kept
 	 * synchronized in ORCID. Currently, this forces the existence of external
 	 * identifiers, the title, the publication year and the publication type
-	 * (see {@link ORCIDWorkHelper#testMinimalQuality(WorkSummary)}.
+	 * (see {@link ORCIDWorkHelper#testMinimalQuality(ElementSummary)}.
 	 * </p>
 	 *
 	 * <p>
@@ -203,7 +199,7 @@ public final class PTCRISync {
 	 * Finally, for local entries without any matching ORCID activity, new ones
 	 * are created. The matching is performed by detecting shared
 	 * {@link ExternalIdentifier external identifiers} (see
-	 * {@link ORCIDWorkHelper#getSelfExternalIdsDiffS(WorkSummary, Collection)}
+	 * {@link ORCIDWorkHelper#getSelfExternalIdsDiffS(ElementSummary, Collection)}
 	 * ).
 	 * </p>
 	 *
@@ -229,7 +225,7 @@ public final class PTCRISync {
 	 * The provided local activities must pass a quality criteria to be kept
 	 * synchronized in ORCID. Currently, this forces the existence of external
 	 * identifiers, the title, the publication year and the publication type
-	 * (see {@link ORCIDWorkHelper#testMinimalQuality(WorkSummary)}.
+	 * (see {@link ORCIDWorkHelper#testMinimalQuality(ElementSummary)}.
 	 * </p>
 	 *
 	 * <p>
@@ -300,7 +296,7 @@ public final class PTCRISync {
 	 * local entries. Finally, for local entries without any matching ORCID
 	 * activity, new ones are created. The matching is performed by detecting
 	 * shared {@link ExternalIdentifier external identifiers} (see
-	 * {@link ORCIDFundingHelper#getSelfExternalIdsDiffS(FundingSummary, Collection)}
+	 * {@link ORCIDFundingHelper#getSelfExternalIdsDiffS(ElementSummary, Collection)}
 	 * ).
 	 * </p>
 	 *
@@ -308,7 +304,7 @@ public final class PTCRISync {
 	 * Activities are only updated if the meta-data is not up-to-date.
 	 * Currently, the title, the start year, the funding type and the funding
 	 * organization are considered (see
-	 * {@link ORCIDFundingHelper#isUpToDateE(Funding, Funding)}).
+	 * {@link ORCIDFundingHelper#isUpToDateE(ElementSummary, ElementSummary)}).
 	 * </p>
 	 *
 	 * <p>
@@ -328,7 +324,7 @@ public final class PTCRISync {
 	 * synchronized in ORCID. Currently, this forces the existence of external
 	 * identifiers, the title, the start year, the funding type and the funding
 	 * organization (see
-	 * {@link ORCIDFundingHelper#testMinimalQuality(FundingSummary)}.
+	 * {@link ORCIDFundingHelper#testMinimalQuality(ElementSummary)}.
 	 * </p>
 	 *
 	 * <p>
@@ -435,9 +431,10 @@ public final class PTCRISync {
 	 * <p>
 	 * This procedure performs a single GET call to the API to obtain the
 	 * summaries and PUT or POST calls for each of the local input activities.
-	 * Additionally, DELETE calls can also be performed. The procedure only
-	 * fails if the initial GET fails, otherwise individual failures are
-	 * reported in the output. No asynchronous workers are used.
+	 * Bulk POST requests are performed when supported. Additionally, DELETE
+	 * calls can also be performed. The procedure only fails if the initial GET
+	 * fails, otherwise individual failures are reported in the output. No
+	 * asynchronous workers are used.
 	 * </p>
 	 *
 	 * @param client
@@ -456,7 +453,7 @@ public final class PTCRISync {
 	 *            whether the update of ORCID activities should be forced,
 	 *            without testing if up-to-date
 	 * @return the result of the synchronization of each of the provided local
-	 *          activity
+	 *         activity
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
@@ -466,8 +463,6 @@ public final class PTCRISync {
 			Collection<T> types, ProgressHandler handler, boolean forced)
 			throws OrcidClientException {
 		
-		int progress = 0;
-		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_STARTED");
 
 		List<S> orcids = helper.getSourcedSummaries();
@@ -475,11 +470,9 @@ public final class PTCRISync {
 		Map<BigInteger, PTCRISyncResult<E>> result = new HashMap<BigInteger, PTCRISyncResult<E>>();
 
 		// start by filtering local works that do not pass the quality criteria
-		handler.setCurrentStatus("ORCID_SYNC_EXPORT_WORKS_QUALITY");
+		handler.setCurrentStatus("ORCID_SYNC_EXPORT_QUALITY",locals.size());
 		Set<E> invalids = new HashSet<E>();
 		for (int c = 0; c != locals.size(); c++) {
-			progress = (int) ((double) c / locals.size() * 100);
-			handler.setProgress(progress);
 			E local = locals.get(c);
 
 			if (!types.contains(helper.getTypeE(local))) {
@@ -494,15 +487,14 @@ public final class PTCRISync {
 							.<E>invalid(invalid));
 				}
 			}
+			handler.step();
 		}
 		locals.removeAll(invalids);
 
 		// detect which remote works should be deleted or updated
-		handler.setCurrentStatus("ORCID_SYNC_EXPORT_WORKS_ITERATION");
+		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ITERATION",orcids.size());
 		List<UpdateRecord<E,S>> toUpdate = new LinkedList<UpdateRecord<E,S>>();
 		for (int c = 0; c != orcids.size(); c++) {
-			progress = (int) ((double) c / orcids.size() * 100);
-			handler.setProgress(progress);
 			S orcid = orcids.get(c);
 
 			Map<E, ExternalIdsDiff> worksDiffs = helper.getSelfExternalIdsDiffS(orcid, locals);
@@ -522,13 +514,12 @@ public final class PTCRISync {
 							PTCRISyncResult.<E>uptodate());
 				locals.remove(local);
 			}
+			handler.step();
 		}
 
 		// first update phase, remove spurious identifiers
-		handler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS_PHASE_1");
+		handler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_PHASE_1",toUpdate.size());
 		for (int c = 0; c != toUpdate.size(); c++) {
-			progress = (int) ((double) c / toUpdate.size() * 100);
-			handler.setProgress(progress);
 
 			UpdateRecord<E,S> update = toUpdate.get(c);
 			// the remote work has spurious external identifiers
@@ -543,13 +534,12 @@ public final class PTCRISync {
 				PTCRISyncResult<E> res = helper.update(update.posElement.getPutCode(), local);
 				result.put(ORCIDHelper.getActivityLocalKey(local, BigInteger.valueOf(c)),res);
 			}
+			handler.step();
 		}
 
 		// second update phase, add missing identifiers
-		handler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_WORKS_PHASE_2");
+		handler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_PHASE_2",toUpdate.size());
 		for (int c = 0; c != toUpdate.size(); c++) {
-			progress = (int) ((double) c / toUpdate.size() * 100);
-			handler.setProgress(progress);
 
 			// the remote work is missing external identifiers or not updated in the 1st phase
 			UpdateRecord<E,S> update = toUpdate.get(c);
@@ -565,11 +555,12 @@ public final class PTCRISync {
 				PTCRISyncResult<E> res = helper.update(update.posElement.getPutCode(), local);
 				result.put(ORCIDHelper.getActivityLocalKey(local, BigInteger.valueOf(c)),res);
 			}
+			handler.step();
 		}
 		
 		// add the local works that had no match
 		// the progress handler must be moved to the helper due to bulk additions
-		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING_WORKS");
+		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING",locals.size());
 		List<PTCRISyncResult<E>> res = helper.add(locals,handler);
 
 		int pad = result.size();
@@ -597,7 +588,7 @@ public final class PTCRISync {
 	 * works themselves (representing a merged work group). The group merging
 	 * selects the meta-data of the preferred activity and the external
 	 * identifiers of the whole group (see
-	 * {@link ORCIDWorkHelper#group(WorkSummary)}). The selection of the
+	 * {@link ORCIDWorkHelper#group(Object)}). The selection of the
 	 * meta-data from a group could be changed without affecting the correction
 	 * of the procedure.
 	 * </p>
@@ -614,7 +605,7 @@ public final class PTCRISync {
 	 * ORCID activities without minimal quality are ignored by this procedure.
 	 * Currently, the quality criteria forces the existence of external
 	 * identifiers, the title, publication year and publication type (see
-	 * {@link ORCIDWorkHelper#testMinimalQuality(WorkSummary)}). Works that do
+	 * {@link ORCIDWorkHelper#testMinimalQuality(ElementSummary)}). Works that do
 	 * not match the criteria can be imported with
 	 * {@link #importInvalid(ORCIDClient, List, ProgressHandler)}. Note that
 	 * currently group merging simply collects the meta-data (other than the
@@ -659,7 +650,7 @@ public final class PTCRISync {
 	 * funding activities themselves (representing a merged activity group). The
 	 * group merging selects the meta-data of the preferred activity and the
 	 * external identifiers of the whole group (see
-	 * {@link ORCIDFundingHelper#group(FundingSummary)}). The selection of the
+	 * {@link ORCIDFundingHelper#group(Object)}). The selection of the
 	 * meta-data from a group could be changed without affecting the correction
 	 * of the procedure.
 	 * </p>
@@ -676,7 +667,7 @@ public final class PTCRISync {
 	 * ORCID activities without minimal quality are ignored by this procedure.
 	 * Currently, the quality criteria forces the existence of external
 	 * identifiers, the title, publication year and publication type (see
-	 * {@link ORCIDWFundingHelper#testMinimalQuality(FundingSummary)}). Funding
+	 * {@link ORCIDFundingHelper#testMinimalQuality(ElementSummary)}). Funding
 	 * entries that do not match the criteria can be imported with
 	 * {@link #importInvalid(ORCIDClient, List, ProgressHandler)}. Note that
 	 * currently group merging simply collects the meta-data (other than the
@@ -762,9 +753,10 @@ public final class PTCRISync {
 	 * 
 	 * <p>
 	 * This procedure performs a GET call to the API to obtain the summaries and
-	 * an additional GET call for each activity identified as valid. The
-	 * procedure only fails if the initial GET fails. Asynchronous workers are
-	 * used for getting the full activities.
+	 * an additional GET call for each activity identified as valid. Bulk GET
+	 * requests are performed when supported. The procedure only fails if the
+	 * initial GET fails. Asynchronous workers are used for getting the full
+	 * activities.
 	 * </p>
 	 *
 	 * @param client
@@ -790,27 +782,25 @@ public final class PTCRISync {
 			Collection<T> types, ProgressHandler handler)
 			throws OrcidClientException, InterruptedException {
 
-		int progress = 0;
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_STARTED");
 
-		List<S> orcidWorks = helper.getAllTypedSummaries(types);
+		List<S> orcids = helper.getAllTypedSummaries(types);
 
 		Map<BigInteger, PTCRISyncResult<E>> toImport = new HashMap<BigInteger, PTCRISyncResult<E>>();
 
 		// filter novel works only
 		List<S> temp = new ArrayList<S>();
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
-		for (int c = 0; c != orcidWorks.size(); c++) {
-			progress = (int) ((double) c / orcidWorks.size() * 100);
-			handler.setProgress(progress);
-
-			S mergedOrcidWork = orcidWorks.get(c);
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_ITERATION",orcids.size());
+		for (int c = 0; c != orcids.size(); c++) {
+			S mergedOrcidWork = orcids.get(c);
 			Map<E, ExternalIdsDiff> matchingWorks = helper.getSelfExternalIdsDiffS(mergedOrcidWork, locals);
 			if (matchingWorks.isEmpty() && helper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				temp.add(mergedOrcidWork);
 			}
+			handler.step();
 		}
 
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_GETTING",temp.size());
 		helper.getFulls(temp, toImport, handler);
 
 		List<E> results = new ArrayList<E>();
@@ -823,7 +813,6 @@ public final class PTCRISync {
 			}
 
 		handler.done();
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_FINISHED");
 		return new LinkedList<E>(results);
 	}
 
@@ -948,25 +937,21 @@ public final class PTCRISync {
 			Collection<T> types, ProgressHandler handler)
 			throws OrcidClientException {
 
-		int progress = 0;
-		handler.setProgress(progress);
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_STARTED");
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_COUNTER_STARTED");
 
 		List<S> orcids = helper.getAllTypedSummaries(types);
 
 		int counter = 0;
 
 		// filter novel works only
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_WORKS_ITERATION");
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_COUNTER_ITERATION",orcids.size());
 		for (int c = 0; c != orcids.size(); c++) {
-			progress = (int) ((double) c / orcids.size() * 100);
-			handler.setProgress(progress);
-
 			S mergedOrcidWork = orcids.get(c);
 			Map<E, ExternalIdsDiff> matchingWorks = helper.getSelfExternalIdsDiffS(mergedOrcidWork, locals);
 			if (matchingWorks.isEmpty() && helper.testMinimalQuality(mergedOrcidWork).isEmpty()) {
 				counter++;
 			}
+			handler.step();
 		}
 
 		handler.done();
@@ -976,7 +961,7 @@ public final class PTCRISync {
 	/**
 	 * <p>
 	 * Discovers new invalid works (that do not pass the quality criteria, see
-	 * {@link ORCIDWorkHelper#testMinimalQuality(WorkSummary)}) in an ORCID
+	 * {@link ORCIDWorkHelper#testMinimalQuality(ElementSummary)}) in an ORCID
 	 * profile given a set of known local CRIS entries, as well as the causes
 	 * for invalidity (defined at {@link ORCIDWorkHelper}). Other than the
 	 * criteria, the behavior is similar to that of
@@ -1040,7 +1025,7 @@ public final class PTCRISync {
 	 * <p>
 	 * Discovers new invalid funding activities (that do not pass the quality
 	 * criteria, see
-	 * {@link ORCIDFundingHelper#testMinimalQuality(FundingSummary)}) in an
+	 * {@link ORCIDFundingHelper#testMinimalQuality(ElementSummary)}) in an
 	 * ORCID profile given a set of known local CRIS entries, as well as the
 	 * causes for invalidity (defined at {@link ORCIDFundingHelper}). Other than
 	 * the criteria, the behavior is similar to that of
@@ -1094,9 +1079,10 @@ public final class PTCRISync {
 	 *
 	 * <p>
 	 * This procedure performs a GET call to the API to obtain the summaries and
-	 * an additional GET call for each activity identified as invalid. The
-	 * procedure only fails if the initial GET fails. Asynchronous workers are
-	 * used for getting the full activities.
+	 * an additional GET call for each activity identified as invalid. Bulk GET
+	 * requests are performed when supported. The procedure only fails if the
+	 * initial GET fails. Asynchronous workers are used for getting the full
+	 * activities.
 	 * </p>
 	 * 
 	 * @see #importBase(ORCIDHelper, List, Collection, ProgressHandler)
@@ -1124,31 +1110,28 @@ public final class PTCRISync {
 			Collection<T> types, ProgressHandler handler)
 			throws OrcidClientException, InterruptedException {
 	
-		int progress = 0;
-		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
 	
-		List<S> orcidWorks = helper.getAllTypedSummaries(types);
+		List<S> orcids = helper.getAllTypedSummaries(types);
 	
 		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
 		Map<BigInteger, PTCRISyncResult<E>> toImport = new HashMap<BigInteger, PTCRISyncResult<E>>();
 	
 		// filter invalid works only
 		List<S> temp = new ArrayList<S>();
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_ITERATION");
-		for (int c = 0; c != orcidWorks.size(); c++) {
-			progress = (int) ((double) c / orcidWorks.size() * 100);
-			handler.setProgress(progress);
-	
-			S mergedOrcidWork = orcidWorks.get(c);
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_ITERATION",orcids.size());
+		for (int c = 0; c != orcids.size(); c++) {
+			S mergedOrcidWork = orcids.get(c);
 			Map<E, ExternalIdsDiff> matchingWorks = helper.getSelfExternalIdsDiffS(mergedOrcidWork, locals);
 			Set<String> invalids = helper.testMinimalQuality(mergedOrcidWork);
 			invalidsToImport.put(mergedOrcidWork.getPutCode(), invalids);
 			if (matchingWorks.isEmpty() && !invalids.isEmpty()) {
 				temp.add(mergedOrcidWork);
 			}
+			handler.step();
 		}
 	
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_GETTING",temp.size());
 		helper.getFulls(temp, toImport, handler);
 	
 		Map<E, Set<String>> results = new HashMap<E, Set<String>>();
@@ -1165,7 +1148,42 @@ public final class PTCRISync {
 	}
 	
 	/**
+	 * <p>
+	 * Discovers updates to existing local CRIS productions in an ORCID
+	 * profile. For each work group at ORCID (merged into as a
+	 * single activity by the {@link ORCIDWorkHelper helper}), finds matching
+	 * local entries (i.e., those with shared {@link ExternalId external
+	 * identifiers}) and creates update notifications if not already up to date.
+	 * To import works without shared external identifiers,
+	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}
+	 * should be used instead.
+	 * </p>
+	 *
+	 * <p>
+	 * These update notifications simply take the shape of ORCID activities
+	 * themselves (representing a matching activity group). These works contain
+	 * only the meta-data that needs to be updated locally. Currently, only the
+	 * introduction of newly found external identifiers is considered (i.e.,
+	 * those that were already present in the local entry that is being updated
+	 * are removed from the returned update). Thus, the remainder fields are
+	 * returned null. Since only external identifiers are considered the quality
+	 * criteria is not enforced on the remote ORCID activities.
+	 * </p>
+	 *
+	 * <p>
+	 * The local entries are tested to be up-to-date by simply checking whether
+	 * they contain every external identifiers in the ORCID group (see
+	 * {@link ORCIDHelper#hasNewSelfIDs(ElementSummary, ElementSummary)}. Thus
+	 * the remainder meta-data of the local entries can be currently left null.
+	 * </p>
 	 * 
+	 * <p>
+	 * The put-code attribute is used as a local key of each CRIS production.
+	 * This means that the returned activities representing the updates have the
+	 * put-code of the local entry that is to be updated (and not the put-code
+	 * of the ORCID activity that gave origin to it).
+	 * </p>
+	 *
 	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
@@ -1174,8 +1192,8 @@ public final class PTCRISync {
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @return the list of updates found in the ORCID profile, pointing to the
-	 *         respective local production
+	 * @return the list of work updates found in the ORCID profile, pointing
+	 *         to the respective local activity
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
@@ -1196,8 +1214,8 @@ public final class PTCRISync {
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @return the list of updates found in the ORCID profile, pointing to the
-	 *         respective local production
+	 * @return the list of work updates found in the ORCID profile, pointing
+	 *         to the respective local activity
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
@@ -1209,7 +1227,48 @@ public final class PTCRISync {
 	}
 
 	/**
+	 * <p>
+	 * Discovers updates to existing local CRIS funding activities in an ORCID
+	 * profile. For each funding activity group at ORCID (merged into as a
+	 * single activity by the {@link ORCIDFundingHelper helper}), finds matching
+	 * local entries (i.e., those with shared {@link ExternalId external
+	 * identifiers}) and creates update notifications if not already up to date.
+	 * To import funding activities without shared external identifiers,
+	 * {@link #importFundings(ORCIDClient, List, Collection, ProgressHandler)}
+	 * should be used instead.
+	 * </p>
+	 *
+	 * <p>
+	 * These update notifications simply take the shape of ORCID activities
+	 * themselves (representing a matching activity group). These works contain
+	 * only the meta-data that needs to be updated locally. Currently, only the
+	 * introduction of newly found external identifiers is considered (i.e.,
+	 * those that were already present in the local entry that is being updated
+	 * are removed from the returned update). Thus, the remainder fields are
+	 * returned null. Since only external identifiers are considered the quality
+	 * criteria is not enforced on the remote ORCID activities.
+	 * </p>
+	 *
+	 * <p>
+	 * The local entries are tested to be up-to-date by simply checking whether
+	 * they contain every external identifiers in the ORCID group (see
+	 * {@link ORCIDHelper#hasNewSelfIDs(ElementSummary, ElementSummary)}. Thus
+	 * the remainder meta-data of the local entries can be currently left null.
+	 * </p>
+	 *
+	 * <p>
+	 * A set of activity types can be provided to allow the independent
+	 * synchronization of different types of entries. Activities outside the
+	 * provided types are simply ignored (they are not considered invalid).
+	 * </p>
 	 * 
+	 * <p>
+	 * The put-code attribute is used as a local key of each CRIS funding entry.
+	 * This means that the returned activities representing the updates have the
+	 * put-code of the local entry that is to be updated (and not the put-code
+	 * of the ORCID activity that gave origin to it).
+	 * </p>
+	 *
 	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
@@ -1221,8 +1280,8 @@ public final class PTCRISync {
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @return the list of updates found in the ORCID profile, pointing to the
-	 *         respective local funding activity
+	 * @return the list of funding updates found in the ORCID profile, pointing
+	 *         to the respective local activity
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
@@ -1236,7 +1295,7 @@ public final class PTCRISync {
 	 * <p>
 	 * Discovers updates to existing local CRIS activities in an ORCID profile.
 	 * For each activity group at ORCID (merged into as a single activity by the
-	 * {@link ORCIDHelper helper}), finds matching local productions (i.e.,
+	 * {@link ORCIDHelper helper}), finds matching local entries (i.e.,
 	 * those with shared {@link ExternalId external identifiers}) and creates
 	 * update notifications if not already up to date. To import activities
 	 * without shared external identifiers,
@@ -1247,26 +1306,28 @@ public final class PTCRISync {
 	 * <p>
 	 * These update notifications simply take the shape of ORCID activities
 	 * themselves (representing a matching activity group). These works contain
-	 * only the meta-data that needs to be updated locally. Currently, only the
-	 * introduction of newly found external identifiers is considered (i.e.,
-	 * those that were already present in the local productions that is being
-	 * updated are removed from the returned updates). Thus, the remainder
-	 * fields are returned null. Since only external identifiers are considered
-	 * the quality criteria is not enforced on the remote ORCID works.
+	 * only the meta-data that needs to be updated locally, and the remainder
+	 * fields are returned null.
 	 * </p>
 	 *
 	 * <p>
-	 * The local productions are tested to be up-to-date by simply checking
+	 * The local entries are tested to be up-to-date by simply checking
 	 * whether they contain every external identifiers in the ORCID group (see
-	 * {@link ORCIDHelper#updateWork(BigInteger, Work)}). Thus the remainder
-	 * meta-data of the local productions can be currently left null.
+	 * {@link ORCIDHelper#hasNewSelfIDs(ElementSummary, ElementSummary)}. Thus the remainder
+	 * meta-data of the local entries can be currently left null.
 	 * </p>
 	 *
 	 * <p>
-	 * The put-code attribute is used as a local key of each CRIS productions.
-	 * This means that the returned works representing the updates have the
-	 * put-code of the local production that is to be updated (and not the
-	 * put-code of the ORCID works that gave origin to it).
+	 * A set of activity types can be provided to allow the independent
+	 * synchronization of different types of entries. Activities outside the
+	 * provided types are simply ignored (they are not considered invalid).
+	 * </p>
+	 * 
+ 	 * <p>
+	 * The put-code attribute is used as a local key of each CRIS entry.
+	 * This means that the returned activities representing the updates have the
+	 * put-code of the local entry that is to be updated (and not the
+	 * put-code of the ORCID activity that gave origin to it).
 	 * </p>
 	 *
 	 * <p>
@@ -1296,8 +1357,6 @@ public final class PTCRISync {
 			Collection<T> types, ProgressHandler handler)
 			throws OrcidClientException {
 
-		int progress = 0;
-		handler.setProgress(progress);
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
 
 		List<S> orcids = helper.getAllTypedSummaries(types);
@@ -1305,10 +1364,8 @@ public final class PTCRISync {
 		List<E> toUpdate = new LinkedList<E>();
 
 		// filter already known works only
-		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION");
+		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_ITERATION",orcids.size());
 		for (int c = 0; c != orcids.size(); c++) {
-			progress = (int) ((double) c / orcids.size() * 100);
-			handler.setProgress(progress);
 
 			S orcid = orcids.get(c);
 			Map<E, ExternalIdsDiff> matchingLocals = helper.getSelfExternalIdsDiffS(orcid, locals);
@@ -1319,6 +1376,7 @@ public final class PTCRISync {
 					}
 				}
 			}
+			handler.step();
 		}
 
 		handler.done();

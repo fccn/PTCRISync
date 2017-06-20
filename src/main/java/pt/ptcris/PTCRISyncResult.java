@@ -31,23 +31,35 @@ public final class PTCRISyncResult<E extends ElementSummary> {
 	public static final int UPTODATE = -20;
 	public static final int INVALID = -30;
 	public static final int CLIENTERROR = -40;
-
+	
+	/**
+	 * Creates a successful "get" message with the assigned put-code.
+	 * 
+	 * @param <E> the activity type
+	 * @param putcode the put-code of the get request
+	 * @param element the retrieved activity
+	 * @return an OK get message
+	 */
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_get(BigInteger putcode, E element) {
+		return new PTCRISyncResult<E>(GETOK, element);
+	}
+	
 	/**
 	 * Creates a successful "add" message with the assigned put-code.
+	 * 
+	 * @param <E> the activity type
+	 * @param putcode the put-code of the newly added activity
+	 * @return an OK add message
 	 */
 	public static <E extends ElementSummary> PTCRISyncResult<E> ok_add(BigInteger putcode) {
 		return new PTCRISyncResult<E>(ADDOK, putcode);
 	}
-	
-	/**
-	 * Creates a successful "get" message with the assigned put-code.
-	 */
-	public static <E extends ElementSummary> PTCRISyncResult<E> ok_get(BigInteger putcode, E act) {
-		return new PTCRISyncResult<E>(GETOK, act);
-	}
-	
+
 	/**
 	 * Creates a successful "update" message.
+	 * 
+	 * @param <E> the activity type
+	 * @return an OK update message
 	 */
 	public static <E extends ElementSummary> PTCRISyncResult<E> ok_upd() {
 		return new PTCRISyncResult<E>(UPDATEOK);
@@ -55,6 +67,9 @@ public final class PTCRISyncResult<E extends ElementSummary> {
 
 	/**
 	 * Creates a successful "delete" message.
+	 * 
+	 * @param <E> the activity type
+	 * @return an OK delete message
 	 */
 	public static <E extends ElementSummary> PTCRISyncResult<E> ok_del() {
 		return new PTCRISyncResult<E>(DELETEOK);
@@ -62,6 +77,9 @@ public final class PTCRISyncResult<E extends ElementSummary> {
 
 	/**
 	 * Creates an "already up-to-date" message.
+	 * 
+	 * @param <E> the activity type
+	 * @return an already up to date message
 	 */
 	public static <E extends ElementSummary> PTCRISyncResult<E> uptodate() {
 		return new PTCRISyncResult<E>(UPTODATE);
@@ -70,6 +88,7 @@ public final class PTCRISyncResult<E extends ElementSummary> {
 	/**
 	 * Creates message reporting a failure at the ORCID API level.
 	 *
+	 * @param <E> the activity type
 	 * @param exception
 	 *            the ORCID client exception
 	 * @return the resulting message
@@ -81,6 +100,7 @@ public final class PTCRISyncResult<E extends ElementSummary> {
 	/**
 	 * Creates message reporting an invalid activity.
 	 *
+	 * @param <E> the activity type
 	 * @param exception
 	 *            the reasons for invalidity
 	 * @return the resulting message

@@ -143,7 +143,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Retrieves through the ORCID client a single full activity for which the
 	 * summary is provided. If the communication with ORCID fails, the exception
-	 * is embedded in a failed {@link PTCRISyncResult<E>}.
+	 * is embedded in a failed {@link PTCRISyncResult}.
 	 * 
 	 * @param summary
 	 *            the ORCID activity summary for which to read the full ORCID
@@ -155,7 +155,8 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Retrieves through the ORCID client every full activity for which
 	 * summaries are provided. If the communication with ORCID fails, the
-	 * exception is embedded in a failed {@link PTCRISyncResult<E>}. Should generate bulk requests.
+	 * exception is embedded in a failed {@link PTCRISyncResult}. Should
+	 * generate bulk requests.
 	 * 
 	 * @param summaries
 	 *            the ORCID activity summaries for which to read full ORCID
@@ -167,7 +168,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Creates a worker to asynchronously read a single full activity for which
 	 * the summary is provided. If the communication with ORCID fails, the
-	 * exception is embedded in a failed {@link PTCRISyncResult<E>}.
+	 * exception is embedded in a failed {@link PTCRISyncResult}.
 	 * 
 	 * @param summary
 	 *            the ORCID activity summary for which to read the full ORCID
@@ -176,14 +177,16 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the callback on which to report results
 	 * @param log
 	 *            the logger
+	 * @param handler
+	 *            a handler to report progress
 	 * @return the get worker
 	 */
-	protected abstract ORCIDWorker<E> readWorker(S summary, Map<BigInteger, PTCRISyncResult<E>> cb);
+	protected abstract ORCIDWorker<E> readWorker(S summary, Map<BigInteger, PTCRISyncResult<E>> cb, ProgressHandler handler);
 
 	/**
 	 * Creates a worker to asynchronously read full activities for which the
 	 * summaries are provided. If the communication with ORCID fails, the
-	 * exception is embedded in a failed {@link PTCRISyncResult<E>}. Should
+	 * exception is embedded in a failed {@link PTCRISyncResult}. Should
 	 * generate bulk requests.
 	 * 
 	 * @param summaries
@@ -193,14 +196,16 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the callback on which to report results
 	 * @param log
 	 *            the logger
+	 * @param handler
+	 *            a handler to report progress
 	 * @return the get worker
 	 */
-	protected abstract ORCIDWorker<E> readWorker(List<S> summaries, Map<BigInteger, PTCRISyncResult<E>> cb);
+	protected abstract ORCIDWorker<E> readWorker(List<S> summaries, Map<BigInteger, PTCRISyncResult<E>> cb, ProgressHandler handler);
 
 	/**
 	 * Adds through the ORCID client a new full activity. If the communication
 	 * with ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult<E>}.
+	 * {@link PTCRISyncResult}.
 	 * 
 	 * @param activity
 	 *            the full ORCID activity to be added
@@ -211,7 +216,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Adds through the ORCID client a set of new full activities. If the
 	 * communication with ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult<E>}.
+	 * {@link PTCRISyncResult}.
 	 * 
 	 * @param activities
 	 *            the full ORCID activities to be added
@@ -222,7 +227,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Updates through the ORCID client a remote activity. If the communication
 	 * with ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult<E>}.
+	 * {@link PTCRISyncResult}.
 	 * 
 	 * @param remotePutcode
 	 *            the put-code of the remote ORCID activity
@@ -235,7 +240,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Deletes through the ORCID client a remote activity. If the communication
 	 * with ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult<E>}.
+	 * {@link PTCRISyncResult}.
 	 * 
 	 * @param remotePutcode
 	 *            the put-code of the remote ORCID activity
@@ -324,7 +329,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * is asynchronous. If the list is not a singleton, a bulk request will be
 	 * performed if supported for the concrete ORCID activity type. If the
 	 * communication with ORCID fails for any activity, the exceptions are
-	 * embedded in failed {@link PTCRISyncResult<E>}.
+	 * embedded in failed {@link PTCRISyncResult}.
 	 *
 	 * @see #readClient(List)
 	 * 
@@ -344,25 +349,19 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 			throw new IllegalArgumentException("Null callback map.");
 		if (summaries == null || summaries.isEmpty())
 			return;
-		
-		if (handler != null)
-			handler.setCurrentStatus("ORCID_GET_ITERATION");
 
 		if (client.threads() > 1 && cb != null) {
 			for (int i = 0; i < summaries.size();) {
-				int progress = (int) ((double) i / summaries.size() * 100);
-				if (handler != null)
-					handler.setProgress(progress);
 				if (bulk_size_get > 1) {
 					List<S> putcodes = new ArrayList<S>();
 					for (int j = 0; j < bulk_size_get && i < summaries.size(); j++) {
 						putcodes.add(summaries.get(i));
 						i++;
 					}
-					final ORCIDWorker<E> worker = readWorker(putcodes, cb);
+					final ORCIDWorker<E> worker = readWorker(putcodes, cb, handler);
 					executor.execute(worker);
 				} else {
-					final ORCIDWorker<E> worker = readWorker(summaries.get(i), cb);
+					final ORCIDWorker<E> worker = readWorker(summaries.get(i), cb, handler);
 					executor.execute(worker);
 					i++;
 				}
@@ -370,9 +369,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		} else {
 			Map<BigInteger, PTCRISyncResult<E>> fulls = new HashMap<BigInteger, PTCRISyncResult<E>>();
 			for (int i = 0; i < summaries.size();) {
-				int progress = (int) ((double) i / summaries.size() * 100);
-				if (handler != null)
-					handler.setProgress(progress);
 				if (bulk_size_get > 1) {
 					List<S> putcodes = new ArrayList<S>();
 					for (int j = 0; j < bulk_size_get && i < summaries.size(); j++) {
@@ -380,9 +376,11 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 						i++;
 					}
 					fulls.putAll(readClient(putcodes));
+					if (handler!=null) handler.step(putcodes.size());
 				} else {
 					fulls.put(summaries.get(i).getPutCode(),
 							readClient(summaries.get(i)));
+					if (handler!=null) handler.step();
 					i++;
 				}
 			}
@@ -394,7 +392,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Synchronously adds an activity to an ORCID profile. The OK result
 	 * includes the newly assigned put-code. If the communication with ORCID
-	 * fails, the exception is embedded in a failed {@link PTCRISyncResult<E>}.
+	 * fails, the exception is embedded in a failed {@link PTCRISyncResult}.
 	 *
 	 * @see #addClient(ElementSummary)
 	 * 
@@ -416,7 +414,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * Synchronously adds a list of activities to an ORCID profile. A list of
 	 * results is returned, one for each input activity. The OK result includes
 	 * the newly assigned put-code. If the communication with ORCID fails, the
-	 * exception is embedded in a failed {@link PTCRISyncResult<E>}. If the overall
+	 * exception is embedded in a failed {@link PTCRISyncResult}. If the overall
 	 * communication fails, the result is replicated for each input.
 	 *
 	 * @see #addClient(List)
@@ -444,7 +442,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * through atomic or bulk calls if available. A list of results is returned,
 	 * one for each input activity. The OK result includes the newly assigned
 	 * put-code. If the communication with ORCID fails, the exception is
-	 * embedded in a failed {@link PTCRISyncResult<E>}. If the overall
+	 * embedded in a failed {@link PTCRISyncResult}. If the overall
 	 * communication fails, the result is replicated for each input.
 	 *
 	 * @param activities
@@ -458,14 +456,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		if (activities == null || activities.isEmpty())
 			return new ArrayList<PTCRISyncResult<E>>();
 		
-		if (handler != null)
-			handler.setCurrentStatus("ORCID_ADDING_WORKS");
-
 		for (int c = 0; c != activities.size();) {
-			int progress = (int) ((double) c / activities.size() * 100);
-			if (handler != null)
-				handler.setProgress(progress);
-
 			if (bulk_size_add > 1) {
 				List<E> tmp = new ArrayList<E>();
 				for (int j = 0; j < bulk_size_add && c < activities.size(); j++) {
@@ -473,9 +464,11 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 					c++;
 				}
 				res.addAll(this.add(tmp));
+				if (handler!=null) handler.step(tmp.size());
 			} else {
 				E local = activities.get(c);
 				res.add(this.add(local));
+				if (handler!=null) handler.step();
 				c++;
 			}
 		}
@@ -485,7 +478,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Synchronously updates an activity to an ORCID profile. If the
 	 * communication with ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult<E>}.
+	 * {@link PTCRISyncResult}.
 	 * 
 	 * @see #updateClient(BigInteger, ElementSummary)
 	 * 
@@ -509,7 +502,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Synchronously deletes an activity from an ORCID profile. If the
 	 * communication with ORCID fails, the exception is embedded in a failed
-	 * {@link PTCRISyncResult<E>}.
+	 * {@link PTCRISyncResult}.
 	 * 
 	 * @see #deleteClient(BigInteger)
 	 * 

@@ -12,7 +12,7 @@ package pt.ptcris.merge;
 /**
  * An activity comparator used by the grouper to creates groups of matching
  * activities. Concrete implementations should be provided by the users through
- * a {@link #compare(ElementGroup, ElementGroup)} that calculates a similarity
+ * a {@link #compare(Object, Object)} that calculates a similarity
  * metric between to activities, and a {@link #threshold()}.
  *
  * @param <A>
@@ -41,7 +41,7 @@ public abstract class ActivityComparator<A> {
 
 	/**
 	 * Tests whether two activities match, given the
-	 * {@link #compare(ElementSummary, ElementSummary)} method and the
+	 * {@link #compare(Object, Object)} method and the
 	 * {@link #threshold()}.
 	 * 
 	 * @param act1
@@ -56,7 +56,7 @@ public abstract class ActivityComparator<A> {
 
 	/**
 	 * Tests whether an activity belongs to a group, according to the
-	 * {@link #compare(ElementSummary, ElementSummary)} criterion.
+	 * {@link #compare(Object, Object)} criterion.
 	 * 
 	 * @param act
 	 *            the activity to be tested for membership

@@ -18,6 +18,7 @@ import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An abstract worker that can be used to parallelize calls to the ORCID API. A
@@ -30,6 +31,7 @@ abstract class ORCIDWorker<E extends ElementSummary> extends Thread {
 	protected final Logger _log;
 	protected final Map<BigInteger, PTCRISyncResult<E>> cb;
 	protected final ORCIDClient client;
+	protected final ProgressHandler handler;
 	protected final Map<String, String> mdcCtxMap;
 
 	/**
@@ -44,10 +46,12 @@ abstract class ORCIDWorker<E extends ElementSummary> extends Thread {
 	 * @param _log
 	 *            a logger
 	 */
-	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult<E>> cb, Logger _log) {
+	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult<E>> cb, Logger _log, ProgressHandler handler) {
 		assert client != null;
 		assert cb != null;
+		assert handler != null;
 		
+		this.handler = handler;
 		this.client = client;
 		this.cb = cb;
 		this._log = _log;
@@ -63,5 +67,5 @@ abstract class ORCIDWorker<E extends ElementSummary> extends Thread {
 	protected void callback(BigInteger id, PTCRISyncResult<E> res) {
 		cb.put(id, res);
 	}
-
+	
 }

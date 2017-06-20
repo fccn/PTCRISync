@@ -26,6 +26,7 @@ import org.um.dsi.gavea.orcid.model.funding.FundingType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An helper to simplify the use of the low-level ORCID
@@ -78,16 +79,16 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected ORCIDWorker<Funding> readWorker(FundingSummary summary, Map<BigInteger, PTCRISyncResult<Funding>> cb) {
+	protected ORCIDWorker<Funding> readWorker(FundingSummary summary, Map<BigInteger, PTCRISyncResult<Funding>> cb, ProgressHandler handler) {
 		assert client != null;
 		assert summary != null;
-		return new ORCIDGetFundingWorker(summary, client, cb, _log);
+		return new ORCIDGetFundingWorker(summary, client, cb, _log, handler);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	protected ORCIDWorker<Funding> readWorker(List<FundingSummary> summaries,
-			Map<BigInteger, PTCRISyncResult<Funding>> cb) {
+			Map<BigInteger, PTCRISyncResult<Funding>> cb, ProgressHandler handler) {
 		throw new UnsupportedOperationException("No support for bulk reading fundings.");
 	}
 

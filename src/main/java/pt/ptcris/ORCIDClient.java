@@ -106,8 +106,8 @@ public interface ORCIDClient {
 	public Map<BigInteger, PTCRISyncResult<Work>> getWorks(List<WorkSummary> summaries);
 
 	/**
-	 * Adds a new work to the ORCID profile. Exceptions are embedded in the
-	 * {@link PTCRISyncResult}.
+	 * Adds a new work to the ORCID profile and returns the assigned put-code.
+	 * Exceptions are embedded in the {@link PTCRISyncResult}.
 	 *
 	 * @param work
 	 *            the work to be added to the ORCID profile
@@ -116,8 +116,8 @@ public interface ORCIDClient {
 	public PTCRISyncResult<Work> addWork(Work work);
 
 	/**
-	 * Adds a new funding entry to the ORCID profile. Exceptions are embedded in
-	 * the {@link PTCRISyncResult}.
+	 * Adds a new funding entry to the ORCID profile and returns the assigned
+	 * put-code. Exceptions are embedded in the {@link PTCRISyncResult}.
 	 *
 	 * @param funding
 	 *            the funding entry to be added to the ORCID profile

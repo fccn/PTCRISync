@@ -19,6 +19,7 @@ import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * A worker thread that can be used to GET works from ORCID.
@@ -45,8 +46,8 @@ final class ORCIDGetWorkWorker extends ORCIDWorker<Work> {
 	 * @param log
 	 *            a logger
 	 */
-	public ORCIDGetWorkWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log) {
-		super(client, cb, log);
+	public ORCIDGetWorkWorker(WorkSummary work, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log, ProgressHandler handler) {
+		super(client, cb, log, handler);
 		assert work != null;
 		assert work.getPutCode() != null;
 		
@@ -65,7 +66,7 @@ final class ORCIDGetWorkWorker extends ORCIDWorker<Work> {
 		_log.debug("[getFullWork] " + work.getPutCode());
 		
 		final PTCRISyncResult<Work> full = client.getWork(work);
-
+		handler.step();
 		callback(work.getPutCode(), full);
 	}
 

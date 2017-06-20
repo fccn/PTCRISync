@@ -22,6 +22,7 @@ public interface ProgressHandler {
 	 * @param progress
 	 *            the progress of the current task
 	 */
+	@Deprecated
 	public void setProgress(int progress);
 
 	/**
@@ -31,6 +32,8 @@ public interface ProgressHandler {
 	 *            the message to be sent to the progress handler
 	 */
 	public void setCurrentStatus(String message);
+
+	public void setCurrentStatus(String message, int size);
 
 	/**
 	 * Used to send an error message to the progress handler
@@ -44,4 +47,9 @@ public interface ProgressHandler {
 	 * Used to set the current task as finalized
 	 */
 	public void done();
+
+	public void step();
+
+	public void step(int step);
+
 }

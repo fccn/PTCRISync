@@ -19,6 +19,7 @@ import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * A worker thread that can be used to GET funding entries from ORCID.
@@ -46,8 +47,8 @@ final class ORCIDGetFundingWorker extends ORCIDWorker<Funding> {
 	 * @param log
 	 *            a logger
 	 */
-	public ORCIDGetFundingWorker(FundingSummary funding, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Funding>> cb, Logger log) {
-		super(client, cb, log);
+	public ORCIDGetFundingWorker(FundingSummary funding, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Funding>> cb, Logger log, ProgressHandler handler) {
+		super(client, cb, log, handler);
 		assert funding != null;
 		assert funding.getPutCode() != null;
 				
@@ -66,7 +67,7 @@ final class ORCIDGetFundingWorker extends ORCIDWorker<Funding> {
 		_log.debug("[getFullFunding] "+funding.getPutCode());
 		
 		final PTCRISyncResult<Funding> full = client.getFunding(funding);
-
+		handler.step();
 		callback(funding.getPutCode(), full);
 	}
 
