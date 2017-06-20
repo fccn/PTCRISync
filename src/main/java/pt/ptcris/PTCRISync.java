@@ -137,7 +137,7 @@ public final class PTCRISync {
 	 * is the put-code remotely assigned by ORCID.
 	 * </p>
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -162,7 +162,7 @@ public final class PTCRISync {
 	/**
 	 * @deprecated Replaced by {@link #exportWorks(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -238,7 +238,7 @@ public final class PTCRISync {
 	 * is the put-code remotely assigned by ORCID.
 	 * </p>
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -263,7 +263,7 @@ public final class PTCRISync {
 	/**
 	 * @deprecated Replaced by {@link #exportWorksForced(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -335,8 +335,9 @@ public final class PTCRISync {
 	 *
 	 * <p>
 	 * A set of funding types can be provided to allow the independent
-	 * synchronization of different types of entries. Activities outside the
-	 * provided types are simply ignored (they are not considered invalid).
+	 * synchronization of different types of entries. Local and remote
+	 * activities outside the provided types are simply ignored (they are not
+	 * considered invalid).
 	 * </p>
 	 *
 	 * <p>
@@ -347,7 +348,7 @@ public final class PTCRISync {
 	 * is the put-code remotely assigned by ORCID.
 	 * </p>
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -360,7 +361,7 @@ public final class PTCRISync {
 	 *            the progress handler responsible for receiving progress
 	 *            updates
 	 * @return the result of the synchronization of each of the provided local
-	 *          funding entry
+	 *         funding entry
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
@@ -411,8 +412,9 @@ public final class PTCRISync {
 	 *
 	 * <p>
 	 * A set of funding types can be provided to allow the independent
-	 * synchronization of different types of entries. Activities outside the
-	 * provided types are simply ignored (they are not considered invalid).
+	 * synchronization of different types of entries. Local and remote
+	 * activities outside the provided types are simply ignored (they are not
+	 * considered invalid).
 	 * </p>
 	 *
 	 * <p>
@@ -446,8 +448,8 @@ public final class PTCRISync {
 	 * </p>
 	 * 
 	 * @param helper
-	 *            the ORCID client defining the CRIS Member API and user the
-	 *            profile to be managed
+	 *            helper that encapsulates the ORCID client defining the CRIS
+	 *            Member API and user the profile to be managed
 	 * @param locals
 	 *            the list of local activities to be exported that should be
 	 *            kept synchronized in the ORCID user profile
@@ -460,8 +462,6 @@ public final class PTCRISync {
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-
-	 *
 	 * @return the result of the synchronization of each of the provided local
 	 *         activity
 	 * @throws OrcidClientException
@@ -631,7 +631,7 @@ public final class PTCRISync {
 	 * quality assessment.
 	 * </p>
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -670,9 +670,9 @@ public final class PTCRISync {
 	 * funding activities themselves (representing a merged activity group). The
 	 * group merging selects the meta-data of the preferred activity and the
 	 * external identifiers of the whole group (see
-	 * {@link ORCIDFundingHelper#group(Object)}). The selection of the
-	 * meta-data from a group could be changed without affecting the correction
-	 * of the procedure.
+	 * {@link ORCIDFundingHelper#group(Object)}). The selection of the meta-data
+	 * from a group could be changed without affecting the correction of the
+	 * procedure.
 	 * </p>
 	 *
 	 * <p>
@@ -697,12 +697,13 @@ public final class PTCRISync {
 	 *
 	 * <p>
 	 * A set of funding types can be provided to allow the independent
-	 * synchronization of different types of entries. Activities outside the
-	 * provided types are simply ignored (they are not considered invalid).
+	 * synchronization of different types of entries. Local and remote
+	 * activities outside the provided types are simply ignored (they are not
+	 * considered invalid).
 	 * </p>
 	 * *
 	 * 
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -769,8 +770,9 @@ public final class PTCRISync {
 	 * 
 	 * <p>
 	 * A set of activity types can be provided to allow the independent
-	 * synchronization of different types of entries. Activities outside the
-	 * provided types are simply ignored (they are not considered invalid).
+	 * synchronization of different types of entries. Local and remote
+	 * activities outside the provided types are simply ignored (they are not
+	 * considered invalid).
 	 * </p>
 	 * 
 	 * <p>
@@ -782,8 +784,8 @@ public final class PTCRISync {
 	 * </p>
 	 *
 	 * @param helper
-	 *            the ORCID client defining the CRIS Member API and user the
-	 *            profile to be managed
+	 *            helper that encapsulates the ORCID client defining the CRIS
+	 *            Member API and user the profile to be managed
 	 * @param locals
 	 *            the full list of local activities
 	 * @param types
@@ -856,7 +858,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -881,7 +883,7 @@ public final class PTCRISync {
 	 * @deprecated Replaced by
 	 *             {@link #importWorkCounter(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -912,7 +914,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importFundings(ORCIDClient, List, Collection, ProgressHandler)
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -953,8 +955,8 @@ public final class PTCRISync {
 	 * @see #importBase(ORCIDHelper, List, Collection, ProgressHandler)
 	 *
 	 * @param helper
-	 *            the ORCID client defining the CRIS Member API and user the
-	 *            profile to be managed
+	 *            helper that encapsulates the ORCID client defining the CRIS
+	 *            Member API and user the profile to be managed
 	 * @param locals
 	 *            the full list of local entries
 	 * @param types
@@ -1017,7 +1019,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1045,7 +1047,7 @@ public final class PTCRISync {
 	 * @deprecated Replaced by
 	 *             {@link #importInvalidWorks(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1085,7 +1087,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importFundings(ORCIDClient, List, Collection, ProgressHandler)
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1138,8 +1140,8 @@ public final class PTCRISync {
 	 * @see #importBase(ORCIDHelper, List, Collection, ProgressHandler)
 	 *
 	 * @param helper
-	 *            the ORCID client defining the CRIS Member API and user the
-	 *            profile to be managed
+	 *            helper that encapsulates the ORCID client defining the CRIS
+	 *            Member API and user the profile to be managed
 	 * @param locals
 	 *            the full list of local activities
 	 * @param types
@@ -1242,7 +1244,7 @@ public final class PTCRISync {
 	 * of the ORCID activity that gave origin to it).
 	 * </p>
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1266,7 +1268,7 @@ public final class PTCRISync {
 	/**
 	 * @deprecated Replaced by {@link #importWorkUpdates(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1320,8 +1322,9 @@ public final class PTCRISync {
 	 *
 	 * <p>
 	 * A set of activity types can be provided to allow the independent
-	 * synchronization of different types of entries. Activities outside the
-	 * provided types are simply ignored (they are not considered invalid).
+	 * synchronization of different types of entries. Local and remote
+	 * activities outside the provided types are simply ignored (they are not
+	 * considered invalid).
 	 * </p>
 	 * 
 	 * <p>
@@ -1331,7 +1334,7 @@ public final class PTCRISync {
 	 * of the ORCID activity that gave origin to it).
 	 * </p>
 	 *
-	 * @param helper
+	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1359,10 +1362,10 @@ public final class PTCRISync {
 	 * <p>
 	 * Discovers updates to existing local CRIS activities in an ORCID profile.
 	 * For each activity group at ORCID (merged into as a single activity by the
-	 * {@link ORCIDHelper helper}), finds matching local entries (i.e.,
-	 * those with shared {@link ExternalId external identifiers}) and creates
-	 * update notifications if not already up to date. To import activities
-	 * without shared external identifiers,
+	 * {@link ORCIDHelper helper}), finds matching local entries (i.e., those
+	 * with shared {@link ExternalId external identifiers}) and creates update
+	 * notifications if not already up to date. To import activities without
+	 * shared external identifiers,
 	 * {@link #importBase(ORCIDHelper, List, Collection, ProgressHandler)}
 	 * should be used instead.
 	 * </p>
@@ -1375,23 +1378,24 @@ public final class PTCRISync {
 	 * </p>
 	 *
 	 * <p>
-	 * The local entries are tested to be up-to-date by simply checking
-	 * whether they contain every external identifiers in the ORCID group (see
-	 * {@link ORCIDHelper#hasNewSelfIDs(ElementSummary, ElementSummary)}. Thus the remainder
-	 * meta-data of the local entries can be currently left null.
+	 * The local entries are tested to be up-to-date by simply checking whether
+	 * they contain every external identifiers in the ORCID group (see
+	 * {@link ORCIDHelper#hasNewSelfIDs(ElementSummary, ElementSummary)}. Thus
+	 * the remainder meta-data of the local entries can be currently left null.
 	 * </p>
 	 *
 	 * <p>
 	 * A set of activity types can be provided to allow the independent
-	 * synchronization of different types of entries. Activities outside the
-	 * provided types are simply ignored (they are not considered invalid).
+	 * synchronization of different types of entries. Local and remote
+	 * activities outside the provided types are simply ignored (they are not
+	 * considered invalid).
 	 * </p>
 	 * 
- 	 * <p>
-	 * The put-code attribute is used as a local key of each CRIS entry.
-	 * This means that the returned activities representing the updates have the
-	 * put-code of the local entry that is to be updated (and not the
-	 * put-code of the ORCID activity that gave origin to it).
+	 * <p>
+	 * The put-code attribute is used as a local key of each CRIS entry. This
+	 * means that the returned activities representing the updates have the
+	 * put-code of the local entry that is to be updated (and not the put-code
+	 * of the ORCID activity that gave origin to it).
 	 * </p>
 	 *
 	 * <p>
@@ -1400,13 +1404,13 @@ public final class PTCRISync {
 	 * </p>
 	 * 
 	 * @param helper
-	 *            the ORCID client defining the CRIS Member API and user the
-	 *            profile to be managed
+	 *            helper that encapsulates the ORCID client defining the CRIS
+	 *            Member API and user the profile to be managed
 	 * @param locals
 	 *            the full list of local activities
 	 * @param types
-	 *            the types of ORCID activities that should be
-	 *            considered (others are simply ignored)
+	 *            the types of ORCID activities that should be considered
+	 *            (others are simply ignored)
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates

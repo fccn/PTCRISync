@@ -175,8 +175,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            activity
 	 * @param cb
 	 *            the callback on which to report results
-	 * @param log
-	 *            the logger
 	 * @param handler
 	 *            a handler to report progress
 	 * @return the get worker
@@ -194,8 +192,6 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            activities
 	 * @param cb
 	 *            the callback on which to report results
-	 * @param log
-	 *            the logger
 	 * @param handler
 	 *            a handler to report progress
 	 * @return the get worker
@@ -608,7 +604,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity summary
 	 * @return the summary's type
 	 */
-	protected abstract T getTypeS(S sumary);
+	protected abstract T getTypeS(S summary);
 
 	/**
 	 * Tests whether a given external identifier type name is valid.
