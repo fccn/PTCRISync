@@ -82,8 +82,6 @@ import pt.ptcris.utils.UpdateRecord;
  * </p>
  *
  * See <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>.
- * 
- * TODO: invalid parameter handling
  */
 public final class PTCRISync {
 	
@@ -139,7 +137,7 @@ public final class PTCRISync {
 	 * is the put-code remotely assigned by ORCID.
 	 * </p>
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -153,16 +151,18 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Map<BigInteger, PTCRISyncResult<Work>> exportWorks(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
-		return exportBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler, false);
+			throws OrcidClientException, IllegalArgumentException {
+		return exportBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), false, handler);
 	}
 
 	/**
 	 * @deprecated Replaced by {@link #exportWorks(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -176,10 +176,12 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	@Deprecated
 	public static Map<BigInteger, PTCRISyncResult<Work>> export(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return exportWorks(client, locals, handler);
 	}
 	
@@ -236,7 +238,7 @@ public final class PTCRISync {
 	 * is the put-code remotely assigned by ORCID.
 	 * </p>
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -250,16 +252,18 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Map<BigInteger, PTCRISyncResult<Work>> exportWorksForced(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
-		return exportBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler, true);
+			throws OrcidClientException, IllegalArgumentException {
+		return exportBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), true, handler);
 	}
 	
 	/**
 	 * @deprecated Replaced by {@link #exportWorksForced(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -273,10 +277,12 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	@Deprecated
 	public static Map<BigInteger, PTCRISyncResult<Work>> exportForce(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return exportWorksForced(client, locals, handler);
 	}
 
@@ -341,7 +347,7 @@ public final class PTCRISync {
 	 * is the put-code remotely assigned by ORCID.
 	 * </p>
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -358,10 +364,12 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Map<BigInteger, PTCRISyncResult<Funding>> exportFundings(ORCIDClient client, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException {
-		return exportBase(new ORCIDFundingHelper(client), locals, types, handler, false);
+			throws OrcidClientException, IllegalArgumentException {
+		return exportBase(new ORCIDFundingHelper(client), locals, types, false, handler);
 	}
 
 	/**
@@ -436,8 +444,8 @@ public final class PTCRISync {
 	 * fails, otherwise individual failures are reported in the output. No
 	 * asynchronous workers are used.
 	 * </p>
-	 *
-	 * @param client
+	 * 
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -446,22 +454,32 @@ public final class PTCRISync {
 	 * @param types
 	 *            the types of ORCID activities that should be considered
 	 *            (others are simply ignored).
-	 * @param handler
-	 *            the progress handler responsible for receiving progress
-	 *            updates
 	 * @param forced
 	 *            whether the update of ORCID activities should be forced,
 	 *            without testing if up-to-date
+	 * @param handler
+	 *            the progress handler responsible for receiving progress
+	 *            updates
+
+	 *
 	 * @return the result of the synchronization of each of the provided local
 	 *         activity
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> Map<BigInteger, PTCRISyncResult<E>> exportBase(
 			ORCIDHelper<E, S, G, T> helper, List<E> locals,
-			Collection<T> types, ProgressHandler handler, boolean forced)
-			throws OrcidClientException {
+			Collection<T> types, boolean forced, ProgressHandler handler)
+			throws OrcidClientException, IllegalArgumentException {
+		
+		if (helper == null || locals == null || handler == null)
+			throw new IllegalArgumentException("Null arguments.");
+		
+		if (types == null)
+			types = new HashSet<T>();
 		
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_STARTED");
 
@@ -613,7 +631,7 @@ public final class PTCRISync {
 	 * quality assessment.
 	 * </p>
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -627,9 +645,11 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static List<Work> importWorks(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler);
 	}
 
@@ -682,7 +702,7 @@ public final class PTCRISync {
 	 * </p>
 	 * *
 	 * 
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -700,9 +720,11 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static List<Funding> importFundings(ORCIDClient client, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importBase(new ORCIDFundingHelper(client), locals, types, handler);
 	}
 
@@ -759,7 +781,7 @@ public final class PTCRISync {
 	 * activities.
 	 * </p>
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -776,12 +798,20 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> List<E> importBase(
 			ORCIDHelper<E, S, G, T> helper, List<E> locals,
 			Collection<T> types, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 
+		if (helper == null || locals == null || handler == null)
+			throw new IllegalArgumentException("Null arguments.");
+		
+		if (types == null)
+			types = new HashSet<T>();
+		
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_STARTED");
 
 		List<S> orcids = helper.getAllTypedSummaries(types);
@@ -826,7 +856,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -839,9 +869,11 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Integer importWorkCounter(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return importCounterBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler);
 	}
 
@@ -849,7 +881,7 @@ public final class PTCRISync {
 	 * @deprecated Replaced by
 	 *             {@link #importWorkCounter(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -861,10 +893,12 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	@Deprecated
 	public static Integer importCounter(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return importWorkCounter(client, locals, handler);
 	}
 
@@ -878,7 +912,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importFundings(ORCIDClient, List, Collection, ProgressHandler)
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -894,9 +928,11 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Integer importFundingCounter(ORCIDClient client, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return importCounterBase(new ORCIDFundingHelper(client), locals, types, handler);
 	}
 
@@ -916,7 +952,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importBase(ORCIDHelper, List, Collection, ProgressHandler)
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -931,12 +967,20 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> Integer importCounterBase(
 			ORCIDHelper<E, S, G, T> helper, List<E> locals,
 			Collection<T> types, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 
+		if (helper == null || locals == null || handler == null)
+			throw new IllegalArgumentException("Null arguments.");
+		
+		if (types == null)
+			types = new HashSet<T>();
+		
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_COUNTER_STARTED");
 
 		List<S> orcids = helper.getAllTypedSummaries(types);
@@ -973,7 +1017,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -987,10 +1031,12 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Map<Work, Set<String>> importInvalidWorks(ORCIDClient client,
 			List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importInvalidBase(new ORCIDWorkHelper(client), locals,
 				Arrays.asList(WorkType.values()), handler);
 	}
@@ -999,7 +1045,7 @@ public final class PTCRISync {
 	 * @deprecated Replaced by
 	 *             {@link #importInvalidWorks(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1013,11 +1059,13 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	@Deprecated
 	public static Map<Work, Set<String>> importInvalid(ORCIDClient client,
 			List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importInvalidWorks(client, locals, handler);
 	}
 
@@ -1037,7 +1085,7 @@ public final class PTCRISync {
 	 *
 	 * @see #importFundings(ORCIDClient, List, Collection, ProgressHandler)
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1055,11 +1103,13 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Map<Funding, Set<String>> importInvalidFundings(
 			ORCIDClient client, List<Funding> locals,
 			Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importInvalidBase(new ORCIDFundingHelper(client), locals, types,
 				handler);
 	}
@@ -1087,7 +1137,7 @@ public final class PTCRISync {
 	 * 
 	 * @see #importBase(ORCIDHelper, List, Collection, ProgressHandler)
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1104,12 +1154,20 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> Map<E, Set<String>> importInvalidBase(
 			ORCIDHelper<E, S, G, T> helper, List<E> locals,
 			Collection<T> types, ProgressHandler handler)
-			throws OrcidClientException, InterruptedException {
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 	
+		if (helper == null || locals == null || handler == null)
+			throw new IllegalArgumentException("Null arguments.");
+		
+		if (types == null)
+			types = new HashSet<T>();
+		
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_INVALID_STARTED");
 	
 		List<S> orcids = helper.getAllTypedSummaries(types);
@@ -1184,7 +1242,7 @@ public final class PTCRISync {
 	 * of the ORCID activity that gave origin to it).
 	 * </p>
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1197,16 +1255,18 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static List<Work> importWorkUpdates(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return importUpdatesBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler);
 	}
 
 	/**
 	 * @deprecated Replaced by {@link #importWorkUpdates(ORCIDClient, List, ProgressHandler)}
 	 * 
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1219,10 +1279,12 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	@Deprecated
 	public static List<Work> importUpdates(ORCIDClient client, List<Work> locals, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return importWorkUpdates(client, locals, handler);
 	}
 
@@ -1269,7 +1331,7 @@ public final class PTCRISync {
 	 * of the ORCID activity that gave origin to it).
 	 * </p>
 	 *
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1285,9 +1347,11 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static List<Funding> importFundingUpdates(ORCIDClient client, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 		return importUpdatesBase(new ORCIDFundingHelper(client), locals, types, handler);
 	}
 
@@ -1335,7 +1399,7 @@ public final class PTCRISync {
 	 * summaries, since the remainder meta-data is irrelevant.
 	 * </p>
 	 * 
-	 * @param client
+	 * @param helper
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param locals
@@ -1351,12 +1415,20 @@ public final class PTCRISync {
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> List<E> importUpdatesBase(
 			ORCIDHelper<E, S, G, T> helper, List<E> locals,
 			Collection<T> types, ProgressHandler handler)
-			throws OrcidClientException {
+			throws OrcidClientException, IllegalArgumentException {
 
+		if (helper == null || locals == null || handler == null)
+			throw new IllegalArgumentException("Null arguments.");
+		
+		if (types == null)
+			types = new HashSet<T>();
+		
 		handler.setCurrentStatus("ORCID_SYNC_IMPORT_UPDATES_STARTED");
 
 		List<S> orcids = helper.getAllTypedSummaries(types);
