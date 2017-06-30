@@ -7,10 +7,11 @@
  * shall be included in its entirety in all copies or substantial portion of
  * the software.
  */
-package pt.ptcris.merge;
+package pt.ptcris.test.grouper;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
+import pt.ptcris.merge.ActivityComparator;
 import pt.ptcris.utils.ExternalIdsDiff;
 import pt.ptcris.utils.ORCIDHelper;
 

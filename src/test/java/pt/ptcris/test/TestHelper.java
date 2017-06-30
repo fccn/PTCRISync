@@ -33,7 +33,6 @@ import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ORCIDHelper;
-import pt.ptcris.utils.ORCIDWorkHelper;
 
 public class TestHelper {
 
@@ -109,14 +108,14 @@ public class TestHelper {
 		ExternalId e = new ExternalId();
 		e.setExternalIdRelationship(RelationshipType.SELF);
 		e.setExternalIdValue(eid);
-		e.setExternalIdType(ORCIDWorkHelper.EIdType.OTHER_ID.value);
+		e.setExternalIdType("other-id");
 		
 		work.getExternalIds().getExternalId().add(e);
 
 		ExternalId e1 = new ExternalId();
 		e1.setExternalIdRelationship(RelationshipType.SELF);
 		e1.setExternalIdValue(eid2);
-		e1.setExternalIdType(ORCIDWorkHelper.EIdType.OTHER_ID.value);
+		e1.setExternalIdType("other-id");
 		
 		work.getExternalIds().getExternalId().add(e1);
 

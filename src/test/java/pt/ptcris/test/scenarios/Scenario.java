@@ -188,7 +188,7 @@ public abstract class Scenario {
 
 	/**
 	 * The new works that are expected to be detected in ORCID by the
-	 * {@link PTCRISync#importWorks(pt.ptcris.ORCIDClient, List, ProgressHandler)
+	 * {@link PTCRISync#importNews(pt.ptcris.ORCIDClient, List, ProgressHandler)
 	 * import} synchronization procedure.
 	 * 
 	 * @return the expected CRIS-source works

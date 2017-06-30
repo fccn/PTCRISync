@@ -8,9 +8,8 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.Fundings;
 
 /**
- * TODO: temporary class to be deleted once getFundingSummaries is added to the
+ * @deprecated temporary class to be deleted once readFundingsSummary is added to the
  * ORCID client.
- *
  */
 public class TempORCIDClient extends OrcidOAuthClient {
 

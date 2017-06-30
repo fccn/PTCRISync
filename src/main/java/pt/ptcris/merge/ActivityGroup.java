@@ -28,7 +28,7 @@ public class ActivityGroup<A> {
 	 * @param elem
 	 *            the singleton activity
 	 */
-	public ActivityGroup(A elem) {
+	ActivityGroup(A elem) {
 		activities = new HashSet<A>();
 		activities.add(elem);
 	}
@@ -38,7 +38,7 @@ public class ActivityGroup<A> {
 	 * 
 	 * @return the activities of the group
 	 */
-	public Set<A> getActivities() {
+	Set<A> getActivities() {
 		if (activities == null)
 			activities = new HashSet<A>();
 		return activities;
@@ -50,7 +50,7 @@ public class ActivityGroup<A> {
 	 * @param activity
 	 *            the activity to be added
 	 */
-	public void add(A activity) {
+	void add(A activity) {
 		activities.add(activity);
 	}
 
@@ -60,7 +60,7 @@ public class ActivityGroup<A> {
 	 * @param group
 	 *            the group to be merged
 	 */
-	public void merge(ActivityGroup<A> group) {
+	void merge(ActivityGroup<A> group) {
 		for (A activity : group.getActivities()) {
 			activities.add(activity);
 		}

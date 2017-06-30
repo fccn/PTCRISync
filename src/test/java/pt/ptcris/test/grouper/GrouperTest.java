@@ -19,7 +19,6 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.PTCRISGrouper;
 import pt.ptcris.merge.ActivityGroup;
-import pt.ptcris.merge.StdWorkComparator;
 import pt.ptcris.test.TestHelper;
 
 public class GrouperTest {

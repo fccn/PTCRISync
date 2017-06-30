@@ -50,7 +50,7 @@ public abstract class ActivityComparator<A> {
 	 *            other activity
 	 * @return whether the activities match
 	 */
-	public final boolean matches(A act1, A act2) {
+	private final boolean matches(A act1, A act2) {
 		return compare(act1, act2) > threshold();
 	}
 
@@ -64,7 +64,7 @@ public abstract class ActivityComparator<A> {
 	 *            the activity group
 	 * @return whether the activity belongs to the group
 	 */
-	public final boolean belongs(A act, ActivityGroup<A> group) {
+	final boolean belongs(A act, ActivityGroup<A> group) {
 		for (A act1 : group.getActivities())
 			if (matches(act1, act))
 				return true;

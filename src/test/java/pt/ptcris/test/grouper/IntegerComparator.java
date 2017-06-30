@@ -7,7 +7,7 @@
  * shall be included in its entirety in all copies or substantial portion of
  * the software.
  */
-package pt.ptcris.merge;
+package pt.ptcris.test.grouper;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.ptcris.PTCRISGrouper;
+import pt.ptcris.merge.ActivityComparator;
+import pt.ptcris.merge.ActivityGroup;
 
 /**
  * An integer comparator, shows that activities can be generic objects.

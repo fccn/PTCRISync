@@ -39,7 +39,7 @@ import pt.ptcris.handlers.ProgressHandler;
  */
 public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> {
 
-	public enum EIdType {
+	enum EIdType {
 		OTHER_ID("other-id"), AGR("agr"), ARXIV("arxiv"), ASIN("asin"), BIBCODE(
 				"bibcode"), CBA("cba"), CIT("cit"), CTX("ctx"), DOI("doi"), EID(
 				"eid"), ETHOS("ethos"), HANDLE("handle"), HIR("hir"), ISBN(
