@@ -1,5 +1,5 @@
 pt.ptcris
 pt.ptcris.exceptions
+pt.ptcris.grouper
 pt.ptcris.handlers
-pt.ptcris.merge
 pt.ptcris.utils
