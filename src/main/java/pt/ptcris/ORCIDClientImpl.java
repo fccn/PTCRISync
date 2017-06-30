@@ -106,8 +106,6 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 *            the access token to the user ORCID profile
 	 * @param debugMode
 	 *            Enter debug mode
-	 * @param threads
-	 *            the number of ORCID worker threads
 	 */
 	public ORCIDClientImpl(String loginUri, String apiUri, String clientId, String clientSecret, String redirectUri,
 			OrcidAccessToken orcidToken, boolean debugMode) {

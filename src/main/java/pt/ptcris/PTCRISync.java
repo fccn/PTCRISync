@@ -23,6 +23,7 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
+import org.um.dsi.gavea.orcid.model.person.externalidentifier.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
@@ -35,9 +36,10 @@ import pt.ptcris.utils.UpdateRecord;
 /**
  * <p>
  * An implementation of the PTCRISync synchronization service based on the
- * version 5.0 of the specification. This service allows CRIS services to
- * maintain their repositories synchronized with ORCID. This requires the CRIS
- * service to have access to the ORCID Member API.
+ * version 0.4.3 of the specification, enhanced with minimal quality thresholds.
+ * This service allows CRIS services to maintain their repositories synchronized
+ * with ORCID. This requires the CRIS service to have access to the ORCID Member
+ * API.
  * </p>
  *
  * <p>
@@ -56,7 +58,7 @@ import pt.ptcris.utils.UpdateRecord;
  * <p>
  * The implementation of the service assumes that the local CRIS communicates
  * the local productions following the established ORCID schema, according to
- * the Member API 2.0rc2. This uniforms the API and simplifies the
+ * the Member API 2.0. This uniforms the API and simplifies the
  * synchronization process. The current version focuses on synchronizing
  * research productions, which must be encoded as ORCID {@link Work works}.
  * </p>
@@ -75,24 +77,63 @@ import pt.ptcris.utils.UpdateRecord;
  * require additional calls to the ORCID API.
  * </p>
  *
- * @see <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>
+ * See <a
+ * href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>.
  */
 public final class PTCRISync {
 
 	/**
 	 * <p>
-	 * A version of the export procedure that tests whether the meta-data is
-	 * up-to-date prior to updating a work in ORCID.
+	 * Exports a list of local CRIS productions to an ORCID profile and keeps
+	 * them up-to-date. This procedure manages the work activities in the ORCID
+	 * user profile that are sourced by the CRIS, both previously specified in
+	 * the {@code client}.
 	 * </p>
 	 *
 	 * <p>
-	 * A work is assumed to be up-to-date if the external identifiers, title,
-	 * type and publication year are the same (see
-	 * {@link ORCIDHelper#isUpToDate(Work, WorkSummary)}).
+	 * The procedure detects every CRIS sourced work in the ORCID profile that
+	 * matches any local entry that is being exported; if there is no matching
+	 * local entry, the ORCID activity is deleted from the profile. Otherwise it
+	 * will be updated with the meta-data of one of the matching local entries.
+	 * Finally, for local entries without any matching ORCID activity, new ones
+	 * are created. The matching is performed by detecting shared
+	 * {@link ExternalIdentifier external identifiers} (see
+	 * {@link ORCIDHelper#getSelfExternalIdsDiff(Work, Collection)}
+	 * ).
 	 * </p>
 	 *
-	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
-	 * 
+	 * <p>
+	 * Activities are only updated if the meta-data is not up-to-date.
+	 * Currently, the title, the publication year and the publication are
+	 * considered (see {@link ORCIDHelper#isUpToDate(Work, Work)}).
+	 * </p>
+	 *
+	 * <p>
+	 * The procedure expects the CRIS service to provide the local works in the
+	 * ORCID schema, in particular encoding them as {@link Work works}. Thus,
+	 * the meta-data of the CRIS sourced entries in the ORCID profile is exactly
+	 * that of the provided local entries that are to be exported. The put-code
+	 * of these local entries is assumed to be used as local key identifiers,
+	 * and are disregarded during the update of the ORCID profile (new entries
+	 * are assigned fresh put-codes and updated entries use the put-code of the
+	 * existing ORCID entry).
+	 * </p>
+	 *
+	 * <p>
+	 * The provided local activities must pass a quality criteria to be kept
+	 * synchronized in ORCID. Currently, this forces the existence of external
+	 * identifiers, the title, the publication year and the publication type
+	 * (see {@link ORCIDHelper#testMinimalQuality(Work)}.
+	 * </p>
+	 *
+	 * <p>
+	 * The procedure reports the status for each of the input local activities,
+	 * identifying them by the provided local put-code, including the ORCID
+	 * error if the process failed. See {@link PTCRISyncResult} for the codes.
+	 * If the local put-code is empty, returns a default value, which currently
+	 * is the put-code remotely assigned by ORCID.
+	 * </p>
+	 *
 	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
@@ -103,12 +144,13 @@ public final class PTCRISync {
 	 *            the progress handler responsible for receiving progress
 	 *            updates
 	 * @return the result of the synchronization of each of the provided local
-	 *          works.
+	 *          work
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
-	 * @throws NullPointerException
-	 *             if any of the arguments is null	 */
+	 * @throws IllegalArgumentException
+	 *             if null arguments
+	 */
 	public static Map<BigInteger, PTCRISyncResult> export(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
 		return exportBase(client, localWorks, handler, false);
@@ -116,18 +158,57 @@ public final class PTCRISync {
 
 	/**
 	 * <p>
-	 * A version of the export procedure that forces the update of the CRIS
-	 * sourced works at ORCID, even if they are already up-to-date.
+	 * Exports a list of local CRIS productions to an ORCID profile and keeps
+	 * them up-to-date. This procedure manages the work activities in the ORCID
+	 * user profile that are sourced by the CRIS, both previously specified in
+	 * the {@code client}.
 	 * </p>
 	 *
 	 * <p>
-	 * The caller of this method should guarantee that the input local productions
-	 * have been effectively updated, otherwise there will be unnecessary calls
-	 * to the ORCID API.
+	 * The procedure detects every CRIS sourced work in the ORCID profile that
+	 * matches any local entry that is being exported; if there is no matching
+	 * local entry, the ORCID activity is deleted from the profile. Otherwise it
+	 * will be updated with the meta-data of one of the matching local entries.
+	 * Finally, for local entries without any matching ORCID activity, new ones
+	 * are created. The matching is performed by detecting shared
+	 * {@link ExternalIdentifier external identifiers} (see
+	 * {@link ORCIDHelper#getSelfExternalIdsDiff(Work, Collection)}
+	 * ).
 	 * </p>
 	 *
-	 * @see #exportBase(ORCIDClient, List, ProgressHandler, boolean)
-	 * 
+	 * <p>
+	 * Activities are always updated, even if already up-to-date (no test is
+	 * performed). The caller of this method should guarantee that the input
+	 * local productions have been effectively updated, otherwise there will be
+	 * unnecessary calls to the ORCID API.
+	 * </p>
+	 *
+	 * <p>
+	 * The procedure expects the CRIS service to provide the local works in the
+	 * ORCID schema, in particular encoding them as {@link Work works}. Thus,
+	 * the meta-data of the CRIS sourced entries in the ORCID profile is exactly
+	 * that of the provided local entries that are to be exported. The put-code
+	 * of these local entries is assumed to be used as local key identifiers,
+	 * and are disregarded during the update of the ORCID profile (new entries
+	 * are assigned fresh put-codes and updated entries use the put-code of the
+	 * existing ORCID entry).
+	 * </p>
+	 *
+	 * <p>
+	 * The provided local activities must pass a quality criteria to be kept
+	 * synchronized in ORCID. Currently, this forces the existence of external
+	 * identifiers, the title, the publication year and the publication type
+	 * (see {@link ORCIDHelper#testMinimalQuality(Work)}.
+	 * </p>
+	 *
+	 * <p>
+	 * The procedure reports the status for each of the input local activities,
+	 * identifying them by the provided local put-code, including the ORCID
+	 * error if the process failed. See {@link PTCRISyncResult} for the codes.
+	 * If the local put-code is empty, returns a default value, which currently
+	 * is the put-code remotely assigned by ORCID.
+	 * </p>
+	 *
 	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
@@ -138,12 +219,12 @@ public final class PTCRISync {
 	 *            the progress handler responsible for receiving progress
 	 *            updates
 	 * @return the result of the synchronization of each of the provided local
-	 *          works.
+	 *          work
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
-	 * @throws NullPointerException
-	 *             if any of the arguments is null
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Map<BigInteger, PTCRISyncResult> exportForce(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
@@ -152,88 +233,90 @@ public final class PTCRISync {
 
 	/**
 	 * <p>
-	 * Exports a list of local CRIS productions to an ORCID profile. This
-	 * procedure essentially manages the works in the ORCID profile that are
-	 * sourced by the CRIS, both previously specified in the {@code client}.
+	 * Exports a list of local CRIS activities to an ORCID profile and keeps
+	 * them up-to-date. This procedure manages the activities in the ORCID user
+	 * profile that are sourced by the CRIS, both previously specified in the
+	 * {@code client}.
 	 * </p>
 	 *
 	 * <p>
-	 * The procedure detects every CRIS sourced work in the ORCID profile that
-	 * matches any local production that is being exported; if there is no matching
-	 * local production, the ORCID work is deleted from the profile. Otherwise it will
-	 * be updated with the meta-data of one of the matching local productions.
-	 * Finally, for local productions without any matching ORCID work new ORCID works
-	 * are created. The matching is performed by detecting shared
-	 * {@link ExternalIdentifier external identifiers} (see
-	 * {@link ORCIDHelper#getSelfExternalIdsDiff(WorkSummary, Collection)}).
+	 * The procedure detects every CRIS sourced activity in the ORCID profile
+	 * that matches any local entry that is being exported; if there is no
+	 * matching local entry, the ORCID activity is deleted from the profile.
+	 * Otherwise it will be updated with the meta-data of one of the matching
+	 * local entries. Finally, for local entries without any matching ORCID
+	 * activity, new ones are created. The matching is performed by detecting
+	 * shared {@link ExternalIdentifier external identifiers} (see
+	 * {@link ORCIDHelper#getSelfExternalIdsDiffS(ElementSummary, Collection)}
+	 * ).
 	 * </p>
 	 *
 	 * <p>
-	 * Unless {@code forced}, the ORCID works are only updated if the meta-data
-	 * is not up-to-date. Currently, the title, publication year and type are
-	 * considered (see {@link ORCIDHelper#isUpToDate(Work, WorkSummary)}).
+	 * The procedure expects the CRIS service to provide the local activities in
+	 * the ORCID schema, in particular encoding them as {@link ElementSummary
+	 * activities}. Thus, the meta-data of the CRIS sourced entries in the ORCID
+	 * profile is exactly that of the provided local entries that are to be
+	 * exported. The put-code of these local entries is assumed to be used as
+	 * local key identifiers, and are disregarded during the update of the ORCID
+	 * profile (new entries are assigned fresh put-codes and updated entries use
+	 * the put-code of the existing ORCID entry).
 	 * </p>
 	 *
 	 * <p>
-	 * The update stage must be two-phased in order to avoid potential
-	 * conflicts: the first phase removes external identifiers that are obsolete
-	 * from the CRIS sourced works, so that there are no conflicts with the new
-	 * ones inserted in the second phase.
+	 * The provided local activities must pass a quality criteria to be kept
+	 * synchronized in ORCID (see
+	 * {@link ORCIDHelper#testMinimalQuality(ElementSummary)}.
 	 * </p>
 	 *
 	 * <p>
-	 * The procedure expects the CRIS service to provide the local production in the
-	 * ORCID schema, in particular encoding productions as {@link Work works}.
-	 * Thus, the meta-data of the CRIS sourced works in the ORCID profile is
-	 * exactly that of the provided local productions that are to be exported.
-	 * The put-code of these local productions is however expected to be used as
-	 * local key identifiers, since these are disregarded during the update of
-	 * the ORCID profile (new works are assigned fresh put-codes and updated
-	 * works use the put-code of the existing ORCID work).
-	 * </p>
-	 *
-	 * <p>
-	 * The provided local productions must pass a quality criteria to be kept
-	 * synchronized in ORCID. Currently, this forces the existence of external
-	 * identifiers, the title, publication year and publication type (see
-	 * {@link ORCIDHelper#hasMinimalQuality(Work)}).
-	 * </p>
-	 *
-	 * <p>
-	 * The procedure reports the status for each of the input local productions,
+	 * The procedure reports the status for each of the input local activities,
 	 * identifying them by the provided local put-code, including the ORCID
 	 * error if the process failed. See {@link PTCRISyncResult} for the codes.
 	 * If the local put-code is empty, returns a default value, which currently
 	 * is the put-code remotely assigned by ORCID.
 	 * </p>
+	 * *
+	 * <p>
+	 * Unless {@code forced}, the ORCID activities are only updated if the
+	 * meta-data is not up-to-date (see
+	 * {@link ORCIDHelper#isUpToDateE(ElementSummary, ElementSummary)}).
+	 * </p>
+	 *
+	 * <p>
+	 * The update stage must be two-phased in order to avoid potential
+	 * conflicts: the first phase removes external identifiers that are obsolete
+	 * from the CRIS sourced activities, so that there are no conflicts with the
+	 * new ones inserted in the second phase.
+	 * </p>
 	 *
 	 * <p>
 	 * This procedure performs a single GET call to the API to obtain the
-	 * summaries and PUT or POST calls for each of the local input works.
-	 * Additionally, DELETE calls can also be performed. The procedure only
-	 * fails if the initial GET fails, otherwise individual failures are
-	 * reported in the output. No asynchronous workers are used.
+	 * summaries and PUT or POST calls for each of the local input activities.
+	 * Bulk POST requests are performed when supported. Additionally, DELETE
+	 * calls can also be performed. The procedure only fails if the initial GET
+	 * fails, otherwise individual failures are reported in the output. No
+	 * asynchronous workers are used.
 	 * </p>
-	 *
-	 * @param client
-	 *            the ORCID client defining the CRIS Member API and user the
-	 *            profile to be managed
+	 * 
+	 * @param helper
+	 *            helper that encapsulates the ORCID client defining the CRIS
+	 *            Member API and user the profile to be managed
 	 * @param localWorks
-	 *            the list of local productions to be exported that should be
+	 *            the list of local activities to be exported that should be
 	 *            kept synchronized in the ORCID user profile
+	 * @param forced
+	 *            whether the update of ORCID activities should be forced,
+	 *            without testing if up-to-date
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @param forced
-	 *            whether the update of ORCID works should be forced, without
-	 *            testing if up-to-date
-	 * @returns the result of the synchronization of each of the provided local
-	 *          works.
+	 * @return the result of the synchronization of each of the provided local
+	 *         activity
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
-	 * @throws NullPointerException
-	 *             if any of the arguments is null
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	private static Map<BigInteger, PTCRISyncResult> exportBase(ORCIDClient client, List<Work> localWorks, ProgressHandler handler, boolean forced)
 			throws OrcidClientException, NullPointerException {
@@ -355,48 +438,42 @@ public final class PTCRISync {
 	 * <p>
 	 * Discovers new valid works in an ORCID profile given a set of known local
 	 * CRIS productions. Creates creation notifications for each work group at
-	 * ORCID (merged into as a single work by the {@link ORCIDHelper helper})
-	 * without matching local productions (i.e., those without shared
-	 * {@link ExternalId external identifiers}). To import updates for
-	 * works with shared external identifiers
-	 * {@link #importUpdates(ORCIDClient, List, ProgressHandler)} should be used
-	 * instead.
+	 * ORCID (merged into as a single work by the {@link ORCIDHelper helper}
+	 * ) without matching local productions (i.e., those without shared
+	 * {@link ExternalId external identifiers}). To import updates for works
+	 * with shared external identifiers
+	 * {@link #importUpdates(ORCIDClient, List, ProgressHandler)} should be
+	 * used instead.
 	 * </p>
 	 *
 	 * <p>
 	 * Currently, these creation notifications simply take the shape of ORCID
 	 * works themselves (representing a merged work group). The group merging
-	 * selects the meta-data of the preferred work and the external identifiers
-	 * of the whole group (see {@link ORCIDHelper#groupToWork(WorkGroup)}). The
-	 * selection of the meta-data from a group could be changed without
-	 * affecting the correction of the procedure.
+	 * selects the meta-data of the preferred activity and the external
+	 * identifiers of the whole group (see
+	 * {@link ORCIDHelper#groupToWork(WorkGroup)}). The selection of the
+	 * meta-data from a group could be changed without affecting the correction
+	 * of the procedure.
 	 * </p>
 	 *
 	 * <p>
-	 * Since the put-code attribute is used as a local key of each work, it is
-	 * null for these creation notifications (and not the put-code of the remote
-	 * ORCID works that gave origin to it). Since only the external identifiers
-	 * of the local productions are used to search for matches, the remainder
-	 * meta-data of the input local productions could be left null.
+	 * Since the put-code attribute is used as a local key of each activity, it
+	 * is null for these creation notifications (and not the put-code of the
+	 * remote ORCID activity that gave origin to it). Since only the external
+	 * identifiers of the local productions are used to search for matches, the
+	 * remainder meta-data of the input local activities could be left null.
 	 * </p>
 	 *
 	 * <p>
-	 * ORCID works without minimal quality are ignored by this procedure.
+	 * ORCID activities without minimal quality are ignored by this procedure.
 	 * Currently, the quality criteria forces the existence of external
 	 * identifiers, the title, publication year and publication type (see
-	 * {@link ORCIDHelper#testMinimalQuality(Work)}). Works that do not match the
-	 * criteria can be imported with
+	 * {@link ORCIDHelper#testMinimalQuality(Work)}). Works that do
+	 * not match the criteria can be imported with
 	 * {@link #importInvalid(ORCIDClient, List, ProgressHandler)}. Note that
 	 * currently group merging simply collects the meta-data (other than the
-	 * external identifiers) from the preferred work, which is used in the
+	 * external identifiers) from the preferred activity, which is used in the
 	 * quality assessment.
-	 * </p>
-	 * 
-	 * <p>
-	 * This procedure performs a GET call to the API to obtain the summaries and
-	 * an additional GET call for each work identified as valid. The procedure
-	 * only fails if the initial GET fails. Asynchronous workers are used for
-	 * getting the full works.
 	 * </p>
 	 *
 	 * @param client
@@ -413,8 +490,8 @@ public final class PTCRISync {
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
-	 * @throws NullPointerException
-	 *             if any of the arguments is null
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static List<Work> importWorks(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, InterruptedException, NullPointerException {
@@ -463,15 +540,10 @@ public final class PTCRISync {
 
 	/**
 	 * <p>
-	 * Counts new valid works in an ORCID profile given a set of known local
-	 * CRIS productions, following the criteria of
-	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
-	 * </p>
-	 *
-	 * <p>
-	 * This procedure simply performs a GET call to the API to obtain the
-	 * summaries, since the remainder meta-data is irrelevant, rendering it more
-	 * efficient than {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
+	 * Counts new valid works in an ORCID profile given a set of
+	 * known local CRIS productions, following the criteria of
+	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}
+	 * but is more efficient, generating less API calls.
 	 * </p>
 	 *
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
@@ -484,12 +556,13 @@ public final class PTCRISync {
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @return the number of new valid works found in the ORCID profile
+	 * @return the number of new valid works found in the ORCID
+	 *         profile
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
-	 * @throws NullPointerException
-	 *             if any of the arguments is null
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Integer importCounter(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, NullPointerException {
@@ -524,21 +597,15 @@ public final class PTCRISync {
 
 	/**
 	 * <p>
-	 * Discovers new invalid works (that do not pass the quality criteria) in an
-	 * ORCID profile given a set of known local CRIS productions, as well as the
-	 * causes for invalidity (defined at {@link ORCIDHelper}). Other than the
+	 * Discovers new invalid works (that do not pass the quality criteria, see
+	 * {@link ORCIDHelper#testMinimalQuality(Work)}) in an ORCID
+	 * profile given a set of known local CRIS entries, as well as the causes
+	 * for invalidity (defined at {@link ORCIDHelper}). Other than the
 	 * criteria, the behavior is similar to that of
-	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}. Note that
-	 * currently group merging simply collects the meta-data (other than the
-	 * external identifiers) from the preferred work, which is used in the
-	 * quality assessment.
-	 * </p>
-	 *
-	 * <p>
-	 * This procedure performs a GET call to the API to obtain the summaries and
-	 * an additional GET call for each work identified as invalid. The procedure
-	 * only fails if the initial GET fails. Asynchronous workers are used for
-	 * getting the full works.
+	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}.
+	 * Note that currently group merging simply collects the meta-data (other
+	 * than the external identifiers) from the preferred activity, which is used
+	 * in the quality assessment.
 	 * </p>
 	 *
 	 * @see #importWorks(ORCIDClient, List, ProgressHandler)
@@ -547,19 +614,18 @@ public final class PTCRISync {
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param localWorks
-	 *            the full list of local productions
+	 *            the full list of local works
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @return the list of new invalid works found in the ORCID profile, as well
-	 *         as the reasons for invalidity
+	 * @return the list of new invalid works found in the ORCID profile
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
 	 * @throws InterruptedException
 	 *             if the asynchronous GET process is interrupted
-	 * @throws NullPointerException
-	 *             if any of the arguments is null
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static Map<Work, Set<String>> importInvalid(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException, InterruptedException, NullPointerException {
@@ -611,62 +677,56 @@ public final class PTCRISync {
 
 	/**
 	 * <p>
-	 * Discovers updates to existing local CRIS productions in an ORCID profile.
-	 * For each work group at ORCID (merged into as a single work by the
-	 * {@link ORCIDHelper helper}), finds matching local productions (i.e.,
-	 * those with shared {@link ExternalId external identifiers}) and
-	 * creates update notifications if not already up to date. To import works
-	 * without shared external identifiers,
-	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)} should be used
-	 * instead.
+	 * Discovers updates to existing local CRIS productions in an ORCID
+	 * profile. For each work group at ORCID (merged into as a
+	 * single activity by the {@link ORCIDHelper helper}), finds matching
+	 * local entries (i.e., those with shared {@link ExternalId external
+	 * identifiers}) and creates update notifications if not already up to date.
+	 * To import works without shared external identifiers,
+	 * {@link #importWorks(ORCIDClient, List, ProgressHandler)}
+	 * should be used instead.
 	 * </p>
 	 *
 	 * <p>
-	 * Currently, these update notifications simply take the shape of ORCID
-	 * works themselves (representing a matching work group). These works
-	 * contain only the meta-data that needs to be updated locally. Currently,
-	 * only the introduction of newly found external identifiers is considered
-	 * (i.e., those that were already present in the local productions that is
-	 * being updated are removed from the returned updates). Thus, the remainder
-	 * fields are returned null. Since only external identifiers are considered
-	 * the quality criteria is not enforced on the remote ORCID works.
+	 * These update notifications simply take the shape of ORCID activities
+	 * themselves (representing a matching activity group). These works contain
+	 * only the meta-data that needs to be updated locally. Currently, only the
+	 * introduction of newly found external identifiers is considered (i.e.,
+	 * those that were already present in the local entry that is being updated
+	 * are removed from the returned update). Thus, the remainder fields are
+	 * returned null. Since only external identifiers are considered the quality
+	 * criteria is not enforced on the remote ORCID activities.
 	 * </p>
 	 *
 	 * <p>
-	 * The local productions are tested to be up-to-date by simply checking
-	 * whether they contain every external identifiers in the ORCID group (see
-	 * {@link ORCIDHelper#updateWork(BigInteger, Work)}). Thus the remainder
-	 * meta-data of the local productions can be currently left null.
+	 * The local entries are tested to be up-to-date by simply checking whether
+	 * they contain every external identifiers in the ORCID group (see
+	 * {@link ORCIDHelper#hasNewSelfIDs(Work, WorkSummary)}. Thus
+	 * the remainder meta-data of the local entries can be currently left null.
 	 * </p>
-	 *
+	 * 
 	 * <p>
-	 * The put-code attribute is used as a local key of each CRIS productions.
-	 * This means that the returned works representing the updates have the
-	 * put-code of the local production that is to be updated (and not the put-code of
-	 * the ORCID works that gave origin to it).
-	 * </p>
-	 *
-	 * <p>
-	 * This procedure simply performs a GET call to the API to obtain the
-	 * summaries, since the remainder meta-data is irrelevant.
+	 * The put-code attribute is used as a local key of each CRIS production.
+	 * This means that the returned activities representing the updates have the
+	 * put-code of the local entry that is to be updated (and not the put-code
+	 * of the ORCID activity that gave origin to it).
 	 * </p>
 	 *
 	 * @param client
 	 *            the ORCID client defining the CRIS Member API and user the
 	 *            profile to be managed
 	 * @param localWorks
-	 *            the list of local productions for which we wish to discover
-	 *            updates, i.e., keep synchronized with ORCID
+	 *            the full list of local productions
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @return the list of updates found in the ORCID profile, pointing to the
-	 *         respective local production
+	 * @return the list of work updates found in the ORCID profile, pointing
+	 *         to the respective local activity
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
-	 * @throws NullPointerException
-	 *             if any of the arguments is null
+	 * @throws IllegalArgumentException
+	 *             if null arguments
 	 */
 	public static List<Work> importUpdates(ORCIDClient client, List<Work> localWorks, ProgressHandler handler)
 			throws OrcidClientException {

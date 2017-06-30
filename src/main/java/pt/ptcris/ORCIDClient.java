@@ -86,6 +86,7 @@ public interface ORCIDClient {
 	 *
 	 * @param putcode
 	 *            the put-code of the work to be deleted
+	 * @return the outcome of the delete request
 	 */
 	public PTCRISyncResult deleteWork(BigInteger putcode);
 
@@ -97,6 +98,7 @@ public interface ORCIDClient {
 	 *            the put-code of the work to be updated
 	 * @param work
 	 *            the new state of the work
+	 * @return the outcome of the update request
 	 */
 	public PTCRISyncResult updateWork(BigInteger putcode, Work work);
 

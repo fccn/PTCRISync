@@ -1,6 +1,5 @@
 pt.ptcris
 pt.ptcris.exceptions
 pt.ptcris.handlers
-pt.ptcris.test
-pt.ptcris.test.scenarios
+pt.ptcris.merge
 pt.ptcris.utils

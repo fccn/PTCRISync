@@ -155,7 +155,7 @@ public class ORCIDHelper {
 	 * process is asynchronous. If the process fails, the exception is embedded in 
 	 * a failed {@link PTCRISyncResult}.
 	 *
-	 * @see ORCIDClient#getWork(BigInteger)
+	 * @see ORCIDClient#getWork(WorkSummary)
 	 * 
 	 * @param mergedWork
 	 *            the work summary representing a merged group
@@ -194,10 +194,15 @@ public class ORCIDHelper {
 	 *
 	 * @see ORCIDClient#getWorks(List)
 	 * 
-	 * @param mergedWork
+	 * @param mergedWorks
 	 *            the work summaries representing the merged groups
 	 * @param cb
 	 *            the callback object
+	 * @param handler
+	 *            the progress handler responsible for receiving progress
+	 *            updates
+	 * @throws OrcidClientException
+	 *             if the communication with ORCID fails
 	 * @throws NullPointerException
 	 *             if the merged work is null
 	 */
@@ -310,8 +315,11 @@ public class ORCIDHelper {
 	 * communication fails, error message is included in the result. If the
 	 * overall communication fails, the result is replicated for each input.
 	 *
-	 * @param works
+	 * @param localWorks
 	 *            the new works to be added
+	 * @param handler
+	 *            the progress handler responsible for receiving progress
+	 *            updates
 	 * @return the results of the ORCID call for each input work
 	 * @throws NullPointerException
 	 *             if the work is null
@@ -391,6 +399,7 @@ public class ORCIDHelper {
 	 * @see ORCIDClient#deleteWork(BigInteger)
 	 * 
 	 * @param putcode the remote put-code of the work to be deleted
+	 * @return the result of the operation
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
