@@ -7,7 +7,7 @@
  * shall be included in its entirety in all copies or substantial portion of
  * the software.
  */
-package pt.ptcris.merge;
+package pt.ptcris.grouper;
 
 import java.util.HashSet;
 import java.util.Set;

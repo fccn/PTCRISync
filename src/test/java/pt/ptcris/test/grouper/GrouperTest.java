@@ -18,7 +18,7 @@ import java.util.List;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.PTCRISGrouper;
-import pt.ptcris.merge.ActivityGroup;
+import pt.ptcris.grouper.ActivityGroup;
 import pt.ptcris.test.TestHelper;
 
 public class GrouperTest {

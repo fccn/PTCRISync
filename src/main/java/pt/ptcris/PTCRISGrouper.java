@@ -12,9 +12,9 @@ package pt.ptcris;
 import java.util.Collection;
 import java.util.List;
 
-import pt.ptcris.merge.ActivityGroup;
-import pt.ptcris.merge.GroupGenerator;
-import pt.ptcris.merge.ActivityComparator;
+import pt.ptcris.grouper.ActivityComparator;
+import pt.ptcris.grouper.ActivityGroup;
+import pt.ptcris.grouper.GroupGenerator;
 
 /**
  * <p>
@@ -36,7 +36,7 @@ import pt.ptcris.merge.ActivityComparator;
  * fields).
  * 
  * TODO: Singleton groups are being returned. Does this encumber the process?
- * Should they be filtered by PTCRIS or by the users?
+ * Should they be filtered by the grouper or by requesting services?
  */
 public class PTCRISGrouper {
 
@@ -51,8 +51,7 @@ public class PTCRISGrouper {
 	 *            the provided activity comparator
 	 * @return the local activities, grouped
 	 */
-	public static <E> List<ActivityGroup<E>> group(
-			Collection<E> locals, ActivityComparator<E> comparator) {
+	public static <E> List<ActivityGroup<E>> group(Collection<E> locals, ActivityComparator<E> comparator) {
 		GroupGenerator<E> gen = new GroupGenerator<E>(comparator);
 		for (E e : locals)
 			gen.group(e);

@@ -7,14 +7,22 @@
  * shall be included in its entirety in all copies or substantial portion of
  * the software.
  */
-package pt.ptcris.merge;
+package pt.ptcris.grouper;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A generator that, provided the concrete {@link ActivityComparator activity
+ * comparator} iteratively groups works that are below the threshold as
+ * {@link ActivityGroup activity groups}.
+ * 
+ * @param <A>
+ *            the type of activities being grouped
+ */
 public class GroupGenerator<E> {
 
-	private List<ActivityGroup<E>> groups = new ArrayList<ActivityGroup<E>>();
+	private final List<ActivityGroup<E>> groups = new ArrayList<ActivityGroup<E>>();
 
 	private final ActivityComparator<E> comparator;
 

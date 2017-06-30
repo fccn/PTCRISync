@@ -11,7 +11,7 @@ package pt.ptcris.test.grouper;
 
 import org.um.dsi.gavea.orcid.model.work.Work;
 
-import pt.ptcris.merge.ActivityComparator;
+import pt.ptcris.grouper.ActivityComparator;
 import pt.ptcris.utils.ExternalIdsDiff;
 import pt.ptcris.utils.ORCIDHelper;
 

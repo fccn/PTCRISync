@@ -7,7 +7,7 @@
  * shall be included in its entirety in all copies or substantial portion of
  * the software.
  */
-package pt.ptcris.merge;
+package pt.ptcris.grouper;
 
 /**
  * An activity comparator used by the grouper to creates groups of matching

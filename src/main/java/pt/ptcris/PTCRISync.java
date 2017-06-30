@@ -41,47 +41,52 @@ import pt.ptcris.utils.UpdateRecord;
 /**
  * <p>
  * An implementation of the PTCRISync synchronization service based on the
- * version 5.0 of the specification. This service allows CRIS services to
- * maintain their repositories synchronized with ORCID. This requires the CRIS
- * service to have access to the ORCID Member API.
+ * version 0.4.3 of the specification, enhanced with minimal quality criteria.
+ * This service allows CRIS services to maintain their repositories synchronized
+ * with ORCID. This requires the CRIS service to have access to the ORCID Member
+ * API.
  * </p>
  *
  * <p>
- * The service has two main functionalities: to keep a set of local productions
+ * The service has two main functionalities: to keep a set of local activities
  * updated in an ORCID user profile through an
- * {@link #export(ORCIDClient, List, ProgressHandler) export} procedure, and
- * import productions not known locally from the ORCID profile, either through
- * the {@link #importWorks(ORCIDClient, List, ProgressHandler) import} for
- * completely new productions or through the
- * {@link #importUpdates(ORCIDClient, List, ProgressHandler) import} for new
- * information for already known productions. Works must meet certain quality
- * criteria to be imported (the set of invalid works can be retrieved as well
- * through {@link #importInvalid(ORCIDClient, List, ProgressHandler)}.
+ * {@link #exportBase(ORCIDHelper, List, Collection, boolean, ProgressHandler)
+ * export} procedure, and import activities not known locally from the ORCID
+ * profile, either through the
+ * {@link #importBase(ORCIDHelper, List, Collection, ProgressHandler) import}
+ * for completely new activities or through the
+ * {@link #importUpdatesBase(ORCIDHelper, List, Collection, ProgressHandler)
+ * import} for new information for already known entries. Activities must meet
+ * certain quality criteria to be imported (the set of invalid activities can be
+ * retrieved as well through
+ * {@link #importInvalidBase(ORCIDHelper, List, Collection, ProgressHandler)}.
  * </p>
  *
  * <p>
  * The implementation of the service assumes that the local CRIS communicates
- * the local productions following the established ORCID schema, according to
- * the Member API 2.0rc2. This uniforms the API and simplifies the
+ * the local activities following the established ORCID schema, according to the
+ * ORCID Member API 2.0. This uniforms the API and simplifies the
  * synchronization process. The current version focuses on synchronizing
- * research productions, which must be encoded as ORCID {@link Work works}.
+ * research productions and funding entries, which must be encoded as ORCID
+ * {@link Work works} and {@link Funding funding} activities.
  * </p>
  *
  * <p>
  * The communication with ORCID is encapsulated in an ORCID {@link ORCIDClient
  * client} that contains information regarding the CRIS Member API and the ORCID
  * profile that is to be managed. An {@link ORCIDHelper helper} provides utility
- * methods for the synchronization of works.
+ * methods for the synchronization of activities.
  * </p>
  * 
  * <p>
- * The procedures do not currently consider the contributors (authors) of works
- * when assessing the quality criteria nor when assessing whether works are
+ * The procedures do not currently consider the contributors (authors) of activities
+ * when assessing the quality criteria nor when assessing whether they are
  * up-to-date, as this information is not available in ORCID summaries and would
  * require additional calls to the ORCID API.
  * </p>
  *
- * See <a href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>.
+ * See <a
+ * href="https://ptcris.pt/hub-ptcris/">https://ptcris.pt/hub-ptcris/</a>.
  */
 public final class PTCRISync {
 	

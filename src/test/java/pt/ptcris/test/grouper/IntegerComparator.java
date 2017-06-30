@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.ptcris.PTCRISGrouper;
-import pt.ptcris.merge.ActivityComparator;
-import pt.ptcris.merge.ActivityGroup;
+import pt.ptcris.grouper.ActivityComparator;
+import pt.ptcris.grouper.ActivityGroup;
 
 /**
  * An integer comparator, shows that activities can be generic objects.
