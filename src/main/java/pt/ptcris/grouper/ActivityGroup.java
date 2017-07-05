@@ -38,7 +38,7 @@ public class ActivityGroup<A> {
 	 * 
 	 * @return the activities of the group
 	 */
-	Set<A> getActivities() {
+	public Set<A> getActivities() {
 		if (activities == null)
 			activities = new HashSet<A>();
 		return activities;
