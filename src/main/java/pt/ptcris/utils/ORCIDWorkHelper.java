@@ -311,7 +311,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	 * the summaries.
 	 */
 	@Override
-	protected Set<String> testMinimalQuality(WorkSummary work, Collection<Work> others) {
+	public Set<String> testMinimalQuality(WorkSummary work, Collection<Work> others) {
 		assert work != null;
 		if (others == null) others = new ArrayList<Work>();
 
@@ -403,9 +403,9 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 
 	/** {@inheritDoc} */
 	@Override
-	protected WorkSummary summarize(Work work) {
+	public WorkSummary summarize(Work work) {
 		assert work != null;
-
+		
 		final WorkSummary dummy = new WorkSummary();
 		copy(work, dummy);
 		dummy.setPublicationDate(work.getPublicationDate());

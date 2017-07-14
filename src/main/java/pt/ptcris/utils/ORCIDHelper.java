@@ -686,7 +686,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            other coexisting activities
 	 * @return the set of invalid meta-data, empty if valid
 	 */
-	protected abstract Set<String> testMinimalQuality(S summary, Collection<E> others);
+	public abstract Set<String> testMinimalQuality(S summary, Collection<E> others);
 	
 	/**
 	 * Creates an update to an activity given the difference on meta-data.
@@ -728,7 +728,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity to be summarized
 	 * @return the corresponding ORCID activity summary
 	 */
-	protected abstract S summarize(E activity);
+	public abstract S summarize(E activity);
 
 	/*
 	 * Helper static methods that build on the generic methods.

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.um.dsi.gavea.orcid.client.OrcidAccessToken;
+import org.um.dsi.gavea.orcid.client.OrcidOAuthClient;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.activities.Fundings;
@@ -45,7 +46,7 @@ import pt.ptcris.utils.ORCIDWorkHelper;
 public class ORCIDClientImpl implements ORCIDClient {
 
 	private final OrcidAccessToken orcidToken;
-	private final TempORCIDClient orcidClient;
+	private final OrcidOAuthClient orcidClient;
 	private final String clientId;
 	private final int threads;
 
@@ -147,8 +148,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 		this.orcidToken = orcidToken;
 		this.clientId = clientId;
 		this.threads = threads;
-		this.orcidClient = new TempORCIDClient(loginUri, apiUri, clientId,
-				clientSecret, redirectUri, debugMode);
+		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId, clientSecret, redirectUri, debugMode);
 	}
 
 	/**
@@ -188,7 +188,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 */
 	@Override
 	public Fundings getFundingsSummary() throws OrcidClientException {
-		return orcidClient.readFundingsSummary(orcidToken);
+		return orcidClient.readFundingSummary(orcidToken);
 	}
 
 	/**

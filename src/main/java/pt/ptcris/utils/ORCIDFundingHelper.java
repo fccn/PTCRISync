@@ -272,7 +272,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	 * the summaries.
 	 */
 	@Override
-	protected Set<String> testMinimalQuality(FundingSummary funding, Collection<Funding> others) {
+	public Set<String> testMinimalQuality(FundingSummary funding, Collection<Funding> others) {
 		assert funding != null;
 		if (others == null) others = new ArrayList<Funding>();
 		
@@ -361,7 +361,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected FundingSummary summarize(Funding funding) {
+	public FundingSummary summarize(Funding funding) {
 		assert funding != null;
 		
 		final FundingSummary dummy = new FundingSummary();

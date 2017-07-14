@@ -17,7 +17,7 @@ import java.util.List;
  * comparator} iteratively groups works that are below the threshold as
  * {@link ActivityGroup activity groups}.
  * 
- * @param <A>
+ * @param <E>
  *            the type of activities being grouped
  */
 public class GroupGenerator<E> {
