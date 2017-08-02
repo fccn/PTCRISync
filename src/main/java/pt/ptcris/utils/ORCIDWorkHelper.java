@@ -333,6 +333,10 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 				res.add(INVALID_PUBLICATIONDATE);
 			else if (work.getPublicationDate().getYear() == null)
 				res.add(INVALID_YEAR);
+			else if (work.getPublicationDate().getYear().getValue().length() != 4)
+				res.add(INVALID_YEAR);
+
+			// TODO: months and days must have two characters; but these are optional; should it be tested here?
 		}
 		Map<Work, ExternalIdsDiff> worksDiffs = getSelfExternalIdsDiffS(work,
 				others);

@@ -287,13 +287,21 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 			res.add(INVALID_TITLE);
 		if (funding.getType() == null)
 			res.add(INVALID_TYPE);
-		if (funding.getOrganization() == null)
+		if (funding.getOrganization() == null 
+				|| funding.getOrganization().getAddress() == null
+				|| funding.getOrganization().getAddress().getCity() == null 
+				|| funding.getOrganization().getAddress().getCountry() == null)
 			res.add(INVALID_ORGANIZATION);
 		if (funding.getStartDate() == null)
 			res.add(INVALID_PUBLICATIONDATE);
 		else if (funding.getStartDate().getYear() == null)
 			res.add(INVALID_YEAR);
-
+		else if (funding.getStartDate().getYear().getValue().length() != 4)
+			res.add(INVALID_YEAR);
+		
+		// TODO: months and days must have two characters; but these are optional; should it be tested here?
+		// TODO: also applies to "end dates", which are optional as well
+		
 		Map<Funding, ExternalIdsDiff> fundingsDiffs = getSelfExternalIdsDiffS(funding, others);
 		for (Funding match : fundingsDiffs.keySet())
 			if (match.getPutCode() != funding.getPutCode() && !fundingsDiffs.get(match).same.isEmpty())
