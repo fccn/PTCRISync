@@ -331,11 +331,12 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 				|| (work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
 			if (work.getPublicationDate() == null)
 				res.add(INVALID_PUBLICATIONDATE);
-			else if (work.getPublicationDate().getYear() == null)
-				res.add(INVALID_YEAR);
-			else if (work.getPublicationDate().getYear().getValue().length() != 4)
-				res.add(INVALID_YEAR);
-
+			else {
+				if (!testQualityFuzzyDate(work.getPublicationDate()))
+					res.add(INVALID_PUBLICATIONDATE);
+				if (work.getPublicationDate().getYear() == null)
+					res.add(INVALID_YEAR);
+			}
 			// TODO: months and days must have two characters; but these are optional; should it be tested here?
 		}
 		Map<Work, ExternalIdsDiff> worksDiffs = getSelfExternalIdsDiffS(work,
