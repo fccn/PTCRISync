@@ -188,7 +188,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 */
 	@Override
 	public Fundings getFundingsSummary() throws OrcidClientException {
-		return orcidClient.readFundingSummary(orcidToken);
+		return orcidClient.readFundingsSummary(orcidToken);
 	}
 
 	/**
