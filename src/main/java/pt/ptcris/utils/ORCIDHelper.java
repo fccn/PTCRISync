@@ -823,6 +823,24 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	}
 
 	/**
+	 * Clones an external identifier.
+	 * 
+	 * @param id
+	 *            the identifier to be clones
+	 * @return the clone
+	 */
+	static ExternalId clone(ExternalId id) {
+		assert id != null;
+		
+		final ExternalId eid = new ExternalId();
+		eid.setExternalIdRelationship(id.getExternalIdRelationship());
+		eid.setExternalIdType(id.getExternalIdType().toLowerCase());
+		eid.setExternalIdValue(id.getExternalIdValue());
+		eid.setExternalIdUrl(id.getExternalIdUrl());
+		return eid;
+	}
+	
+	/**
 	 * Retrieves the type of an activity. Build on
 	 * {@link #getTypeS(ElementSummary)}.
 	 *

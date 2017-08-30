@@ -256,13 +256,8 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	
 		final List<ExternalId> eids = getPartOfExternalIdsS(dummy)
 				.getExternalId();
-		for (ExternalId id : group.getExternalIds().getExternalId()) {
-			final ExternalId eid = new ExternalId();
-			eid.setExternalIdRelationship(id.getExternalIdRelationship());
-			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
-			eid.setExternalIdValue(id.getExternalIdValue());
-			eids.add(eid);
-		}
+		for (ExternalId id : group.getExternalIds().getExternalId())
+			eids.add(clone(id));
 		dummy.setExternalIds(new ExternalIds(eids));
 	
 		return dummy;
