@@ -148,7 +148,8 @@ public class ORCIDClientImpl implements ORCIDClient {
 		this.orcidToken = orcidToken;
 		this.clientId = clientId;
 		this.threads = threads;
-		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId, clientSecret, redirectUri, debugMode);
+		this.orcidClient = new OrcidOAuthClient(loginUri, apiUri, clientId,
+				clientSecret, redirectUri, debugMode);
 	}
 
 	/**

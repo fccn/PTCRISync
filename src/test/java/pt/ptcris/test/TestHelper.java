@@ -19,6 +19,8 @@ import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate;
+import org.um.dsi.gavea.orcid.model.common.FuzzyDate.Day;
+import org.um.dsi.gavea.orcid.model.common.FuzzyDate.Month;
 import org.um.dsi.gavea.orcid.model.common.Iso3166Country;
 import org.um.dsi.gavea.orcid.model.common.OrganizationAddress;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate.Year;
@@ -56,7 +58,7 @@ public class TestHelper {
 			else
 				work.setType(WorkType.CONFERENCE_PAPER);
 
-			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), new Month("03"), new Day("21"));
 			work.setPublicationDate(date);
 
 		}
@@ -240,7 +242,7 @@ public class TestHelper {
 			else
 				work.setType(FundingType.GRANT);
 
-			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), new Month("02"), null);
 			work.setStartDate(date);
 
 		}
@@ -323,7 +325,7 @@ public class TestHelper {
 			if (meta.equals("0"))
 				work.setType(FundingType.AWARD);
 
-			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), new Month("02"), null);
 			work.setStartDate(date);
 
 		}

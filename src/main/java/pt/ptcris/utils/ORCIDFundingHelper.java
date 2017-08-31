@@ -219,13 +219,8 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 		final FundingSummary dummy = cloneS(preferred);
 	
 		final List<ExternalId> eids = getPartOfExternalIdsS(dummy).getExternalId();
-		for (ExternalId id : group.getExternalIds().getExternalId()) {
-			final ExternalId eid = new ExternalId();
-			eid.setExternalIdRelationship(id.getExternalIdRelationship());
-			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
-			eid.setExternalIdValue(id.getExternalIdValue());
-			eids.add(eid);
-		}
+		for (ExternalId id : group.getExternalIds().getExternalId()) 
+			eids.add(clone(id));
 		dummy.setExternalIds(new ExternalIds(eids));
 	
 		return dummy;
@@ -235,8 +230,8 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	 * {@inheritDoc}
 	 *
 	 * The considered fields are: title, start date (year), funding type and
-	 * part-of external identifiers. All this meta-data is available in funding
-	 * summaries.
+	 * part-of external identifiers (excluding URLs). All this meta-data is
+	 * available in funding summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -287,13 +282,23 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 			res.add(INVALID_TITLE);
 		if (funding.getType() == null)
 			res.add(INVALID_TYPE);
-		if (funding.getOrganization() == null)
+		if (funding.getOrganization() == null 
+				|| funding.getOrganization().getAddress() == null
+				|| funding.getOrganization().getAddress().getCity() == null 
+				|| funding.getOrganization().getAddress().getCountry() == null)
 			res.add(INVALID_ORGANIZATION);
 		if (funding.getStartDate() == null)
 			res.add(INVALID_PUBLICATIONDATE);
-		else if (funding.getStartDate().getYear() == null)
-			res.add(INVALID_YEAR);
-
+		else {
+			if (!testQualityFuzzyDate(funding.getStartDate()))
+				res.add(INVALID_PUBLICATIONDATE);
+			if (funding.getStartDate().getYear() == null)
+				res.add(INVALID_YEAR);
+		}		
+		
+		if (funding.getEndDate() != null && !!testQualityFuzzyDate(funding.getEndDate()))
+			res.add(INVALID_PUBLICATIONDATE);
+			
 		Map<Funding, ExternalIdsDiff> fundingsDiffs = getSelfExternalIdsDiffS(funding, others);
 		for (Funding match : fundingsDiffs.keySet())
 			if (match.getPutCode() != funding.getPutCode() && !fundingsDiffs.get(match).same.isEmpty())

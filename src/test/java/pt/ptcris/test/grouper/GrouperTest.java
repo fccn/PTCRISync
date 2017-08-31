@@ -41,7 +41,7 @@ public class GrouperTest {
 		works.add(work7);
 		
 		List<ActivityGroup<Work>> groups = PTCRISGrouper.group(works, new StdWorkComparator());
-		
+		groups.get(0).getActivities();
 		assertEquals(groups.size(), 4);
 		
 		return;

@@ -31,6 +31,7 @@ import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
+import org.um.dsi.gavea.orcid.model.common.FuzzyDate;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
@@ -92,10 +93,10 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	public static final String INVALID_ORGANIZATION = "Organization";
 	public static final String OVERLAPPING_EIDs = "OverlappingEIDs";
 
-	protected final int bulk_size_add;
-	protected final int bulk_size_get;
+	final int bulk_size_add;
+	final int bulk_size_get;
 
-	protected static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
+	static final Logger _log = LoggerFactory.getLogger(ORCIDHelper.class);
 
 	/**
 	 * The client used to communicate with ORCID. Defines the ORCID user profile
@@ -103,7 +104,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 */
 	public final ORCIDClient client;
 
-	protected ExecutorService executor;
+	ExecutorService executor;
 
 	/**
 	 * Initializes the helper with a given ORCID client, which defines whether
@@ -138,7 +139,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails
 	 */
-	protected abstract List<G> getSummariesClient() throws OrcidClientException;
+	abstract List<G> getSummariesClient() throws OrcidClientException;
 
 	/**
 	 * Retrieves through the ORCID client a single full activity for which the
@@ -150,7 +151,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            activity
 	 * @return the remote full ORCID activity
 	 */
-	protected abstract PTCRISyncResult<E> readClient(S summary);
+	abstract PTCRISyncResult<E> readClient(S summary);
 
 	/**
 	 * Retrieves through the ORCID client every full activity for which
@@ -163,7 +164,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            activities
 	 * @return the remote full ORCID activities
 	 */
-	protected abstract Map<BigInteger, PTCRISyncResult<E>> readClient(List<S> summaries);
+	abstract Map<BigInteger, PTCRISyncResult<E>> readClient(List<S> summaries);
 
 	/**
 	 * Creates a worker to asynchronously read a single full activity for which
@@ -179,7 +180,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            a handler to report progress
 	 * @return the get worker
 	 */
-	protected abstract ORCIDWorker<E> readWorker(S summary, Map<BigInteger, PTCRISyncResult<E>> cb, ProgressHandler handler);
+	abstract ORCIDWorker<E> readWorker(S summary, Map<BigInteger, PTCRISyncResult<E>> cb, ProgressHandler handler);
 
 	/**
 	 * Creates a worker to asynchronously read full activities for which the
@@ -196,7 +197,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            a handler to report progress
 	 * @return the get worker
 	 */
-	protected abstract ORCIDWorker<E> readWorker(List<S> summaries, Map<BigInteger, PTCRISyncResult<E>> cb, ProgressHandler handler);
+	abstract ORCIDWorker<E> readWorker(List<S> summaries, Map<BigInteger, PTCRISyncResult<E>> cb, ProgressHandler handler);
 
 	/**
 	 * Adds through the ORCID client a new full activity. If the communication
@@ -207,7 +208,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the full ORCID activity to be added
 	 * @return the result of the operation
 	 */
-	protected abstract PTCRISyncResult<E> addClient(E activity);
+	abstract PTCRISyncResult<E> addClient(E activity);
 
 	/**
 	 * Adds through the ORCID client a set of new full activities. If the
@@ -218,7 +219,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the full ORCID activities to be added
 	 * @return the result of the operation
 	 */
-	protected abstract List<PTCRISyncResult<E>> addClient(List<E> activities);
+	abstract List<PTCRISyncResult<E>> addClient(List<E> activities);
 
 	/**
 	 * Updates through the ORCID client a remote activity. If the communication
@@ -231,7 +232,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the new state of the ORCID activity
 	 * @return the result of the operation
 	 */
-	protected abstract PTCRISyncResult<E> updateClient(BigInteger remotePutcode, E activity);
+	abstract PTCRISyncResult<E> updateClient(BigInteger remotePutcode, E activity);
 
 	/**
 	 * Deletes through the ORCID client a remote activity. If the communication
@@ -242,7 +243,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the put-code of the remote ORCID activity
 	 * @return the result of the operation
 	 */
-	protected abstract PTCRISyncResult<E> deleteClient(BigInteger remotePutcode);
+	abstract PTCRISyncResult<E> deleteClient(BigInteger remotePutcode);
 
 	/*
 	 * Helper client methods that build on the generic methods.
@@ -604,7 +605,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity summary
 	 * @return the summary's type
 	 */
-	protected abstract T getTypeS(S summary);
+	abstract T getTypeS(S summary);
 
 	/**
 	 * Tests whether a given external identifier type name is valid.
@@ -613,7 +614,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            a potential external identifier type name
 	 * @return whether the string is a valid external identifier type
 	 */
-	protected abstract boolean validExternalIdType(String eid);
+	abstract boolean validExternalIdType(String eid);
 
 	/**
 	 * Retrieves the title of an activity summary.
@@ -622,7 +623,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity summary
 	 * @return the summary's title if defined, empty string otherwise
 	 */
-	protected abstract String getTitleS(S summary);
+	abstract String getTitleS(S summary);
 
 	/**
 	 * Retrieves the publication year of an activity summary.
@@ -631,7 +632,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity summary
 	 * @return the summary's publication year, may be null
 	 */
-	protected abstract String getYearS(S summary);
+	abstract String getYearS(S summary);
 
 	/**
 	 * Retrieve the activity summaries that compose an activity group.
@@ -641,7 +642,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            summaries
 	 * @return the OCRID activity summaries contained in the group
 	 */
-	protected abstract List<S> getGroupSummaries(G group);
+	abstract List<S> getGroupSummaries(G group);
 
 	/**
 	 * Merges an activity group into a single activity summary. Simply selects
@@ -656,7 +657,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * @throws IllegalArgumentException
 	 *             if the group is empty
 	 */
-	protected abstract S group(G group) throws IllegalArgumentException;
+	abstract S group(G group) throws IllegalArgumentException;
 
 	/**
 	 * Checks whether an activity is already up to date regarding another one,
@@ -669,7 +670,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the up to date ORCID activity
 	 * @return true if the considered meta-data is the same, false otherwise.
 	 */
-	protected abstract boolean isMetaUpToDate(E preElement, S posElement);
+	abstract boolean isMetaUpToDate(E preElement, S posElement);
 
 	/**
 	 * Tests whether an activity summary has minimal quality to be synchronized,
@@ -709,7 +710,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity summary to be cloned
 	 * @return the cloned ORCID activity summary
 	 */
-	protected abstract S cloneS(S summary);
+	abstract S cloneS(S summary);
 
 	/**
 	 * Clones an activity.
@@ -718,7 +719,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity to be cloned
 	 * @return the cloned ORCID activity
 	 */
-	protected abstract E cloneE(E activity);
+	abstract E cloneE(E activity);
 
 	/**
 	 * Summarizes an activity into an activity summary. Most methods on
@@ -779,7 +780,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * @param key
 	 *            the local key
 	 */
-	protected static void setWorkLocalKey(ElementSummary activity, BigInteger key) {
+	static void setWorkLocalKey(ElementSummary activity, BigInteger key) {
 		if (activity == null)
 			throw new IllegalArgumentException("Null element.");
 
@@ -808,7 +809,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * @param to
 	 *            the target summary
 	 */
-	protected static void copy(ElementSummary from, ElementSummary to) {
+	static void copy(ElementSummary from, ElementSummary to) {
 		assert from != null;
 		assert to != null;
 
@@ -821,6 +822,24 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		to.setVisibility(from.getVisibility());
 	}
 
+	/**
+	 * Clones an external identifier.
+	 * 
+	 * @param id
+	 *            the identifier to be clones
+	 * @return the clone
+	 */
+	static ExternalId clone(ExternalId id) {
+		assert id != null;
+		
+		final ExternalId eid = new ExternalId();
+		eid.setExternalIdRelationship(id.getExternalIdRelationship());
+		eid.setExternalIdType(id.getExternalIdType().toLowerCase());
+		eid.setExternalIdValue(id.getExternalIdValue());
+		eid.setExternalIdUrl(id.getExternalIdUrl());
+		return eid;
+	}
+	
 	/**
 	 * Retrieves the type of an activity. Build on
 	 * {@link #getTypeS(ElementSummary)}.
@@ -841,7 +860,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity
 	 * @return the activity's title if defined, empty string otherwise
 	 */
-	protected final String getTitleE(E activity) {
+	final String getTitleE(E activity) {
 		return getTitleS(summarize(activity));
 	}
 
@@ -853,7 +872,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            the ORCID activity
 	 * @return the activity's publication year, may be null
 	 */
-	protected final String getPubYearE(E activity) {
+	final String getPubYearE(E activity) {
 		return getYearS(summarize(activity));
 	}
 
@@ -866,7 +885,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            identifiers
 	 * @return the non-null part-of external identifiers
 	 */
-	protected final ExternalIds getPartOfExternalIdsS(S summary) {
+	final ExternalIds getPartOfExternalIdsS(S summary) {
 		if (summary == null)
 			throw new IllegalArgumentException("Null element.");
 		
@@ -900,7 +919,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            identifiers
 	 * @return the non-null self external identifiers
 	 */
-	protected final ExternalIds getSelfExternalIdsS(S summary) {
+	final ExternalIds getSelfExternalIdsS(S summary) {
 		if (summary == null)
 			throw new IllegalArgumentException("Null element.");
 		
@@ -958,13 +977,16 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * Tests whether two sets of (non-exclusively self or part-of) external
 	 * identifiers are identical.
 	 * 
+	 * TODO: the URLs assigned to the external ids are not being considered in
+	 * this comparison.
+	 * 
 	 * @param eids1
 	 *            the first set of external identifiers
 	 * @param eids2
 	 *            the second set of external identifiers
 	 * @return whether the external identifiers are identical
 	 */
-	protected static boolean identicalExternalIDs(ExternalIds eids1,
+	static boolean identicalExternalIDs(ExternalIds eids1,
 			ExternalIds eids2) {
 		assert eids1 != null;
 		assert eids2 != null;
@@ -1001,6 +1023,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Checks whether an activity is already up to date regarding another one,
 	 * considering the self {@link ExternalIdentifier external identifiers}.
+	 * This comparison disregards the URLs assigned to the identifiers.
 	 *
 	 * @param preElement
 	 *            the potentially out of date ORCID activity
@@ -1111,4 +1134,22 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		return testMinimalQuality(summary, new HashSet<E>());
 	}
 
+	/**
+	 * Tests whether a date is well constructed.
+	 * 
+	 * @param date
+	 *            the date to be tested
+	 * @return whether the date is well formed
+	 */
+	static boolean testQualityFuzzyDate(FuzzyDate date) {
+		if (date.getYear() != null && date.getYear().getValue().length() != 4)
+			return false;
+		if (date.getMonth() != null && date.getMonth().getValue().length() != 2)
+			return false;
+		if (date.getDay() != null && date.getDay().getValue().length() != 2)
+			return false;
+		
+		return true;
+	}
+	
 }

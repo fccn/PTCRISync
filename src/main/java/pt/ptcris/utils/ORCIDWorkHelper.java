@@ -257,13 +257,8 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	
 		final List<ExternalId> eids = getPartOfExternalIdsS(dummy)
 				.getExternalId();
-		for (ExternalId id : group.getExternalIds().getExternalId()) {
-			final ExternalId eid = new ExternalId();
-			eid.setExternalIdRelationship(id.getExternalIdRelationship());
-			eid.setExternalIdType(id.getExternalIdType().toLowerCase());
-			eid.setExternalIdValue(id.getExternalIdValue());
-			eids.add(eid);
-		}
+		for (ExternalId id : group.getExternalIds().getExternalId())
+			eids.add(clone(id));
 		dummy.setExternalIds(new ExternalIds(eids));
 	
 		return dummy;
@@ -273,8 +268,8 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	 * {@inheritDoc}
 	 *
 	 * The considered fields are: title, publication date (year), work type and
-	 * part-of external identifiers. All this meta-data is available in work
-	 * summaries.
+	 * part-of external identifiers (excluding URLs). All this meta-data is
+	 * available in work summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.
@@ -332,8 +327,13 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 				|| (work.getType() != WorkType.DATA_SET && work.getType() != WorkType.RESEARCH_TECHNIQUE)) {
 			if (work.getPublicationDate() == null)
 				res.add(INVALID_PUBLICATIONDATE);
-			else if (work.getPublicationDate().getYear() == null)
-				res.add(INVALID_YEAR);
+			else {
+				if (!testQualityFuzzyDate(work.getPublicationDate()))
+					res.add(INVALID_PUBLICATIONDATE);
+				if (work.getPublicationDate().getYear() == null)
+					res.add(INVALID_YEAR);
+			}
+			// TODO: months and days must have two characters; but these are optional; should it be tested here?
 		}
 		Map<Work, ExternalIdsDiff> worksDiffs = getSelfExternalIdsDiffS(work,
 				others);
@@ -405,7 +405,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	@Override
 	public WorkSummary summarize(Work work) {
 		assert work != null;
-		
+
 		final WorkSummary dummy = new WorkSummary();
 		copy(work, dummy);
 		dummy.setPublicationDate(work.getPublicationDate());

@@ -71,6 +71,7 @@ public class Tester implements ProgressHandler {
 	}
 
 	private void progress() {
-		setProgress((step*100)/max);
+		if (max > 0)
+			setProgress((step*100)/max);
 	}
 }
