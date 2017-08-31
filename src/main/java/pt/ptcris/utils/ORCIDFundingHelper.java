@@ -230,8 +230,8 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	 * {@inheritDoc}
 	 *
 	 * The considered fields are: title, start date (year), funding type and
-	 * part-of external identifiers. All this meta-data is available in funding
-	 * summaries.
+	 * part-of external identifiers (excluding URLs). All this meta-data is
+	 * available in funding summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.

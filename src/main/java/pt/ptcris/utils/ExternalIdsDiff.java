@@ -71,7 +71,10 @@ public final class ExternalIdsDiff {
 	 * identifiers. Only considered duplicate if external identifiers have the
 	 * same relationship and are not "part of".
 	 *
-	 * TODO: optimize
+	 * TODO: the URLs assigned to the external identifiers are being ignored;
+	 * this means that ids with different URLs are considered the same; also,
+	 * the selection of the id to "same" when there is a match is arbitrary.
+	 * TODO: optimize.
 	 *
 	 * @param eids1
 	 *            a set of UIDs

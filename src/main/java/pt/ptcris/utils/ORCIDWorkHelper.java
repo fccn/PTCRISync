@@ -267,8 +267,8 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	 * {@inheritDoc}
 	 *
 	 * The considered fields are: title, publication date (year), work type and
-	 * part-of external identifiers. All this meta-data is available in work
-	 * summaries.
+	 * part-of external identifiers (excluding URLs). All this meta-data is
+	 * available in work summaries.
 	 * 
 	 * TODO: contributors are not being considered as they are not contained in
 	 * the summaries.

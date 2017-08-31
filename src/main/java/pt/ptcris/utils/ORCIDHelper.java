@@ -977,6 +977,9 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * Tests whether two sets of (non-exclusively self or part-of) external
 	 * identifiers are identical.
 	 * 
+	 * TODO: the URLs assigned to the external ids are not being considered in
+	 * this comparison.
+	 * 
 	 * @param eids1
 	 *            the first set of external identifiers
 	 * @param eids2
@@ -1020,6 +1023,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	/**
 	 * Checks whether an activity is already up to date regarding another one,
 	 * considering the self {@link ExternalIdentifier external identifiers}.
+	 * This comparison disregards the URLs assigned to the identifiers.
 	 *
 	 * @param preElement
 	 *            the potentially out of date ORCID activity
