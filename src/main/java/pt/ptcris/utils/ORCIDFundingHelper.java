@@ -296,7 +296,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 				res.add(INVALID_YEAR);
 		}		
 		
-		if (funding.getEndDate() != null && !!testQualityFuzzyDate(funding.getEndDate()))
+		if (funding.getEndDate() != null && !testQualityFuzzyDate(funding.getEndDate()))
 			res.add(INVALID_PUBLICATIONDATE);
 			
 		Map<Funding, ExternalIdsDiff> fundingsDiffs = getSelfExternalIdsDiffS(funding, others);
