@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+### PTCRISync [1.1](https://github.com/fccn/PTCRISync/releases/tag/v1.1) (September, 2017)
+
+* All synchronization procedures generalized to support funding entries
+
 ### PTCRISync [1.0](https://github.com/fccn/PTCRISync/releases/tag/v1.0) (March, 2017)
 
 * Updates to support the ORCID API 2.0
