@@ -199,10 +199,10 @@ public class ORCIDClientImpl implements ORCIDClient {
 	public PTCRISyncResult<Work> getWork(WorkSummary putcode) {
 		PTCRISyncResult<Work> res;
 		try {
-			Work fund = orcidClient.readWork(orcidToken, putcode.getPutCode()
+			Work work = orcidClient.readWork(orcidToken, putcode.getPutCode()
 					.toString());
-			finalizeGet(fund, putcode);
-			res = PTCRISyncResult.ok_get(putcode.getPutCode(), fund);
+			finalizeGet(work, putcode);
+			res = PTCRISyncResult.ok_get(putcode.getPutCode(), work);
 		} catch (OrcidClientException e) {
 			res = PTCRISyncResult.fail(e);
 		}
@@ -232,25 +232,33 @@ public class ORCIDClientImpl implements ORCIDClient {
 	@Override
 	public Map<BigInteger, PTCRISyncResult<Work>> getWorks(List<WorkSummary> summaries) {
 		List<String> pcs = new ArrayList<String>();
-		for (ElementSummary i : summaries)
+		for (WorkSummary i : summaries)
 			pcs.add(i.getPutCode().toString());
 		Map<BigInteger, PTCRISyncResult<Work>> res = new HashMap<BigInteger, PTCRISyncResult<Work>>();
 		try {
-			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs)
-					.getWorkOrError();
+			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
+			// no guarantee that the bulk results are ordered as the request
+			Map<BigInteger,Work> bulkWs = new HashMap<BigInteger, Work>();
+			for (Serializable w : bulk)
+				if (w instanceof Work) 
+					bulkWs.put(((Work) w).getPutCode(), (Work) w);
 			for (int i = 0; i < summaries.size(); i++) {
-				Serializable w = bulk.get(i);
-				if (w instanceof Work) {
-					finalizeGet((Work) w, summaries.get(i));
-					res.put(summaries.get(i).getPutCode(), PTCRISyncResult.ok_get(
-							summaries.get(i).getPutCode(), (Work) w));
+				WorkSummary s = summaries.get(i);
+				Work w = bulkWs.get(s.getPutCode());
+				if (w != null) {
+					finalizeGet(w, s);
+					res.put(s.getPutCode(), PTCRISyncResult.ok_get(s.getPutCode(), w));
 				} else {
-					Error err = (Error) w;
-					OrcidClientException e = new OrcidClientException(
+					// errors have no putcode information, and may not be ordered, best guess!
+					Error err; OrcidClientException e;
+					if (bulk.get(i) instanceof Error) {
+						err = (Error) bulk.get(i);
+						e = new OrcidClientException(
 							err.getResponseCode(), err.getUserMessage(),
 							err.getErrorCode(), err.getDeveloperMessage());
-					res.put(summaries.get(i).getPutCode(),
-							PTCRISyncResult.<Work>fail(e));
+					} else
+						e = new OrcidClientException();
+					res.put(s.getPutCode(),PTCRISyncResult.<Work>fail(e));
 				}
 			}
 		} catch (OrcidClientException e1) {
