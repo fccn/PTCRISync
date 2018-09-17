@@ -249,15 +249,8 @@ public class ORCIDClientImpl implements ORCIDClient {
 					finalizeGet(w, s);
 					res.put(s.getPutCode(), PTCRISyncResult.ok_get(s.getPutCode(), w));
 				} else {
-					// errors have no putcode information, and may not be ordered, best guess!
-					Error err; OrcidClientException e;
-					if (bulk.get(i) instanceof Error) {
-						err = (Error) bulk.get(i);
-						e = new OrcidClientException(
-							err.getResponseCode(), err.getUserMessage(),
-							err.getErrorCode(), err.getDeveloperMessage());
-					} else
-						e = new OrcidClientException();
+					// errors have no putcode information, cannot guarantee error message matching
+					OrcidClientException e = new OrcidClientException();
 					res.put(s.getPutCode(),PTCRISyncResult.<Work>fail(e));
 				}
 			}
