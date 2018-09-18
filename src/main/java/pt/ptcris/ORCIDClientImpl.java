@@ -23,12 +23,11 @@ import org.um.dsi.gavea.orcid.model.activities.ActivitiesSummary;
 import org.um.dsi.gavea.orcid.model.activities.Fundings;
 import org.um.dsi.gavea.orcid.model.activities.Works;
 import org.um.dsi.gavea.orcid.model.bulk.Bulk;
-import org.um.dsi.gavea.orcid.model.common.ElementSummary;
-import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.error.Error;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
+import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.utils.ORCIDFundingHelper;
 import pt.ptcris.utils.ORCIDHelper;
@@ -199,10 +198,10 @@ public class ORCIDClientImpl implements ORCIDClient {
 	public PTCRISyncResult<Work> getWork(WorkSummary putcode) {
 		PTCRISyncResult<Work> res;
 		try {
-			Work fund = orcidClient.readWork(orcidToken, putcode.getPutCode()
+			Work work = orcidClient.readWork(orcidToken, putcode.getPutCode()
 					.toString());
-			finalizeGet(fund, putcode);
-			res = PTCRISyncResult.ok_get(putcode.getPutCode(), fund);
+			finalizeGet(work, putcode);
+			res = PTCRISyncResult.ok_get(putcode.getPutCode(), work);
 		} catch (OrcidClientException e) {
 			res = PTCRISyncResult.fail(e);
 		}
@@ -232,25 +231,26 @@ public class ORCIDClientImpl implements ORCIDClient {
 	@Override
 	public Map<BigInteger, PTCRISyncResult<Work>> getWorks(List<WorkSummary> summaries) {
 		List<String> pcs = new ArrayList<String>();
-		for (ElementSummary i : summaries)
+		for (WorkSummary i : summaries)
 			pcs.add(i.getPutCode().toString());
 		Map<BigInteger, PTCRISyncResult<Work>> res = new HashMap<BigInteger, PTCRISyncResult<Work>>();
 		try {
-			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs)
-					.getWorkOrError();
+			List<Serializable> bulk = orcidClient.readWorks(orcidToken, pcs).getWorkOrError();
+			// no guarantee that the bulk results are ordered as the request
+			Map<BigInteger,Work> bulkWs = new HashMap<BigInteger, Work>();
+			for (Serializable w : bulk)
+				if (w instanceof Work) 
+					bulkWs.put(((Work) w).getPutCode(), (Work) w);
 			for (int i = 0; i < summaries.size(); i++) {
-				Serializable w = bulk.get(i);
-				if (w instanceof Work) {
-					finalizeGet((Work) w, summaries.get(i));
-					res.put(summaries.get(i).getPutCode(), PTCRISyncResult.ok_get(
-							summaries.get(i).getPutCode(), (Work) w));
+				WorkSummary s = summaries.get(i);
+				Work w = bulkWs.get(s.getPutCode());
+				if (w != null) {
+					finalizeGet(w, s);
+					res.put(s.getPutCode(), PTCRISyncResult.ok_get(s.getPutCode(), w));
 				} else {
-					Error err = (Error) w;
-					OrcidClientException e = new OrcidClientException(
-							err.getResponseCode(), err.getUserMessage(),
-							err.getErrorCode(), err.getDeveloperMessage());
-					res.put(summaries.get(i).getPutCode(),
-							PTCRISyncResult.<Work>fail(e));
+					// errors have no putcode information, cannot guarantee error message matching
+					OrcidClientException e = new OrcidClientException();
+					res.put(s.getPutCode(),PTCRISyncResult.<Work>fail(e));
 				}
 			}
 		} catch (OrcidClientException e1) {
@@ -399,7 +399,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 	private static void finalizeGet(Work full, WorkSummary summary) {
 		// External ids are not inherited...
 		full.setExternalIds(new ORCIDWorkHelper(null)
-				.getNonNullExternalIdsS((WorkSummary) summary));
+				.getNonNullExternalIdsS(summary));
 		ORCIDHelper.cleanWorkLocalKey(full);
 	}
 
@@ -416,7 +416,7 @@ public class ORCIDClientImpl implements ORCIDClient {
 	 */
 	private static void finalizeGet(Funding full, FundingSummary summary) {
 		full.setExternalIds(new ORCIDFundingHelper(null)
-				.getNonNullExternalIdsS((FundingSummary) summary));
+				.getNonNullExternalIdsS(summary));
 		ORCIDHelper.cleanWorkLocalKey(full);
 	}
 
