@@ -21,6 +21,7 @@ import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDWorkHelper;
 
 /**
  * Scenario 16 of the PTCRISync specification v0.4.3, tests import.
@@ -55,10 +56,10 @@ public class Scenario16 extends Scenario {
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
 		Work w = TestHelper.workHANDLE(BigInteger.valueOf(1), null, "0");
-		w.setExternalIds(ORCIDHelper.getSelfExternalIds(w));
+		w.setExternalIds(new ORCIDWorkHelper(null).getSelfExternalIdsE(w));
 		works.add(w);
 		Work w1 = TestHelper.workHANDLE(BigInteger.valueOf(1), null, "1");
-		w1.setExternalIds(ORCIDHelper.getSelfExternalIds(w1));
+		w1.setExternalIds(new ORCIDWorkHelper(null).getSelfExternalIdsE(w1));
 		works.add(w1);
 		return works;
 	}
@@ -81,14 +82,14 @@ public class Scenario16 extends Scenario {
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
-		return new ORCIDHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
+	ORCIDWorkHelper crisClient() {
+		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.ONEVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
-		return new ORCIDHelper(
+	ORCIDWorkHelper externalClient() {
+		return new ORCIDWorkHelper(
 				TestClients.getExternalClient(Profile.ONEVALIDWORKS));
 	}
 

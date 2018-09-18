@@ -14,16 +14,19 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * A worker thread that can be used to DELETE works from ORCID.
  *
  * @see ORCIDWorker
  */
-public class ORCIDDelWorker extends ORCIDWorker {
+@Deprecated
+class ORCIDDelWorker extends ORCIDWorker<Work> {
 
 	private final BigInteger putcode;
 
@@ -43,9 +46,9 @@ public class ORCIDDelWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the put-code is null
 	 */
-	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
+	public ORCIDDelWorker(BigInteger putcode, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log, ProgressHandler handler)
 			throws NullPointerException {
-		super(client, cb, log);
+		super(client, cb, log, handler);
 		if (putcode == null)
 			throw new NullPointerException("DELETE: arguments must not be null.");
 		this.putcode = putcode;
@@ -59,7 +62,7 @@ public class ORCIDDelWorker extends ORCIDWorker {
 		_log.debug("[deleteWork] " + putcode);
 		MDC.setContextMap(mdcCtxMap);
 
-		PTCRISyncResult res = client.deleteWork(putcode);
+		PTCRISyncResult<Work> res = client.deleteWork(putcode);
 
 		callback(putcode, res);
 	}

@@ -10,26 +10,28 @@
 package pt.ptcris.utils;
 
 import java.math.BigInteger;
-import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.MDC;
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * An abstract worker that can be used to parallelize calls to the ORCID API. A
  * {@link ORCIDClient client} should be provided to establish the communication
  * with the Member API, including the user profile being managed and the Member
- * API id being user to source works. Communication is performed via callback.
+ * API id being user to source activities. Communication is performed via callback.
  */
-public abstract class ORCIDWorker extends Thread {
+abstract class ORCIDWorker<E extends ElementSummary> extends Thread {
 
 	protected final Logger _log;
-	protected final Map<BigInteger, PTCRISyncResult> cb;
+	protected final Map<BigInteger, PTCRISyncResult<E>> cb;
 	protected final ORCIDClient client;
+	protected final ProgressHandler handler;
 	protected final Map<String, String> mdcCtxMap;
 
 	/**
@@ -41,18 +43,18 @@ public abstract class ORCIDWorker extends Thread {
 	 *            the ORCID communication client
 	 * @param cb
 	 *            the callback object to return results
-	 * @param log
+	 * @param _log
 	 *            a logger
-	 * @throws NullPointerException
-	 *             if cb or client are null
 	 */
-	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
-			throws InvalidParameterException {
-		if (cb == null || client == null)
-			throw new NullPointerException("Client and callback must not be null.");
+	ORCIDWorker(ORCIDClient client, Map<BigInteger, PTCRISyncResult<E>> cb, Logger _log, ProgressHandler handler) {
+		assert client != null;
+		assert cb != null;
+		assert handler != null;
+		
+		this.handler = handler;
 		this.client = client;
 		this.cb = cb;
-		this._log = log;
+		this._log = _log;
 		this.mdcCtxMap = MDC.getCopyOfContextMap();
 	}
 
@@ -62,8 +64,8 @@ public abstract class ORCIDWorker extends Thread {
 	 * @param res
 	 *            the result to return
 	 */
-	protected void callback(BigInteger id, PTCRISyncResult res) {
+	protected void callback(BigInteger id, PTCRISyncResult<E> res) {
 		cb.put(id, res);
 	}
-
+	
 }

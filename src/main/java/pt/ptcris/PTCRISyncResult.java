@@ -12,17 +12,17 @@ package pt.ptcris;
 import java.math.BigInteger;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
-import org.um.dsi.gavea.orcid.model.work.Work;
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 
-import pt.ptcris.exceptions.InvalidWorkException;
+import pt.ptcris.exceptions.InvalidActivityException;
 
 /**
  * A class that encapsulates the result of the synchronization procedures for a
- * particular work. Currently only the
+ * particular activity. Currently only the
  * {@link PTCRISync#export(ORCIDClient, java.util.List, pt.ptcris.handlers.ProgressHandler)
  * export} methods report these results.
  */
-public final class PTCRISyncResult {
+public final class PTCRISyncResult<E extends ElementSummary> {
 
 	public static final int GETOK = -1;
 	public static final int ADDOK = -5;
@@ -31,77 +31,105 @@ public final class PTCRISyncResult {
 	public static final int UPTODATE = -20;
 	public static final int INVALID = -30;
 	public static final int CLIENTERROR = -40;
-
-	/**
-	 * Creates a successful "add" message with the assigned put-code.
-	 */
-	public static PTCRISyncResult ok(BigInteger putcode) {
-		return new PTCRISyncResult(ADDOK, putcode);
-	}
 	
 	/**
 	 * Creates a successful "get" message with the assigned put-code.
+	 * 
+	 * @param <E> the activity type
+	 * @param putcode the put-code of the get request
+	 * @param element the retrieved activity
+	 * @return an OK get message
 	 */
-	public static PTCRISyncResult got(BigInteger putcode, Work act) {
-		return new PTCRISyncResult(GETOK, act);
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_get(BigInteger putcode, E element) {
+		return new PTCRISyncResult<E>(GETOK, element);
 	}
 	
 	/**
-	 * Creates a successful "update" message.
+	 * Creates a successful "add" message with the assigned put-code.
+	 * 
+	 * @param <E> the activity type
+	 * @param putcode the put-code of the newly added activity
+	 * @return an OK add message
 	 */
-	public static final PTCRISyncResult OK_UPD_RESULT = new PTCRISyncResult(UPDATEOK);
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_add(BigInteger putcode) {
+		return new PTCRISyncResult<E>(ADDOK, putcode);
+	}
+
+	/**
+	 * Creates a successful "update" message.
+	 * 
+	 * @param <E> the activity type
+	 * @return an OK update message
+	 */
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_upd() {
+		return new PTCRISyncResult<E>(UPDATEOK);
+	}
 
 	/**
 	 * Creates a successful "delete" message.
+	 * 
+	 * @param <E> the activity type
+	 * @return an OK delete message
 	 */
-	public static final PTCRISyncResult OK_DEL_RESULT = new PTCRISyncResult(DELETEOK);
+	public static <E extends ElementSummary> PTCRISyncResult<E> ok_del() {
+		return new PTCRISyncResult<E>(DELETEOK);
+	}
 
 	/**
 	 * Creates an "already up-to-date" message.
+	 * 
+	 * @param <E> the activity type
+	 * @return an already up to date message
 	 */
-	public static final PTCRISyncResult UPTODATE_RESULT = new PTCRISyncResult(UPTODATE);
+	public static <E extends ElementSummary> PTCRISyncResult<E> uptodate() {
+		return new PTCRISyncResult<E>(UPTODATE);
+	}
 
 	/**
 	 * Creates message reporting a failure at the ORCID API level.
 	 *
+	 * @param <E> the activity type
 	 * @param exception
 	 *            the ORCID client exception
 	 * @return the resulting message
 	 */
-	public static PTCRISyncResult fail(OrcidClientException exception) {
-		return new PTCRISyncResult(CLIENTERROR, exception);
+	public static <E extends ElementSummary> PTCRISyncResult<E> fail(OrcidClientException exception) {
+		return new PTCRISyncResult<E>(CLIENTERROR, exception);
 	}
 
 	/**
-	 * Creates message reporting an invalid work.
+	 * Creates message reporting an invalid activity.
 	 *
+	 * @param <E> the activity type
 	 * @param exception
 	 *            the reasons for invalidity
 	 * @return the resulting message
 	 */
-	public static PTCRISyncResult invalid(InvalidWorkException exception) {
-		return new PTCRISyncResult(INVALID, exception);
+	public static <E extends ElementSummary> PTCRISyncResult<E> invalid(InvalidActivityException exception) {
+		return new PTCRISyncResult<E>(INVALID, exception);
 	}
 
 	public final int code;
 	public final Exception exception;
 	public final BigInteger putcode;
-	public final Work act;
+	public final E act;
 
 	/**
-	 * Constructs a PTCRISync result with a result code, possible exception and
-	 * possible assigned put-code.
+	 * Constructs a PTCRISync result with a result code, possible exception,
+	 * possible assigned put-code and possible read activity.
 	 *
 	 * @param code
 	 *            the code that defines the outcome
 	 * @param exception
 	 *            the exception containing additional information if
-	 *            unsuccessful
+	 *            unsuccessful (may be null)
 	 * @param putcode
-	 *            the assigned put-code, if successful add
-	 * @param act TODO
+	 *            the assigned put-code, if successful add (may be null)
+	 * @param act
+	 *            a read activity (may be null)
 	 */
-	private PTCRISyncResult(int code, Exception exception, BigInteger putcode, Work act) {
+	private PTCRISyncResult(int code, Exception exception, BigInteger putcode,
+			E act) {
 		this.code = code;
 		this.exception = exception;
 		this.putcode = putcode;
@@ -145,7 +173,16 @@ public final class PTCRISyncResult {
 		this(code, null, null, null);
 	}
 	
-	private PTCRISyncResult(int code, Work act) {
+	/**
+	 * Constructs a PTCRISync result with a result code and an activity,, used
+	 * for readings.
+	 *
+	 * @param code
+	 *            the code that defines the outcome
+	 * @param activity
+	 *            the returned activity, if successfull read
+	 */
+	private PTCRISyncResult(int code, E act) {
 		this(code, null, null, act);
 	}
 

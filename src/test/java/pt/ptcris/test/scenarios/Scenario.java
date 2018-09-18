@@ -24,14 +24,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
+import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
+import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDWorkHelper;
 
 /**
  * Represents a scenario as defined in the PTCRISync specification. Each
@@ -51,7 +54,7 @@ import pt.ptcris.utils.ORCIDHelper;
  */
 public abstract class Scenario {
 	private List<Work> localWorks, exportWorks;
-	private static ORCIDHelper externalClient, crisClient;
+	private static ORCIDHelper<Work,WorkSummary,WorkGroup,WorkType> externalClient, crisClient;
 
 	@Before
 	public void setUpClass() throws Exception {
@@ -59,8 +62,8 @@ public abstract class Scenario {
 		externalClient = externalClient();
 		TestHelper.cleanUp(crisClient);
 		TestHelper.cleanUp(externalClient);
-		externalClient.addWorks(setupORCIDExternalWorks(),null);
-		crisClient.addWorks(setupORCIDCRISWorks(),null);
+		externalClient.add(setupORCIDExternalWorks(),null);
+		crisClient.add(setupORCIDCRISWorks(),null);
 		this.localWorks = setupLocalWorks();
 		this.exportWorks = exportLocalWorks();
 		this.localWorks.addAll(this.exportWorks);
@@ -72,13 +75,13 @@ public abstract class Scenario {
 
 		handler.setCurrentStatus(this.getClass().getName() + " start");
 		long startTime = System.currentTimeMillis();
-		Map<BigInteger, PTCRISyncResult> codes = PTCRISync.export(crisClient.client, exportWorks, handler);
+		Map<BigInteger, PTCRISyncResult<Work>> codes = PTCRISync.exportWorks(crisClient.client, exportWorks, handler);
 
 		List<Work> worksToImport = PTCRISync.importWorks(crisClient.client, localWorks, handler);
-		List<Work> worksToUpdate = PTCRISync.importUpdates(crisClient.client, localWorks, handler);
-		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalid(
+		List<Work> worksToUpdate = PTCRISync.importWorkUpdates(crisClient.client, localWorks, handler);
+		Map<Work, Set<String>> worksToInvalid = PTCRISync.importInvalidWorks(
 				crisClient.client, localWorks, handler);
-		int worksToImportCounter = PTCRISync.importCounter(crisClient.client, localWorks, handler);
+		int worksToImportCounter = PTCRISync.importWorkCounter(crisClient.client, localWorks, handler);
 		long time = System.currentTimeMillis() - startTime;
 		handler.setCurrentStatus(this.getClass().getName() + ": " + time + "ms");
 
@@ -89,7 +92,7 @@ public abstract class Scenario {
 		List<Work> expectedLocal = expectedImportedWorks();
 		List<Work> expectedInvalid = expectedImportedInvalidWorks();
 		List<Work> expectedORCID = expectedORCIDCRISWorks();
-		List<WorkSummary> sourcedORCID = crisClient.getSourcedWorkSummaries();
+		List<WorkSummary> sourcedORCID = crisClient.getSourcedSummaries();
 
 		assertEquals(worksToImport.size(), worksToImportCounter);
 
@@ -185,7 +188,7 @@ public abstract class Scenario {
 
 	/**
 	 * The new works that are expected to be detected in ORCID by the
-	 * {@link PTCRISync#importWorks(pt.ptcris.ORCIDClient, List, ProgressHandler)
+	 * {@link PTCRISync#importNews(pt.ptcris.ORCIDClient, List, ProgressHandler)
 	 * import} synchronization procedure.
 	 * 
 	 * @return the expected CRIS-source works
@@ -225,14 +228,14 @@ public abstract class Scenario {
 	 * 
 	 * @return the CRIS source client
 	 */
-	abstract ORCIDHelper crisClient();
+	abstract ORCIDHelper<Work,WorkSummary,WorkGroup,WorkType> crisClient();
 
 	/**
 	 * Sets the client to use as an external ORCID source.
 	 * 
 	 * @return the external source client
 	 */
-	abstract ORCIDHelper externalClient();
+	abstract ORCIDHelper<Work,WorkSummary,WorkGroup,WorkType> externalClient();
 
 	/**
 	 * Tests whether the effectively exported works are the ones expected.
@@ -252,7 +255,7 @@ public abstract class Scenario {
 			boolean found = false;
 			while (it.hasNext() && !found) {
 				WorkSummary work2 = it.next();
-				if (ORCIDHelper.isUpToDate(work1, work2)) {
+				if (new ORCIDWorkHelper(null).isUpToDateS(work1, work2)) {
 					ws1.remove(work1);
 					ws2.remove(work2);
 					found = true;
@@ -270,7 +273,7 @@ public abstract class Scenario {
 	 *            the effectively export outcome
 	 * @return whether the export outcome was the expected
 	 */
-	private boolean correctCodes(Map<BigInteger, PTCRISyncResult> results) {
+	private boolean correctCodes(Map<BigInteger, PTCRISyncResult<Work>> results) {
 		for (BigInteger id : results.keySet())
 			if (!expectedExportCodes(id).contains(results.get(id).code)) {
 				TestHelper.handler().sendError("Was "+results.get(id).code);
@@ -299,7 +302,7 @@ public abstract class Scenario {
 			while (it.hasNext() && !found) {
 				Work work2 = it.next();
 				BigInteger localKey2 = ORCIDHelper.getActivityLocalKey(work2);
-				if (ORCIDHelper.isUpToDate(work1, work2)
+				if (new ORCIDWorkHelper(null).isUpToDateE(work1, work2)
 						&& ((localKey1 == null && localKey2 == null) || (localKey1.equals(localKey2)))) {
 					ws1.remove(work1);
 					ws2.remove(work2);

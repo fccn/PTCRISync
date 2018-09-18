@@ -49,12 +49,12 @@ public final class TestClients {
 
 	private static final String[] cris_profile_secrets = {
 			"dd90ad6f-3ec2-4a0a-8762-725f95389b22",
-			"4161f065-be8a-4736-b550-cde398028128",
+			"944a4b86-38ef-4f2b-8c9c-305df02559db",
 			"c8962118-bd00-4bd2-8784-8b7bf0c3b84b",
 			"7421f8d5-3173-4344-994e-e669d991c1d9" };
 	private static final String[] external_profile_secrets = {
 			"ba052ca1-b65b-41d4-969a-bc97a0f67386",
-			"f0b19290-0acf-4b35-b0c3-9da74d6be805",
+			"7935697c-5c34-448a-9fad-484ad16867eb",
 			"59e45d2f-d7e0-47fa-b6a1-31e0066781f3",
 			"ac790728-36d6-455d-9469-deb6fbaf0589" };
 

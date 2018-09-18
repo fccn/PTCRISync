@@ -18,13 +18,15 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * A worker thread that can be used to ADD works from ORCID.
  *
  * @see ORCIDWorker
  */
-public class ORCIDAddWorker extends ORCIDWorker {
+@Deprecated
+class ORCIDAddWorker extends ORCIDWorker<Work> {
 
 	private final Work work;
 
@@ -44,8 +46,8 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	 * @throws NullPointerException
 	 *             if the work is null
 	 */
-	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log) {
-		super(client, cb, log);
+	public ORCIDAddWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log, ProgressHandler handler) {
+		super(client, cb, log, handler);
 		if (work == null)
 			throw new NullPointerException("UPDATE: arguments must not be null.");
 		this.work = work;
@@ -56,10 +58,10 @@ public class ORCIDAddWorker extends ORCIDWorker {
 	 */
 	@Override
 	public void run() {
-		_log.debug("[addWork] " + ORCIDHelper.getWorkTitle(work));
+		_log.debug("[addWork] " + new ORCIDWorkHelper(null).getTitleE(work));
 		MDC.setContextMap(mdcCtxMap);
 
-		final PTCRISyncResult res = client.addWork(work);
+		final PTCRISyncResult<Work> res = client.addWork(work);
 		if (res.putcode == null)
 			callback(BigInteger.valueOf(0), res);
 		else

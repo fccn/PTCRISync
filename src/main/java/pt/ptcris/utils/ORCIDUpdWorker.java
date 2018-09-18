@@ -19,13 +19,15 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
+import pt.ptcris.handlers.ProgressHandler;
 
 /**
  * A worker thread that can be used to UPDATE works from ORCID.
  *
  * @see ORCIDWorker
  */
-public class ORCIDUpdWorker extends ORCIDWorker {
+@Deprecated
+class ORCIDUpdWorker extends ORCIDWorker<Work> {
 
 	private final Work work;
 
@@ -47,9 +49,9 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 	 * @throws InvalidParameterException
 	 *             if the work is null
 	 */
-	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult> cb, Logger log)
+	public ORCIDUpdWorker(Work work, ORCIDClient client, Map<BigInteger, PTCRISyncResult<Work>> cb, Logger log, ProgressHandler handler)
 			throws NullPointerException, InvalidParameterException {
-		super(client, cb, log);
+		super(client, cb, log, handler);
 		if (work == null)
 			throw new NullPointerException("UPDATE: arguments must not be null.");
 		if (work.getPutCode() == null)
@@ -65,7 +67,7 @@ public class ORCIDUpdWorker extends ORCIDWorker {
 		_log.debug("[updateWork] " + work.getPutCode());
 		MDC.setContextMap(mdcCtxMap);
 
-		final PTCRISyncResult res = client.updateWork(work.getPutCode(), work);
+		final PTCRISyncResult<Work> res = client.updateWork(work.getPutCode(), work);
 		
 		callback(work.getPutCode(), res);
 	}

@@ -15,18 +15,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate;
+import org.um.dsi.gavea.orcid.model.common.FuzzyDate.Day;
+import org.um.dsi.gavea.orcid.model.common.FuzzyDate.Month;
+import org.um.dsi.gavea.orcid.model.common.Iso3166Country;
+import org.um.dsi.gavea.orcid.model.common.OrganizationAddress;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate.Year;
+import org.um.dsi.gavea.orcid.model.common.Organization;
 import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.funding.Funding;
+import org.um.dsi.gavea.orcid.model.funding.FundingTitle;
+import org.um.dsi.gavea.orcid.model.funding.FundingType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkTitle;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.handlers.ProgressHandler;
 import pt.ptcris.utils.ORCIDHelper;
-import pt.ptcris.utils.ORCIDHelper.EIdType;
 
 public class TestHelper {
 
@@ -50,7 +58,7 @@ public class TestHelper {
 			else
 				work.setType(WorkType.CONFERENCE_PAPER);
 
-			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), null, null);
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), new Month("03"), new Day("21"));
 			work.setPublicationDate(date);
 
 		}
@@ -102,14 +110,14 @@ public class TestHelper {
 		ExternalId e = new ExternalId();
 		e.setExternalIdRelationship(RelationshipType.SELF);
 		e.setExternalIdValue(eid);
-		e.setExternalIdType(EIdType.OTHER_ID.value);
+		e.setExternalIdType("other-id");
 		
 		work.getExternalIds().getExternalId().add(e);
 
 		ExternalId e1 = new ExternalId();
 		e1.setExternalIdRelationship(RelationshipType.SELF);
 		e1.setExternalIdValue(eid2);
-		e1.setExternalIdType(EIdType.OTHER_ID.value);
+		e1.setExternalIdType("other-id");
 		
 		work.getExternalIds().getExternalId().add(e1);
 
@@ -213,6 +221,124 @@ public class TestHelper {
 
 		return work;
 	}
+	
+	public static Funding funding(BigInteger key, String meta) {
+		Funding work = new Funding();
+
+		ExternalIds uids = new ExternalIds();
+		work.setExternalIds(uids);
+
+		work.setPutCode(key);
+
+		if (meta != null) {
+			FundingTitle title = new FundingTitle();
+			title.setTitle("Meta-data " + meta);
+			work.setTitle(title);
+
+			work.setOrganization(new Organization("Agency", new OrganizationAddress("Braga",null,Iso3166Country.PT), null));
+			
+			if (meta.equals("0"))
+				work.setType(FundingType.CONTRACT);
+			else
+				work.setType(FundingType.GRANT);
+
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), new Month("02"), null);
+			work.setStartDate(date);
+
+		}
+
+		return work;
+	}
+
+	public static Funding fundingNmb(BigInteger key, String meta, String doi) {
+		Funding work = funding(key, meta);
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(doi);
+		e1.setExternalIdType("grant_number");
+
+		work.getExternalIds().getExternalId().add(e1);
+
+		return work;
+	}
+	
+	public static Funding fundingNmbNmb(BigInteger key, String meta, String doi1, String doi2) {
+		Funding work = fundingNmb(key, meta, doi1);
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(doi2);
+		e1.setExternalIdType("grant_number");
+
+		work.getExternalIds().getExternalId().add(e1);
+
+		return work;
+	}
+	
+	public static Funding fundingNmbNmbNmb(BigInteger key, String meta, String doi1, String doi2, String doi3) {
+		Funding work = fundingNmbNmb(key, meta, doi1, doi2);
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(doi3);
+		e1.setExternalIdType("grant_number");
+		work.getExternalIds().getExternalId().add(e1);
+
+		ExternalId e3 = new ExternalId();
+		e3.setExternalIdRelationship(RelationshipType.PART_OF);
+		e3.setExternalIdValue("11111");
+		e3.setExternalIdType("grant_number");
+		work.getExternalIds().getExternalId().add(e3);
+
+		return work;
+	}
+	
+	public static Funding fundingNmbNmbNmbNmb(BigInteger key, String meta, String doi1, String doi2, String doi3, String doi4) {
+		Funding work = fundingNmbNmbNmb(key, meta, doi1, doi2, doi3);
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(doi4);
+		e1.setExternalIdType("grant_number");
+
+		work.getExternalIds().getExternalId().add(e1);
+
+		return work;
+	}
+	
+	public static Funding fundingIgn(BigInteger key, String meta, String nmb) {
+		Funding work = new Funding();
+
+		ExternalIds uids = new ExternalIds();
+		work.setExternalIds(uids);
+
+		work.setPutCode(key);
+
+		if (meta != null) {
+			FundingTitle title = new FundingTitle();
+			title.setTitle("Meta-data " + meta);
+			work.setTitle(title);
+
+			work.setOrganization(new Organization("Agency", new OrganizationAddress("Braga",null,Iso3166Country.PT), null));
+			
+			if (meta.equals("0"))
+				work.setType(FundingType.AWARD);
+
+			FuzzyDate date = new FuzzyDate(new Year("201" + meta.charAt(meta.length()-1)), new Month("02"), null);
+			work.setStartDate(date);
+
+		}
+
+		ExternalId e1 = new ExternalId();
+		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdValue(nmb);
+		e1.setExternalIdType("grant_number");
+		work.getExternalIds().getExternalId().add(e1);
+		
+		return work;
+	}
+
 
 	public static ProgressHandler handler() {
 		if (progressHandler == null) {
@@ -226,8 +352,8 @@ public class TestHelper {
 		return progressHandler;
 	}
 
-	public static void cleanUp(ORCIDHelper helper) throws Exception {
-		helper.deleteAllSourcedWorks();
+	public static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> void cleanUp(ORCIDHelper<E, S, G, T> helper) throws Exception {
+		helper.deleteAllSourced();
 	}
 
 }

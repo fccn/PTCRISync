@@ -18,8 +18,7 @@ import java.util.List;
 import org.um.dsi.gavea.orcid.model.work.Work;
 
 import pt.ptcris.PTCRISGrouper;
-import pt.ptcris.merge.ActivityGroup;
-import pt.ptcris.merge.StdWorkComparator;
+import pt.ptcris.grouper.ActivityGroup;
 import pt.ptcris.test.TestHelper;
 
 public class GrouperTest {
@@ -42,7 +41,7 @@ public class GrouperTest {
 		works.add(work7);
 		
 		List<ActivityGroup<Work>> groups = PTCRISGrouper.group(works, new StdWorkComparator());
-		
+		groups.get(0).getActivities();
 		assertEquals(groups.size(), 4);
 		
 		return;

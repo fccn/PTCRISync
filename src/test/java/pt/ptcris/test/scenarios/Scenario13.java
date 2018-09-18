@@ -22,6 +22,7 @@ import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
 import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDWorkHelper;
 
 /**
  * Scenario 13 of the PTCRISync specification v0.4.3, tests export and import.
@@ -104,14 +105,14 @@ public class Scenario13 extends Scenario {
 	
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
-		return new ORCIDHelper(TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
+	ORCIDWorkHelper crisClient() {
+		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.ZEROVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
-		return new ORCIDHelper(TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
+	ORCIDWorkHelper externalClient() {
+		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.ZEROVALIDWORKS));
 	}
 
 }

@@ -18,7 +18,7 @@ import org.um.dsi.gavea.orcid.model.work.Work;
 import pt.ptcris.test.TestHelper;
 import pt.ptcris.test.TestClients;
 import pt.ptcris.test.TestClients.Profile;
-import pt.ptcris.utils.ORCIDHelper;
+import pt.ptcris.utils.ORCIDWorkHelper;
 
 /**
  * Scenario 6 of the PTCRISync specification v0.4.3, tests import.
@@ -58,7 +58,7 @@ public class Scenario06 extends Scenario {
 	List<Work> expectedImportedWorks() {
 		List<Work> works = new ArrayList<Work>();
 		Work w = TestHelper.workDOIEIDHANDLE(BigInteger.valueOf(1), null, "0", "0", "1");
-		w.setExternalIds(ORCIDHelper.getSelfExternalIds(w));
+		w.setExternalIds(new ORCIDWorkHelper(null).getSelfExternalIdsE(w));
 		works.add(w);
 		works.add(TestHelper.workDOI(BigInteger.valueOf(2), null, "1"));
 		return works;
@@ -66,14 +66,14 @@ public class Scenario06 extends Scenario {
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper crisClient() {
-		return new ORCIDHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
+	ORCIDWorkHelper crisClient() {
+		return new ORCIDWorkHelper(TestClients.getCRISClient(Profile.TWOVALIDWORKS));
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	ORCIDHelper externalClient() {
-		return new ORCIDHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
+	ORCIDWorkHelper externalClient() {
+		return new ORCIDWorkHelper(TestClients.getExternalClient(Profile.TWOVALIDWORKS));
 	}
 
 }
