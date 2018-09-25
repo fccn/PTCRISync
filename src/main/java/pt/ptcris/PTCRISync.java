@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
@@ -823,7 +824,7 @@ public final class PTCRISync {
 
 		List<S> orcids = helper.getAllTypedSummaries(types);
 
-		Map<BigInteger, PTCRISyncResult<E>> toImport = new HashMap<BigInteger, PTCRISyncResult<E>>();
+		Map<BigInteger, PTCRISyncResult<E>> toImport = new ConcurrentHashMap<BigInteger, PTCRISyncResult<E>>();
 
 		// filter novel works only
 		List<S> temp = new ArrayList<S>();
@@ -1180,7 +1181,7 @@ public final class PTCRISync {
 		List<S> orcids = helper.getAllTypedSummaries(types);
 	
 		Map<BigInteger, Set<String>> invalidsToImport = new HashMap<BigInteger, Set<String>>();
-		Map<BigInteger, PTCRISyncResult<E>> toImport = new HashMap<BigInteger, PTCRISyncResult<E>>();
+		Map<BigInteger, PTCRISyncResult<E>> toImport = new ConcurrentHashMap<BigInteger, PTCRISyncResult<E>>();
 	
 		// filter invalid works only
 		List<S> temp = new ArrayList<S>();
