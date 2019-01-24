@@ -36,6 +36,7 @@ import org.um.dsi.gavea.orcid.model.common.RelationshipType;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 import org.um.dsi.gavea.orcid.model.funding.FundingType;
+import org.um.dsi.gavea.orcid.model.person.externalidentifier.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 import org.um.dsi.gavea.orcid.model.work.WorkType;
@@ -835,7 +836,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		final ExternalId eid = new ExternalId();
 		eid.setExternalIdRelationship(id.getExternalIdRelationship());
 		eid.setExternalIdType(id.getExternalIdType().toLowerCase());
-		eid.setExternalIdValue(id.getExternalIdValue());
+		eid.setExternalIdValue(id.getExternalIdValue().replaceAll("\\p{C}", "").trim());
 		eid.setExternalIdUrl(id.getExternalIdUrl());
 		return eid;
 	}
