@@ -1,0 +1,19 @@
+# Java related
+target/**
+*.jar
+*.war
+*.ear
+*.class
+
+# eclipse specific
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+.classpath
+.settings/
+.loadpath
