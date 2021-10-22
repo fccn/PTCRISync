@@ -456,7 +456,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 			return new ArrayList<PTCRISyncResult<E>>();
 		
 		for (int c = 0; c != activities.size();) {
-			if (bulk_size_add > 1) {
+			if (bulk_size_add > 1 && activities.size() > 1) {
 				List<E> tmp = new ArrayList<E>();
 				for (int j = 0; j < bulk_size_add && c < activities.size(); j++) {
 					tmp.add(activities.get(c));
