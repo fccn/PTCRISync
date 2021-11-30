@@ -22,10 +22,10 @@ import java.util.logging.SimpleFormatter;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
-import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.common.Relationship;
+import org.um.dsi.gavea.orcid.model.common.WorkType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkTitle;
-import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISync;
@@ -100,7 +100,7 @@ public class PTCRISExample {
 		work.setTitle(title);
 
 		ExternalId e = new ExternalId();
-		e.setExternalIdRelationship(RelationshipType.SELF);
+		e.setExternalIdRelationship(Relationship.SELF);
 		e.setExternalIdValue("3000");
 		e.setExternalIdType("DOI");
 
@@ -122,12 +122,12 @@ public class PTCRISExample {
 		work.setTitle(title);
 
 		ExternalId e = new ExternalId();
-		e.setExternalIdRelationship(RelationshipType.SELF);
+		e.setExternalIdRelationship(Relationship.SELF);
 		e.setExternalIdValue("4000");
 		e.setExternalIdType("EID");
 
 		ExternalId e1 = new ExternalId();
-		e1.setExternalIdRelationship(RelationshipType.SELF);
+		e1.setExternalIdRelationship(Relationship.SELF);
 		e1.setExternalIdValue("00001");
 		e1.setExternalIdType("DOI");
 
@@ -150,7 +150,7 @@ public class PTCRISExample {
 		work.setTitle(title);
 
 		ExternalId e = new ExternalId();
-		e.setExternalIdRelationship(RelationshipType.SELF);
+		e.setExternalIdRelationship(Relationship.SELF);
 		// avoids conflicts
 		e.setExternalIdValue(String.valueOf(System.currentTimeMillis())); 
 		

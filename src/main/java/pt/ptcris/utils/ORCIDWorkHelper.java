@@ -17,14 +17,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
+import org.um.dsi.gavea.orcid.model.common.WorkType;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
-import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
@@ -235,7 +236,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 		if (summary.getPublicationDate() == null
 				|| summary.getPublicationDate().getYear() == null)
 			return null;
-		return summary.getPublicationDate().getYear().getValue();
+		return String.valueOf(summary.getPublicationDate().getYear().getValue());
 	}
 
 	/** {@inheritDoc} */
@@ -257,6 +258,9 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	
 		final List<ExternalId> eids = getPartOfExternalIdsS(dummy)
 				.getExternalId();
+		
+		addFundedByEidsFromAllWorkSummaries(group, eids);
+		
 		for (ExternalId id : group.getExternalIds().getExternalId())
 			eids.add(clone(id));
 		dummy.setExternalIds(new ExternalIds(eids));
@@ -264,6 +268,18 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 		return dummy;
 	}
 
+	private void addFundedByEidsFromAllWorkSummaries(WorkGroup group, final List<ExternalId> eids) {
+		Set<String> set = new HashSet<>(eids.size());
+		for (int i = 0 ; i < group.getWorkSummary().size(); i++){
+			WorkSummary cloned = cloneS(group.getWorkSummary().get(i));
+			List<ExternalId> fundedByEids = getFundedByExternalIdsS(cloned).getExternalId();
+			List<ExternalId> fundedByEidsWithoutDuplicates = fundedByEids.stream()
+					.filter(eid -> set.add(eid.getExternalIdValue()))
+					.collect(Collectors.toList());
+			eids.addAll(fundedByEidsWithoutDuplicates);
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 *

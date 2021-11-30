@@ -39,24 +39,25 @@ public final class TestClients {
 	private static final String orcid_api_uri = "https://api.sandbox.orcid.org/";
 	private static final String orcid_redirect_uri = "https://developers.google.com/oauthplayground";
 
-	private static final String cris_client_id = "APP-X7DMY3AKDXK34RVS";
+	private static final String cris_client_id = "APP-X7DMY3AKDXK34RVS"; //PTCRIS
 	private static final String cris_client_secret = "d622a047-deef-4368-a1e8-223101911563";
-	private static final String external_client_id = "APP-JFDCD0I82SXO91F9";
+	private static final String external_client_id = "APP-JFDCD0I82SXO91F9"; //HASLab, INESC TEC & University of Minho
 	private static final String external_client_secret = "a205bf62-e4b1-4d22-8a4b-2395e493358a";
 
-	private static final String[] profiles = { "0000-0002-4464-361X",
-			"0000-0002-9007-3574", "0000-0002-5507-2082", "0000-0002-9055-9726" };
+	private static final String[] profiles = { "0000-0003-4777-9763",
+			"0000-0002-1811-9160", "0000-0002-3505-9366", "0000-0002-6134-4419" };
+			//ZECA					//MANEL					//Toze
 
 	private static final String[] cris_profile_secrets = {
-			"dd90ad6f-3ec2-4a0a-8762-725f95389b22",
-			"4161f065-be8a-4736-b550-cde398028128",
-			"c8962118-bd00-4bd2-8784-8b7bf0c3b84b",
-			"7421f8d5-3173-4344-994e-e669d991c1d9" };
+			"ea00bc47-1541-4824-a439-bf4feee40248",
+			"118f715f-058b-42ff-96a4-8ae015ca53f3",
+			"ebe045ed-497c-477f-b41b-5e0dee768857",
+			"e7e76ead-26e0-4d51-b51d-90a5c4085950" };
 	private static final String[] external_profile_secrets = {
-			"ba052ca1-b65b-41d4-969a-bc97a0f67386",
-			"f0b19290-0acf-4b35-b0c3-9da74d6be805",
-			"59e45d2f-d7e0-47fa-b6a1-31e0066781f3",
-			"ac790728-36d6-455d-9469-deb6fbaf0589" };
+			"f0c619fe-07f6-4713-bc06-02a5aa66c640",
+			"70022d8d-4bec-400e-9181-4dca0233ce2a",
+			"54d08408-146f-4150-a360-ee65a2fd8f90",
+			"34ac7d34-8b95-48e2-b16c-68af144b7a00" };
 
 	/**
 	 * Retrieves an ORCID client for a given user profile using the local CRIS

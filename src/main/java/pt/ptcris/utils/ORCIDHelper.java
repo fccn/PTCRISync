@@ -31,20 +31,21 @@ import org.um.dsi.gavea.orcid.model.common.ClientId;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
+import org.um.dsi.gavea.orcid.model.common.FundingType;
 import org.um.dsi.gavea.orcid.model.common.FuzzyDate;
-import org.um.dsi.gavea.orcid.model.common.RelationshipType;
+import org.um.dsi.gavea.orcid.model.common.Relationship;
+import org.um.dsi.gavea.orcid.model.common.WorkType;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
-import org.um.dsi.gavea.orcid.model.funding.FundingType;
 import org.um.dsi.gavea.orcid.model.person.externalidentifier.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
-import org.um.dsi.gavea.orcid.model.work.WorkType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
 import pt.ptcris.exceptions.InvalidActivityException;
 import pt.ptcris.handlers.ProgressHandler;
+import pt.ptcris.utils.ORCIDWorkHelper.EIdType;
 
 /**
  * An abstract helper to help manage ORCID activities and simplify the usage of
@@ -892,7 +893,27 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		
 		List<ExternalId> res = new ArrayList<ExternalId>();
 		for (ExternalId eid : getNonNullExternalIdsS(summary).getExternalId())
-			if (eid.getExternalIdRelationship() == RelationshipType.PART_OF)
+			if (eid.getExternalIdRelationship() == Relationship.PART_OF)
+				res.add(eid);
+		return new ExternalIds(res);
+	}
+	
+	/**
+	 * Returns the non-null funded-by external identifiers of an activity summary
+	 * (null becomes empty list).
+	 * 
+	 * @param summary
+	 *            the ORCID activity summary from which to retrieve the external
+	 *            identifiers
+	 * @return the non-null part-of external identifiers
+	 */
+	final ExternalIds getFundedByExternalIdsS(S summary) {
+		if (summary == null)
+			throw new IllegalArgumentException("Null element.");
+		
+		List<ExternalId> res = new ArrayList<ExternalId>();
+		for (ExternalId eid : getNonNullExternalIdsS(summary).getExternalId())
+			if (eid.getExternalIdRelationship() == Relationship.FUNDED_BY && eid.getExternalIdType().equalsIgnoreCase(EIdType.DOI.value))
 				res.add(eid);
 		return new ExternalIds(res);
 	}
@@ -926,7 +947,7 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		
 		List<ExternalId> res = new ArrayList<ExternalId>();
 		for (ExternalId eid : getNonNullExternalIdsS(summary).getExternalId())
-			if (eid.getExternalIdRelationship() == RelationshipType.SELF)
+			if (eid.getExternalIdRelationship() == Relationship.SELF)
 				res.add(eid);
 		return new ExternalIds(res);
 	}
@@ -973,6 +994,12 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 		}
 		return matches;
 	}
+	
+	
+	public final ExternalIds getFundedByExternalIdsE(E activity) {
+		return getFundedByExternalIdsS(summarize(activity));
+	}
+	
 
 	/**
 	 * Tests whether two sets of (non-exclusively self or part-of) external
@@ -1019,6 +1046,18 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 				getSelfExternalIdsS(posElement));
 
 		return diff.more.isEmpty();
+	}
+	
+	
+	public final ExternalIdsDiff getFundedByExternalIdsDiff(E preElement, S posElement) {
+		if (preElement == null || posElement == null)
+			throw new IllegalArgumentException("Null element.");
+		
+		final ExternalIdsDiff diff = new ExternalIdsDiff(
+				getFundedByExternalIdsE(preElement),
+				getFundedByExternalIdsS(posElement));
+
+		return diff;
 	}
 
 	/**
@@ -1143,11 +1182,11 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 * @return whether the date is well formed
 	 */
 	static boolean testQualityFuzzyDate(FuzzyDate date) {
-		if (date.getYear() != null && date.getYear().getValue().length() != 4)
+		if (date.getYear() != null && String.valueOf(date.getYear().getValue()).length() != 4)
 			return false;
-		if (date.getMonth() != null && date.getMonth().getValue().length() != 2)
+		if (date.getMonth() != null && date.getMonth().getValue() < 1 && date.getMonth().getValue() > 12 )
 			return false;
-		if (date.getDay() != null && date.getDay().getValue().length() != 2)
+		if (date.getDay() != null && date.getDay().getValue() < 1 && date.getDay().getValue() > 31)
 			return false;
 		
 		return true;
