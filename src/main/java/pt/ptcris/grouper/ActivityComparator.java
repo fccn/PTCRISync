@@ -51,7 +51,7 @@ public abstract class ActivityComparator<A> {
 	 * @return whether the activities match
 	 */
 	private final boolean matches(A act1, A act2) {
-		return compare(act1, act2) > threshold();
+		return compare(act1, act2) >= threshold();
 	}
 
 	/**

@@ -9,7 +9,8 @@
  */
 package pt.ptcris.test.scenarios;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -26,9 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.FundingGroup;
+import org.um.dsi.gavea.orcid.model.common.FundingType;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
-import org.um.dsi.gavea.orcid.model.funding.FundingType;
 
 import pt.ptcris.PTCRISync;
 import pt.ptcris.PTCRISyncResult;

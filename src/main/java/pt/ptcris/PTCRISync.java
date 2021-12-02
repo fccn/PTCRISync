@@ -24,11 +24,12 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
+import org.um.dsi.gavea.orcid.model.common.FundingType;
+import org.um.dsi.gavea.orcid.model.common.WorkType;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
-import org.um.dsi.gavea.orcid.model.funding.FundingType;
 import org.um.dsi.gavea.orcid.model.person.externalidentifier.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
-import org.um.dsi.gavea.orcid.model.work.WorkType;
+import org.um.dsi.gavea.orcid.model.work.WorkSummary;
 
 import pt.ptcris.exceptions.InvalidActivityException;
 import pt.ptcris.handlers.ProgressHandler;
@@ -337,7 +338,7 @@ public final class PTCRISync {
 	 * organization (see
 	 * {@link ORCIDFundingHelper#testMinimalQuality(ElementSummary)}.
 	 * </p>
-	 * *
+	 *
 	 * <p>
 	 * A set of funding types can be provided to allow the independent
 	 * synchronization of different types of entries. Local and remote
@@ -517,6 +518,7 @@ public final class PTCRISync {
 		// detect which remote works should be deleted or updated
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ITERATION",orcids.size());
 		List<UpdateRecord<E,S>> toUpdate = new LinkedList<UpdateRecord<E,S>>();
+		List<UpdateRecord<E,S>> toUpdateFundedBy = new LinkedList<UpdateRecord<E,S>>();
 		for (int c = 0; c != orcids.size(); c++) {
 			S orcid = orcids.get(c);
 
@@ -528,14 +530,24 @@ public final class PTCRISync {
 			}
 			// there is at least one local work matching a CRIS sourced remote work
 			else {
+				boolean isIncluded = false;
 				E local = worksDiffs.keySet().iterator().next();
 				// if the remote work is not up-to-date or forced updates
-				if (forced || !helper.isUpToDateS(local, orcid))
+				if (forced || !helper.isUpToDateS(local, orcid)) {
 					toUpdate.add(new UpdateRecord<E,S>(local, orcid, worksDiffs.get(local)));
+					isIncluded = true;
+				}
 				else
 					result.put(ORCIDHelper.getActivityLocalKey(local, BigInteger.valueOf(c)),
 							PTCRISyncResult.<E>uptodate());
 				locals.remove(local);
+				
+				// if the remote work isn't update in what concerns of FundedBy identifiers
+				ExternalIdsDiff fundedByExternalIdsDiff = helper.getFundedByExternalIdsDiff(local, orcid);
+				if (!isIncluded && (forced || !(fundedByExternalIdsDiff.more.isEmpty() && fundedByExternalIdsDiff.less.isEmpty())) ) {
+					fundedByExternalIdsDiff.same.addAll(worksDiffs.get(local).same);
+					toUpdateFundedBy.add(new UpdateRecord<E,S>(local, orcid, fundedByExternalIdsDiff));
+				}
 			}
 			handler.step();
 		}
@@ -551,6 +563,7 @@ public final class PTCRISync {
 				ExternalIds weids = new ExternalIds();
 				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
 				ids.addAll(helper.getPartOfExternalIdsE(local).getExternalId());
+				ids.addAll(helper.getFundedByExternalIdsE(local).getExternalId());
 				weids.setExternalId(ids);
 				helper.setExternalIdsE(local,weids);
 
@@ -559,6 +572,9 @@ public final class PTCRISync {
 			}
 			handler.step();
 		}
+		
+		// Outputs with changes only on "Funded by" identifiers. first update phase, remove spurious identifiers.
+		treatOuputWithChangesOnlyOnFundedBy_1Phase(helper, handler, result, toUpdateFundedBy);
 
 		// second update phase, add missing identifiers
 		handler.setCurrentStatus("ORCID_SYNC_EXPORT_UPDATING_PHASE_2",toUpdate.size());
@@ -566,6 +582,45 @@ public final class PTCRISync {
 
 			// the remote work is missing external identifiers or not updated in the 1st phase
 			UpdateRecord<E,S> update = toUpdate.get(c);
+			if (!update.eidsDiff.less.isEmpty() || update.eidsDiff.more.isEmpty()) {
+				E local = update.preElement;
+				ExternalIds weids = new ExternalIds();
+				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
+				ids.addAll(update.eidsDiff.less);
+				ids.addAll(helper.getPartOfExternalIdsE(local).getExternalId());
+				ids.addAll(helper.getFundedByExternalIdsE(local).getExternalId());
+				weids.setExternalId(ids);
+				helper.setExternalIdsE(local,weids);
+
+				PTCRISyncResult<E> res = helper.update(update.posElement.getPutCode(), local);
+				result.put(ORCIDHelper.getActivityLocalKey(local, BigInteger.valueOf(c)),res);
+			}
+			handler.step();
+		}
+		
+		// Outputs with changes only on "Funded by" identifiers. second update phase, add missing identifiers
+		treatOuputWithChangesOnlyOnFundedBy_2Phase(helper, handler, result, toUpdateFundedBy);
+		
+		// add the local works that had no match
+		// the progress handler must be moved to the helper due to bulk additions
+		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING",locals.size());
+		List<PTCRISyncResult<E>> res = helper.add(locals,handler);
+
+		int pad = result.size();
+		for (int i = 0; i < res.size(); i++)
+			result.put(ORCIDHelper.getActivityLocalKey(locals.get(i), BigInteger.valueOf(pad+i)),res.get(i));
+		
+		handler.done();
+		return result;
+	}
+
+	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> void treatOuputWithChangesOnlyOnFundedBy_2Phase(
+			ORCIDHelper<E, S, G, T> helper, ProgressHandler handler, Map<BigInteger, PTCRISyncResult<E>> result,
+			List<UpdateRecord<E, S>> toUpdateFundedBy) {
+		for (int c = 0; c != toUpdateFundedBy.size(); c++) {
+
+			// the remote work is missing external identifiers or not updated in the 1st phase
+			UpdateRecord<E,S> update = toUpdateFundedBy.get(c);
 			if (!update.eidsDiff.less.isEmpty() || update.eidsDiff.more.isEmpty()) {
 				E local = update.preElement;
 				ExternalIds weids = new ExternalIds();
@@ -580,18 +635,29 @@ public final class PTCRISync {
 			}
 			handler.step();
 		}
-		
-		// add the local works that had no match
-		// the progress handler must be moved to the helper due to bulk additions
-		handler.setCurrentStatus("ORCID_SYNC_EXPORT_ADDING",locals.size());
-		List<PTCRISyncResult<E>> res = helper.add(locals,handler);
+	}
 
-		int pad = result.size();
-		for (int i = 0; i < res.size(); i++)
-			result.put(ORCIDHelper.getActivityLocalKey(locals.get(i), BigInteger.valueOf(pad+i)),res.get(i));
-		
-		handler.done();
-		return result;
+	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> void treatOuputWithChangesOnlyOnFundedBy_1Phase(
+			ORCIDHelper<E, S, G, T> helper, ProgressHandler handler, Map<BigInteger, PTCRISyncResult<E>> result,
+			List<UpdateRecord<E, S>> toUpdateFundedBy) {
+		for (int c = 0; c != toUpdateFundedBy.size(); c++) {
+
+			UpdateRecord<E,S> update = toUpdateFundedBy.get(c);
+			// the remote work has spurious external identifiers
+			if (!update.eidsDiff.more.isEmpty()) {
+				E local = update.preElement;
+				ExternalIds weids = new ExternalIds();
+				List<ExternalId> ids = new ArrayList<ExternalId>(update.eidsDiff.same);
+				ids.addAll(helper.getPartOfExternalIdsE(local).getExternalId());
+				weids.setExternalId(ids);
+				helper.setExternalIdsE(local,weids);
+
+				PTCRISyncResult<E> res = helper.update(update.posElement.getPutCode(), local);
+				result.put(ORCIDHelper.getActivityLocalKey(local, BigInteger.valueOf(c)),res);
+			}
+			handler.step();
+			
+		}
 	}
 
 	/**
@@ -896,8 +962,7 @@ public final class PTCRISync {
 	 * @param handler
 	 *            the progress handler responsible for receiving progress
 	 *            updates
-	 * @return the number of new valid works found in the ORCID
-	 *         profile
+	 * @return the number of new valid works found in the ORCID profile
 	 * @throws OrcidClientException
 	 *             if the communication with ORCID fails when getting the
 	 *             activities summary
@@ -1266,9 +1331,14 @@ public final class PTCRISync {
 	 * @throws IllegalArgumentException
 	 *             if null arguments
 	 */
+	public static List<Work> importWorkUpdates(ORCIDClient client, List<Work> locals, ProgressHandler handler, List<Work> orcids)
+			throws OrcidClientException, IllegalArgumentException {
+		return importUpdatesBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler, orcids);
+	}
+	
 	public static List<Work> importWorkUpdates(ORCIDClient client, List<Work> locals, ProgressHandler handler)
 			throws OrcidClientException, IllegalArgumentException {
-		return importUpdatesBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler);
+		return importUpdatesBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler, new ArrayList<>());
 	}
 
 	/**
@@ -1293,7 +1363,7 @@ public final class PTCRISync {
 	@Deprecated
 	public static List<Work> importUpdates(ORCIDClient client, List<Work> locals, ProgressHandler handler)
 			throws OrcidClientException, IllegalArgumentException {
-		return importWorkUpdates(client, locals, handler);
+		return importWorkUpdates(client, locals, handler, new ArrayList<>());
 	}
 
 	/**
@@ -1361,7 +1431,7 @@ public final class PTCRISync {
 	 */
 	public static List<Funding> importFundingUpdates(ORCIDClient client, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
 			throws OrcidClientException, IllegalArgumentException {
-		return importUpdatesBase(new ORCIDFundingHelper(client), locals, types, handler);
+		return importUpdatesBase(new ORCIDFundingHelper(client), locals, types, handler, new ArrayList<>());
 	}
 
 	/**
@@ -1430,7 +1500,7 @@ public final class PTCRISync {
 	 */
 	private static <E extends ElementSummary, S extends ElementSummary, G, T extends Enum<T>> List<E> importUpdatesBase(
 			ORCIDHelper<E, S, G, T> helper, List<E> locals,
-			Collection<T> types, ProgressHandler handler)
+			Collection<T> types, ProgressHandler handler, List<E> toUpdateFundedBy )
 			throws OrcidClientException, IllegalArgumentException {
 
 		if (helper == null || locals == null || handler == null)
@@ -1456,8 +1526,14 @@ public final class PTCRISync {
 					if (!helper.hasNewSelfIDs(mathingLocal, orcid)) {
 						toUpdate.add(helper.createUpdate(mathingLocal, matchingLocals.get(mathingLocal)));
 					}
+					
+					ExternalIdsDiff fundedByIDs = helper.getFundedByExternalIdsDiff(mathingLocal, orcid);
+					if (!fundedByIDs.more.isEmpty()) {
+						toUpdateFundedBy.add(helper.createUpdate(mathingLocal, fundedByIDs));
+					}
 				}
 			}
+			
 			handler.step();
 		}
 

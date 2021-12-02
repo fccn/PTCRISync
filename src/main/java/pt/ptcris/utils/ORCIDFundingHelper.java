@@ -20,9 +20,9 @@ import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
 import org.um.dsi.gavea.orcid.model.activities.FundingGroup;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
+import org.um.dsi.gavea.orcid.model.common.FundingType;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
 import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
-import org.um.dsi.gavea.orcid.model.funding.FundingType;
 
 import pt.ptcris.ORCIDClient;
 import pt.ptcris.PTCRISyncResult;
@@ -198,7 +198,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 		if (summary.getStartDate() == null
 				|| summary.getStartDate().getYear() == null)
 			return null;
-		return summary.getStartDate().getYear().getValue();
+		return String.valueOf(summary.getStartDate().getYear().getValue());
 	}
 
 	/** {@inheritDoc} */
@@ -267,7 +267,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	 * the summaries.
 	 */
 	@Override
-	protected Set<String> testMinimalQuality(FundingSummary funding, Collection<Funding> others) {
+	public Set<String> testMinimalQuality(FundingSummary funding, Collection<Funding> others) {
 		assert funding != null;
 		if (others == null) others = new ArrayList<Funding>();
 		
@@ -366,7 +366,7 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 
 	/** {@inheritDoc} */
 	@Override
-	protected FundingSummary summarize(Funding funding) {
+	public FundingSummary summarize(Funding funding) {
 		assert funding != null;
 		
 		final FundingSummary dummy = new FundingSummary();
