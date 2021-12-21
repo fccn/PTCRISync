@@ -49,7 +49,7 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 				PMID("pmid"), RFC("rfc"), SOURCE_WORK_ID("source-work-id"), 
 				SSRN("ssrn"), URI("uri"), URN("urn"), WOSUID("wosuid"), ZBL("zbl"),
 				CIENCIAIUL("cienciaiul"), LENSID("lensid"), PDB("pdb"), KUID("kuid"),
-				ASIN_TLD("asin-tld"), AUTHENTICUSID("authenticusid"), RRID("rrid"), HAL("hal");
+				ASIN_TLD("asin-tld"), AUTHENTICUSID("authenticusid"), RRID("rrid"), HAL("hal"), ISMN("ismn");
 
 		public final String value;
 
