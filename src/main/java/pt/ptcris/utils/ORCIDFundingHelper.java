@@ -285,8 +285,14 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 		if (funding.getOrganization() == null 
 				|| funding.getOrganization().getAddress() == null
 				|| funding.getOrganization().getAddress().getCity() == null 
-				|| funding.getOrganization().getAddress().getCountry() == null)
+				|| funding.getOrganization().getAddress().getCountry() == null
+)
 			res.add(INVALID_ORGANIZATION);
+		if (funding.getOrganization() != null &&
+				(funding.getOrganization().getDisambiguatedOrganization() == null
+				|| funding.getOrganization().getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier() == null
+				|| funding.getOrganization().getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier().isEmpty() ) )
+			res.add(INVALID_ORGANIZATION_ID);
 		if (funding.getStartDate() == null)
 			res.add(INVALID_PUBLICATIONDATE);
 		else {
