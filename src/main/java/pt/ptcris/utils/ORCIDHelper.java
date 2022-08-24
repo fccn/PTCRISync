@@ -92,7 +92,8 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	public static final String INVALID_PUBLICATIONDATE = "PublicationDate";
 	public static final String INVALID_YEAR = "Year";
 	public static final String INVALID_TYPE = "Type";
-	public static final String INVALID_ORGANIZATION = "Organization";
+	public static final String INVALID_ORGANIZATION = "Organization"; 
+	public static final String INVALID_ORGANIZATION_ID = "OrganizationId"; 
 	public static final String OVERLAPPING_EIDs = "OverlappingEIDs";
 
 	final int bulk_size_add;
