@@ -97,6 +97,14 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	protected PTCRISyncResult<Funding> addClient(Funding funding) {
 		assert client != null;
 		assert funding != null;
+		
+		if ( funding.getOrganization() != null && (
+				funding.getOrganization().getDisambiguatedOrganization() == null
+				|| funding.getOrganization().getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier() == null
+				|| funding.getOrganization().getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier().isEmpty()) ){
+				return PTCRISyncResult.ok_upd();
+		}
+		
 		_log.debug("[addFunding] "+funding.getTitle());
 		return client.addFunding(funding);
 	}
@@ -113,6 +121,14 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 		assert client != null;
 		assert remotePutcode != null;
 		assert funding != null;
+		
+		if ( funding.getOrganization() != null && (
+				funding.getOrganization().getDisambiguatedOrganization() == null
+				|| funding.getOrganization().getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier() == null
+				|| funding.getOrganization().getDisambiguatedOrganization().getDisambiguatedOrganizationIdentifier().isEmpty()) ){
+				return PTCRISyncResult.ok_upd();
+		}
+			
 		_log.debug("[updateFunding] "+remotePutcode);
 		return client.updateFunding(remotePutcode, funding);
 	}
