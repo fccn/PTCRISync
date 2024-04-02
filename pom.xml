@@ -34,6 +34,12 @@
 			<version>${junit.version}</version>
 			<!--scope>test</scope -->
 		</dependency>
+		<!--  StringUtils -->
+		<dependency>
+    		<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-text</artifactId>
+    		<version>1.9</version> <!-- or the latest version available -->
+		</dependency>
 	</dependencies>
 
 	<!-- Build Settings -->

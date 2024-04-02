@@ -51,7 +51,7 @@ public final class ExternalIdsDiff {
 	public ExternalIdsDiff(ExternalIds weids1, ExternalIds weids2) {
 		List<ExternalId> eids1 = new LinkedList<ExternalId>();
 		List<ExternalId> eids2 = new LinkedList<ExternalId>();
-
+		
 		if (weids1 != null)
 			for (ExternalId eid : weids1.getExternalId())
 				eids1.add(eid);
@@ -84,14 +84,15 @@ public final class ExternalIdsDiff {
 	private void calculateDifference(List<ExternalId> eids1, List<ExternalId> eids2) {
 		less.addAll(eids1);
 		more.addAll(eids2);
+		
 		for (final ExternalId eid2 : eids2) {
 			for (final ExternalId eid1 : eids1) {
 				if (eid2.getExternalIdRelationship().equals(eid1.getExternalIdRelationship())
-						&& eid1.getExternalIdValue().equals(eid2.getExternalIdValue())
-						&& eid1.getExternalIdType().equals(eid2.getExternalIdType())) {
-					same.add(eid2);
-					less.remove(eid1);
-					more.remove(eid2);
+						&& eid1.getExternalIdType().equals(eid2.getExternalIdType())
+						&& ExternalIdsNormalizer.normaliseId(eid1.getExternalIdType(), eid1.getExternalIdValue()).equals(ExternalIdsNormalizer.normaliseId(eid2.getExternalIdType(), eid2.getExternalIdValue()))){
+							same.add(eid2);
+							less.remove(eid1);
+							more.remove(eid2);
 				}
 			}
 		}
