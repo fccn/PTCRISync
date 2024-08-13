@@ -16,7 +16,7 @@ public final class ExternalIdsNormalizer {
 	  
 	  private static final Pattern patternISBN = Pattern.compile("([0-9][-0-9 ]{8,15}[0-9xX])(?:$|[^0-9])");
 	  
-	  private static final Pattern patternDOI = Pattern.compile("(10(\\.[0-9a-zA-Z]+)+\\/(?:(?![\"&\\'])\\S)+)");
+	  public static final Pattern patternDOI = Pattern.compile("(10(\\.[0-9a-zA-Z]+)+\\/(?:(?![\"&\\'])\\S)+)");
 	  
 	  private static final Pattern patternARXIV = Pattern.compile("(?:(?i)arXiv:)?(\\d{4}\\.\\d{4,5}(v\\d)?|[\\w-\\.]+\\/\\d{7}(v\\d)?)\\b");
 	  
