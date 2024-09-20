@@ -40,6 +40,12 @@
     		<artifactId>commons-text</artifactId>
     		<version>1.9</version> <!-- or the latest version available -->
 		</dependency>
+		<!--  degois commons -->
+		<dependency>
+    		<groupId>pt.ptcris</groupId>
+    		<artifactId>degois-common-utils</artifactId>
+    		<version>1.0</version>
+		</dependency>
 	</dependencies>
 
 	<!-- Build Settings -->
