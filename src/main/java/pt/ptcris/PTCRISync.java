@@ -21,12 +21,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.um.dsi.gavea.orcid.client.exception.OrcidClientException;
+import org.um.dsi.gavea.orcid.model.activities.FundingGroup;
+import org.um.dsi.gavea.orcid.model.activities.WorkGroup;
 import org.um.dsi.gavea.orcid.model.common.ElementSummary;
 import org.um.dsi.gavea.orcid.model.common.ExternalId;
 import org.um.dsi.gavea.orcid.model.common.ExternalIds;
 import org.um.dsi.gavea.orcid.model.common.FundingType;
 import org.um.dsi.gavea.orcid.model.common.WorkType;
 import org.um.dsi.gavea.orcid.model.funding.Funding;
+import org.um.dsi.gavea.orcid.model.funding.FundingSummary;
 import org.um.dsi.gavea.orcid.model.person.externalidentifier.ExternalIdentifier;
 import org.um.dsi.gavea.orcid.model.work.Work;
 import org.um.dsi.gavea.orcid.model.work.WorkSummary;
@@ -164,6 +167,11 @@ public final class PTCRISync {
 			throws OrcidClientException, IllegalArgumentException {
 		return exportBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), false, handler);
 	}
+	
+	public static Map<BigInteger, PTCRISyncResult<Work>> exportWorks(ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> helper, List<Work> locals, ProgressHandler handler)
+			throws OrcidClientException, IllegalArgumentException {
+		return exportBase(helper, locals, Arrays.asList(WorkType.values()), false, handler);
+	}	
 
 	/**
 	 * @deprecated Replaced by {@link #exportWorks(ORCIDClient, List, ProgressHandler)}
@@ -377,6 +385,11 @@ public final class PTCRISync {
 	public static Map<BigInteger, PTCRISyncResult<Funding>> exportFundings(ORCIDClient client, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
 			throws OrcidClientException, IllegalArgumentException {
 		return exportBase(new ORCIDFundingHelper(client), locals, types, false, handler);
+	}
+	
+	public static Map<BigInteger, PTCRISyncResult<Funding>> exportFundings(ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> helper, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, IllegalArgumentException {
+		return exportBase(helper, locals, types, false, handler);
 	}
 
 	/**
@@ -723,6 +736,11 @@ public final class PTCRISync {
 			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler);
 	}
+	
+	public static List<Work> importWorks(ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> helper, List<Work> locals, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
+		return importBase(helper, locals, Arrays.asList(WorkType.values()), handler);
+	}
 
 	/**
 	 * <p>
@@ -949,6 +967,11 @@ public final class PTCRISync {
 			throws OrcidClientException, IllegalArgumentException {
 		return importCounterBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler);
 	}
+	
+	public static Integer importWorkCounter(ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> helper, List<Work> locals, ProgressHandler handler)
+			throws OrcidClientException, IllegalArgumentException {
+		return importCounterBase(helper, locals, Arrays.asList(WorkType.values()), handler);
+	}
 
 	/**
 	 * @deprecated Replaced by
@@ -1111,6 +1134,13 @@ public final class PTCRISync {
 			List<Work> locals, ProgressHandler handler)
 			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importInvalidBase(new ORCIDWorkHelper(client), locals,
+				Arrays.asList(WorkType.values()), handler);
+	}
+	
+	public static Map<Work, Set<String>> importInvalidWorks(ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> helper,
+			List<Work> locals, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
+		return importInvalidBase(helper, locals,
 				Arrays.asList(WorkType.values()), handler);
 	}
 
@@ -1336,6 +1366,11 @@ public final class PTCRISync {
 		return importUpdatesBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler, orcids);
 	}
 	
+	public static List<Work> importWorkUpdates(ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> helper, List<Work> locals, ProgressHandler handler, List<Work> orcids)
+			throws OrcidClientException, IllegalArgumentException {
+		return importUpdatesBase(helper, locals, Arrays.asList(WorkType.values()), handler, orcids);
+	}
+	
 	public static List<Work> importWorkUpdates(ORCIDClient client, List<Work> locals, ProgressHandler handler)
 			throws OrcidClientException, IllegalArgumentException {
 		return importUpdatesBase(new ORCIDWorkHelper(client), locals, Arrays.asList(WorkType.values()), handler, new ArrayList<>());
@@ -1432,6 +1467,11 @@ public final class PTCRISync {
 	public static List<Funding> importFundingUpdates(ORCIDClient client, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
 			throws OrcidClientException, IllegalArgumentException {
 		return importUpdatesBase(new ORCIDFundingHelper(client), locals, types, handler, new ArrayList<>());
+	}
+	
+	public static List<Funding> importFundingUpdates(ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> helper, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, IllegalArgumentException {
+		return importUpdatesBase(helper, locals, types, handler, new ArrayList<>());
 	}
 
 	/**

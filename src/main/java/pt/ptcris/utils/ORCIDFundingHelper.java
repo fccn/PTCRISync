@@ -38,14 +38,21 @@ import pt.ptcris.handlers.ProgressHandler;
  */
 public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> {
 	
+	protected List<FundingGroup> fundingGroupCache;
+	
+	public ORCIDFundingHelper(ORCIDClient orcidClient) {
+		super(orcidClient,0,0, false);
+		this.fundingGroupCache = new ArrayList<>();
+	}
 	/**
 	 * Initializes the helper with a given ORCID client.
 	 *
 	 * @param orcidClient
 	 *            the ORCID client
 	 */
-	public ORCIDFundingHelper(ORCIDClient orcidClient) {
-		super(orcidClient,0,0);
+	public ORCIDFundingHelper(ORCIDClient orcidClient, boolean useCache) {
+		super(orcidClient,0,0, useCache);
+		this.fundingGroupCache = new ArrayList<>();
 	}
 	
 	/*
@@ -56,8 +63,13 @@ public final class ORCIDFundingHelper extends ORCIDHelper<Funding, FundingSummar
 	@Override
 	protected List<FundingGroup> getSummariesClient() throws OrcidClientException {
 		assert client != null;
-		_log.debug("[getFundingSummaries]"+client.getUserId());
-		return client.getFundingsSummary().getGroup();
+		if (useCache && !fundingGroupCache.isEmpty()) {
+			_log.debug("cache used on [getFundingSummaries] "+client.getUserId());
+			return fundingGroupCache;
+		}
+		_log.debug("[getFundingSummaries] "+client.getUserId());
+		fundingGroupCache = client.getFundingsSummary().getGroup();
+		return fundingGroupCache;
 	}
 
 	/** {@inheritDoc} */

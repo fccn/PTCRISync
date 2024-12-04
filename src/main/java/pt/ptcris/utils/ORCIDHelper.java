@@ -108,6 +108,18 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	public final ORCIDClient client;
 
 	ExecutorService executor;
+	
+	protected boolean useCache;
+	
+	public ORCIDHelper(ORCIDClient orcidClient, int bulk_size_add,
+			int bulk_size_get) {
+		this.client = orcidClient;
+		this.useCache = false;
+		this.bulk_size_add = bulk_size_add;
+		this.bulk_size_get = bulk_size_get;
+		if (client != null && client.threads() > 1)
+			executor = Executors.newFixedThreadPool(client.threads());
+	}
 
 	/**
 	 * Initializes the helper with a given ORCID client, which defines whether
@@ -122,8 +134,9 @@ public abstract class ORCIDHelper<E extends ElementSummary, S extends ElementSum
 	 *            number of activities per bulk get request
 	 */
 	public ORCIDHelper(ORCIDClient orcidClient, int bulk_size_add,
-			int bulk_size_get) {
+			int bulk_size_get, boolean useCache) {
 		this.client = orcidClient;
+		this.useCache = useCache;
 		this.bulk_size_add = bulk_size_add;
 		this.bulk_size_get = bulk_size_get;
 		if (client != null && client.threads() > 1)

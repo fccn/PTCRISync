@@ -39,7 +39,7 @@ import pt.ptcris.handlers.ProgressHandler;
  * only active for GET requests due to resource limitations.
  */
 public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGroup, WorkType> {
-
+	
 	public enum EIdType {
 		OTHER_ID("other-id"), AGR("agr"), ARXIV("arxiv"), ARK("ark"), ASIN("asin"),
 				BIBCODE("bibcode"), CBA("cba"), CIT("cit"), CTX("ctx"), DNB("dnb"), DOI("doi"), 
@@ -58,15 +58,23 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 			this.value = value;
 		}
 	}
-
+	
+	private List<WorkGroup> worksGroupCache;
+	
+	public ORCIDWorkHelper(ORCIDClient orcidClient) {
+		super(orcidClient, 100, 50, false);
+		this.worksGroupCache = new ArrayList<>();
+	}
+	
 	/**
 	 * Initializes the helper with a given ORCID client.
 	 *
 	 * @param orcidClient
 	 *            the ORCID client
 	 */
-	public ORCIDWorkHelper(ORCIDClient orcidClient) {
-		super(orcidClient, 100, 50);
+	public ORCIDWorkHelper(ORCIDClient orcidClient, boolean useCache) {
+		super(orcidClient, 100, 50, useCache);
+		this.worksGroupCache = new ArrayList<>();
 	}
 
 	/*
@@ -77,8 +85,14 @@ public final class ORCIDWorkHelper extends ORCIDHelper<Work, WorkSummary, WorkGr
 	@Override
 	protected List<WorkGroup> getSummariesClient() throws OrcidClientException {
 		assert client != null;
+		if (useCache && !worksGroupCache.isEmpty()) {
+			_log.debug("cache used on [getWorkSummaries] "+client.getUserId());
+			return worksGroupCache;
+		}
 		_log.debug("[getWorkSummaries] "+client.getUserId());
-		return client.getWorksSummary().getGroup();
+		
+		worksGroupCache = client.getWorksSummary().getGroup();
+		return worksGroupCache;
 	}
 
 	/** {@inheritDoc} */
