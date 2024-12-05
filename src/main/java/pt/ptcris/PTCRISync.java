@@ -817,7 +817,12 @@ public final class PTCRISync {
 			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importBase(new ORCIDFundingHelper(client), locals, types, handler);
 	}
-
+	
+	public static List<Funding> importFundings(ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> fundingHelper, List<Funding> locals, Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
+		return importBase(fundingHelper, locals, types, handler);
+	}
+	
 	/**
 	 * <p>
 	 * Discovers new valid activities in an ORCID profile given a set of known
@@ -1214,6 +1219,14 @@ public final class PTCRISync {
 			Collection<FundingType> types, ProgressHandler handler)
 			throws OrcidClientException, InterruptedException, IllegalArgumentException {
 		return importInvalidBase(new ORCIDFundingHelper(client), locals, types,
+				handler);
+	}
+	
+	public static Map<Funding, Set<String>> importInvalidFundings(
+			ORCIDHelper<Funding, FundingSummary, FundingGroup, FundingType> fundingHelper, List<Funding> locals,
+			Collection<FundingType> types, ProgressHandler handler)
+			throws OrcidClientException, InterruptedException, IllegalArgumentException {
+		return importInvalidBase(fundingHelper, locals, types,
 				handler);
 	}
 
